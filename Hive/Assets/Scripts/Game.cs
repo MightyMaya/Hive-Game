@@ -9,7 +9,7 @@ public class NewBehaviourScript : MonoBehaviour
 
     //Positions and team for each hivepiece
     //positions array , size ?????
-    private GameObject[,] positions = new GameObject [11,27];
+    private GameObject[,] positions = new GameObject [28,11];
     private GameObject[] blackPlayer = new GameObject[9];
     private GameObject[] whitePlayer = new GameObject[9];
 
@@ -20,20 +20,36 @@ public class NewBehaviourScript : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+
         whitePlayer = new GameObject[]
         {
-            //adjust the 9 pieces initial position
-            //Create("")
+            Create("w_queenBee", 28, 1),
+            Create("w_ant", 28, 2),
+            Create("w_ant", 28, 3),
+            Create("w_beetle", 28, 4),
+            Create("w_beetle", 28, 5),
+            Create("w_spider", 28, 6),
+            Create("w_spider", 28, 7),
+            Create("w_grasshopper", 28, 8),
+            Create("w_grasshopper", 28, 9)
         };
-
+          
         blackPlayer = new GameObject[]
         {
-            //adjust the 9 pieces initial position
-            //Create("")
-        };
+            Create("b_queenBee", 0, 1),
+            Create("b_ant", 0, 2),
+            Create("b_ant", 0, 3),
+            Create("b_beetle", 0, 4),
+            Create("b_beetle", 0, 5),
+            Create("b_spider", 0, 6),
+            Create("b_spider", 0, 7),
+            Create("b_grasshopper", 0, 8),
+            Create("b_grasshopper", 0, 9)
+
+    };
 
         //Set all piece positions on the position board
-
+     
 
     }
 
