@@ -51,11 +51,11 @@ public class Hiveman : MonoBehaviour
     {
         float x = xBoard;
         float y = yBoard;
-        x *= 0.66f;         //try different values ...
-        y *= 0.66f;
+        x *= 0.75f;         //try different values ...
+        y *= 0.5f;
 
-        x += -2.3f;
-        y += -2.3f;
+        //x += -2.3f;
+        //y += -2.3f;
         this. transform.position = new Vector3(x, y, -1.0f);   //-z to be infront of the board not behind it
 
     }

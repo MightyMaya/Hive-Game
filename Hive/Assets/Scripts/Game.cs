@@ -9,7 +9,7 @@ public class NewBehaviourScript : MonoBehaviour
 
     //Positions and team for each hivepiece
     //positions array , size ?????
-    
+    private GameObject[,] positions = new GameObject [11,27];
     private GameObject[] blackPlayer = new GameObject[9];
     private GameObject[] whitePlayer = new GameObject[9];
 
@@ -37,6 +37,22 @@ public class NewBehaviourScript : MonoBehaviour
 
     }
 
+    public GameObject Create (string name, int x, int y)
+    {
+        GameObject obj = Instantiate(hivepiece, new Vector3(0,0,-1), Quaternion.identity);
+        Hiveman hm = obj.GetComponent<Hiveman>();
+        hm.name = name;
+        hm.SetXBoard(x);
+        hm.setYBoard(y);
+        hm.Activate();  //render the sprite
+        return obj;
+    }
+
+    public void SetPosition(GameObject obj)
+    {
+        Hiveman hm = (obj.GetComponent<Hiveman>());
+        positions[hm.GetXBoard(), hm.GetYBoard()] = obj;
+    }
 
 
     // Update is called once per frame
