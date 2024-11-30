@@ -1,0 +1,58 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &3990872228039939634
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1665679316079920611}
+  - component: {fileID: 2551376666217521754}
+  m_Layer: 0
+  m_Name: hivepiece
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1665679316079920611
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3990872228039939634}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: -2}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2551376666217521754
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3990872228039939634}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ddeb658cb160d87408f162d01cf43038, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  controller: {fileID: 0}
+  movePlate: {fileID: 0}
+  b_queenBee: {fileID: 21300000, guid: c699bca69457d8544beb832e00a38ef0, type: 3}
+  b_ant: {fileID: 21300000, guid: c4c0e1d5f56a206429e5413546f05873, type: 3}
+  b_beetle: {fileID: 21300000, guid: 0e9432fb88083424b92883beea52caa0, type: 3}
+  b_grasshopper: {fileID: 21300000, guid: adce39e0bbdc2724aab37297b6ece6f8, type: 3}
+  b_spider: {fileID: 21300000, guid: 6f8b1b98e25e8cb4eba0eaabb4a896a7, type: 3}
+  w_queenBee: {fileID: 21300000, guid: b0deb905df1432745be3a0ac7a852bf3, type: 3}
+  w_ant: {fileID: 21300000, guid: a6dcc350b4bd27f4f9c575bf3bf361b0, type: 3}
+  w_beetle: {fileID: 21300000, guid: dc50ea87c29955e40be3edea9ba91739, type: 3}
+  w_grasshopper: {fileID: 21300000, guid: c2a2e8b058c2a1647be0ddcb90abdbb1, type: 3}
+  w_spider: {fileID: 21300000, guid: f325a38afe259774698c0634904ebca7, type: 3}
