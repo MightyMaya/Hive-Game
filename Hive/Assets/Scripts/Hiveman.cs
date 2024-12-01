@@ -44,7 +44,7 @@ public class Hiveman : MonoBehaviour
     public int GetXBoard() {  return this.xBoard; }
     public int GetYBoard() { return this.yBoard; }
     public void SetXBoard(int xBoard) { this.xBoard = xBoard; }
-    public void setYBoard(int yBoard) { this.yBoard = yBoard; }
+    public void SetYBoard(int yBoard) { this.yBoard = yBoard; }
 
     //to be edited...
     public void SetCoords()

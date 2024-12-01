@@ -1,8 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
-public class NewBehaviourScript : MonoBehaviour
+public class Game : MonoBehaviour
 {
     public GameObject hivepiece;
 
@@ -49,7 +50,10 @@ public class NewBehaviourScript : MonoBehaviour
     };
 
         //Set all piece positions on the position board
-     
+        for (int i = 0; i < whitePlayer.Length; i++) {
+            SetPosition(blackPlayer[i]);
+            SetPosition(whitePlayer[i]);
+        }
 
     }
 
@@ -59,7 +63,7 @@ public class NewBehaviourScript : MonoBehaviour
         Hiveman hm = obj.GetComponent<Hiveman>();
         hm.name = name;
         hm.SetXBoard(x);
-        hm.setYBoard(y);
+        hm.SetYBoard(y);
         hm.Activate();  //render the sprite
         return obj;
     }
@@ -70,6 +74,24 @@ public class NewBehaviourScript : MonoBehaviour
         positions[hm.GetXBoard(), hm.GetYBoard()] = obj;
     }
 
+    //set empty position to null after we move a piece
+    public void SetPositionEmpty(int x, int y)
+    {
+        positions[x, y] = null;
+    }
+
+    //get object at certain position
+    public GameObject GetPosition(int x, int y)
+    {
+        return positions[x, y];
+    }
+
+    //check if a position is on the board
+    public bool IsOnBoard(int x, int y)
+    {
+        if ( x<1 || y<0 || x>= 28 || y>=11 ) return false;
+        return true;
+    }
 
     // Update is called once per frame
     void Update()
