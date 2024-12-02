@@ -6,15 +6,15 @@ MonoImporter:
   defaultReferences:
   - controller: {instanceID: 0}
   - movePlate: {instanceID: 0}
-  - b_queenBee: {instanceID: 0}
-  - b_ant: {instanceID: 0}
-  - b_beetle: {instanceID: 0}
-  - b_grasshopper: {instanceID: 0}
+  - b_queenBee: {fileID: 21300000, guid: c699bca69457d8544beb832e00a38ef0, type: 3}
+  - b_ant: {fileID: 21300000, guid: c4c0e1d5f56a206429e5413546f05873, type: 3}
+  - b_beetle: {fileID: 21300000, guid: 0e9432fb88083424b92883beea52caa0, type: 3}
+  - b_grasshopper: {fileID: 21300000, guid: adce39e0bbdc2724aab37297b6ece6f8, type: 3}
   - b_spider: {fileID: 21300000, guid: 6f8b1b98e25e8cb4eba0eaabb4a896a7, type: 3}
-  - w_queenBee: {instanceID: 0}
-  - w_ant: {instanceID: 0}
-  - w_beetle: {instanceID: 0}
-  - w_grasshopper: {instanceID: 0}
+  - w_queenBee: {fileID: 21300000, guid: b0deb905df1432745be3a0ac7a852bf3, type: 3}
+  - w_ant: {fileID: 21300000, guid: a6dcc350b4bd27f4f9c575bf3bf361b0, type: 3}
+  - w_beetle: {fileID: 21300000, guid: dc50ea87c29955e40be3edea9ba91739, type: 3}
+  - w_grasshopper: {fileID: 21300000, guid: c2a2e8b058c2a1647be0ddcb90abdbb1, type: 3}
   - w_spider: {fileID: 21300000, guid: f325a38afe259774698c0634904ebca7, type: 3}
   executionOrder: 0
   icon: {instanceID: 0}

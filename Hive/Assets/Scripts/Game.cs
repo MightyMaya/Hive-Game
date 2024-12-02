@@ -17,7 +17,7 @@ public class Game : MonoBehaviour
     private string currentPlayer = "white";
 
     private bool gameOver = false;
-
+    private bool isFirstMove = true;
     // Start is called before the first frame update
     void Start()
     {
@@ -56,6 +56,29 @@ public class Game : MonoBehaviour
         }
 
     }
+    public bool IsFirstMove()
+    {
+        return isFirstMove;
+    }
+
+    public void EndFirstMove()
+    {
+        isFirstMove = false;
+    }
+
+    public bool IsOnBoard(int x, int y)
+    {
+        if (isFirstMove)
+        {
+            // Allow placement only in the center during the first move
+            return x == 14 && y == 6;
+        }
+
+        // Default check for other moves
+        return x >= 0 && y >= 0 && x < 29 && y < 12;
+    }
+
+
 
     public GameObject Create (string name, int x, int y)
     {
@@ -86,12 +109,7 @@ public class Game : MonoBehaviour
         return positions[x, y];
     }
 
-    //check if a position is on the board
-    public bool IsOnBoard(int x, int y)
-    {
-        if ( x<1 || y<0 || x>= 28 || y>=11 ) return false;
-        return true;
-    }
+  
 
     // Update is called once per frame
     void Update()

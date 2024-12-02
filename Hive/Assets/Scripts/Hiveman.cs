@@ -71,10 +71,25 @@ public class Hiveman : MonoBehaviour
     }
     private void OnMouseUp()
     {
+        Game sc = controller.GetComponent<Game>();
+
         DestroyMovePlates();
 
-        InitiateMovePlates();
+        if (sc.IsFirstMove())
+        {
+            // Place the selected piece in the center
+            sc.SetPosition(this.gameObject);
+            this.SetXBoard(14);
+            this.SetYBoard(6);
+            this.SetCoords();
+            sc.EndFirstMove();
+        }
+        else
+        {
+            InitiateMovePlates();
+        }
     }
+
 
     public void DestroyMovePlates() {
         GameObject[] movePlates = GameObject.FindGameObjectsWithTag("movePlate");
@@ -85,31 +100,42 @@ public class Hiveman : MonoBehaviour
     //placeholder code
     public void InitiateMovePlates()
     {
+        Game sc = controller.GetComponent<Game>();
 
-        switch (this.name)
+        if (sc.IsFirstMove())
         {
-            //can't move on the top of the hive
-            case "b_queenBee":
-            case "w_queenBee":
-                LineMovePlate(1, 0);
-                //LineMovePlate(-1, 0);
-               // LineMovePlate(1, -1);
-               // LineMovePlate(-1, -1);
-                break;
-            //can move on the top of the hive
-            case "b_beetle":
-            case "w_beetle":
-                LineMovePlate(1, 0);
-               // LineMovePlate(-1, 0);
-               // LineMovePlate(1, -1);
-               // LineMovePlate(-1, -1);
-                break;
+            // Only allow placement in the center for the first move
+            if (sc.GetPosition(14, 6) == null)
+            {
+                MovePlateSpawn(14, 6, false);
+            }
+        }
+        else
+        {
+            switch (this.name)
+            {
+                //can't move on the top of the hive
+                case "b_queenBee":
+                case "w_queenBee":
+                    LineMovePlate(1, 0);
+                    //LineMovePlate(-1, 0);
+                    // LineMovePlate(1, -1);
+                    // LineMovePlate(-1, -1);
+                    break;
+                //can move on the top of the hive
+                case "b_beetle":
+                case "w_beetle":
+                    LineMovePlate(1, 0);
+                    // LineMovePlate(-1, 0);
+                    // LineMovePlate(1, -1);
+                    // LineMovePlate(-1, -1);
+                    break;
 
 
 
+            }
         }
     }
-
     //example for a move for a certain hivepiece (placeholder)
     public void LineMovePlate(int xIncrement, int yIncrement)
     {
@@ -216,9 +242,7 @@ public class Hiveman : MonoBehaviour
 
     }
 
-
-
-
+    
 
 }
 
