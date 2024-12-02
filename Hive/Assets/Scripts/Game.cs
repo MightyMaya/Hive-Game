@@ -10,7 +10,7 @@ public class Game : MonoBehaviour
 
     //Positions and team for each hivepiece
     //positions array , size ?????
-    private GameObject[,] positions = new GameObject [28,11];
+    private GameObject[,] positions = new GameObject [29,12];
     private GameObject[] blackPlayer = new GameObject[9];
     private GameObject[] whitePlayer = new GameObject[9];
 

@@ -77,7 +77,7 @@ public class Hiveman : MonoBehaviour
     }
 
     public void DestroyMovePlates() {
-        GameObject[] movePlates = GameObject.FindGameObjectsWithTag("MovePlate");
+        GameObject[] movePlates = GameObject.FindGameObjectsWithTag("movePlate");
         for (int i = 0; i < movePlates.Length; i++) {
             Destroy(movePlates[i]);
         }
@@ -92,17 +92,17 @@ public class Hiveman : MonoBehaviour
             case "b_queenBee":
             case "w_queenBee":
                 LineMovePlate(1, 0);
-                LineMovePlate(-1, 0);
-                LineMovePlate(1, -1);
-                LineMovePlate(-1, -1);
+                //LineMovePlate(-1, 0);
+               // LineMovePlate(1, -1);
+               // LineMovePlate(-1, -1);
                 break;
             //can move on the top of the hive
             case "b_beetle":
             case "w_beetle":
                 LineMovePlate(1, 0);
-                LineMovePlate(-1, 0);
-                LineMovePlate(1, -1);
-                LineMovePlate(-1, -1);
+               // LineMovePlate(-1, 0);
+               // LineMovePlate(1, -1);
+               // LineMovePlate(-1, -1);
                 break;
 
 
@@ -174,12 +174,20 @@ public class Hiveman : MonoBehaviour
         float x = matrixX;
         float y = matrixY;
 
-        x *= 0.66f;
-        y *= 0.66f;
+        x *= 0.75f;
+
+        if (matrixX % 2 == 0)
+        {
+            y *= 1f;
+        }
+        else
+        {
+            y *= 0.5f;
+        }
 
 
-        x += -2.3f;
-        y += -2.3f;
+        x += -9.0f;
+        y += -5.0f;
 
         GameObject mp = Instantiate(movePlate, new Vector3(x, y, -3.0f), Quaternion.identity);
 

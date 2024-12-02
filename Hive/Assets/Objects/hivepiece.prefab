@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 1665679316079920611}
   - component: {fileID: 2551376666217521754}
   - component: {fileID: -4298761497114087295}
-  - component: {fileID: 3260012513424089035}
+  - component: {fileID: 1941149110734646952}
   m_Layer: 0
   m_Name: hivepiece
   m_TagString: Untagged
@@ -47,7 +47,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   controller: {fileID: 0}
-  movePlate: {fileID: 7406198270226534054, guid: 2d875ad056c19a348971810cbfa23feb, type: 3}
+  movePlate: {fileID: 1014011187221268502, guid: 28cf5d7e294548e4dacba5020430ca83, type: 3}
   b_queenBee: {fileID: 21300000, guid: c699bca69457d8544beb832e00a38ef0, type: 3}
   b_ant: {fileID: 21300000, guid: c4c0e1d5f56a206429e5413546f05873, type: 3}
   b_beetle: {fileID: 21300000, guid: 0e9432fb88083424b92883beea52caa0, type: 3}
@@ -110,8 +110,8 @@ SpriteRenderer:
   m_WasSpriteAssigned: 0
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!61 &3260012513424089035
-BoxCollider2D:
+--- !u!60 &1941149110734646952
+PolygonCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -152,6 +152,11 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  serializedVersion: 2
-  m_Size: {x: 0.0001, y: 0.0001}
-  m_EdgeRadius: 0
+  m_Points:
+    m_Paths:
+    - - {x: 0, y: 1}
+      - {x: -0.95105654, y: 0.30901697}
+      - {x: -0.5877852, y: -0.80901706}
+      - {x: 0.58778536, y: -0.80901694}
+      - {x: 0.9510565, y: 0.30901712}
+  m_UseDelaunayMesh: 0
