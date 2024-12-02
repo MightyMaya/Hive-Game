@@ -50,7 +50,7 @@ public class MovePlate : MonoBehaviour
             controller.GetComponent<Game>().SetPosition(reference);
 
             //destroy the moveplates made
-            //reference.GetComponent<Hiveman>().DestroyMovePlates();
+            reference.GetComponent<Hiveman>().DestroyMovePlates();
 
         }
         else { 

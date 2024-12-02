@@ -4,6 +4,8 @@
 TagManager:
   serializedVersion: 2
   tags:
+  - MovePlate
+  - movePlate
   - Selectable
   layers:
   - Default
