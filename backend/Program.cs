@@ -69,6 +69,7 @@ public class HiveGame
         return pieceType switch
         {
             PieceType.QUEEN => GetQueenMoves(x, y),
+            PieceType.SPIDER => GetSpiderMoves(x, y),
             //PieceType.GRASSHOPPER => GetGrasshopperMoves(x, y),
            
            
@@ -97,6 +98,58 @@ public class HiveGame
     return validMoves;
     }
 }
+
+// Add Spider logic to GetPossibleMoves
+
+public List<(int, int)> GetSpiderMoves(int x, int y)
+{
+    var possibleMoves = new List<(int, int)>();
+    
+    // Check all possible directions (like the queen) but with the Spider rule
+    var directions = new(int, int)[]
+    {
+        (1, 0),   // Right
+        (-1, 0),  // Left
+        (1, 1),   // Top right
+        (1, -1),  // Bottom right
+        (-1, 1),  // Top left
+        (-1, -1)  // Bottom left
+    };
+
+    // Try to move in each direction, checking if a Spider can move exactly 3 steps
+    foreach (var (dx, dy) in directions)
+    {
+        var tempX = x;
+        var tempY = y;
+        int count = 0;
+        bool validMove = true;
+
+        // Try moving 3 spaces in one direction
+        while (count < 3)
+        {
+            tempX += dx;
+            tempY += dy;
+
+            // If we encounter an occupied position (own piece or any other piece), break out
+            if (hiveState.ContainsKey((tempX, tempY)) || !adjacentPiece(tempX, tempY, 0)) 
+            {
+                validMove = false;
+                break;
+            }
+
+            count++;
+        }
+
+        // If valid and moved 3 steps, add the position
+        if (validMove && count == 3)
+        {
+            possibleMoves.Add((tempX, tempY));
+        }
+    }
+
+    return possibleMoves;
+}
+
  class Program
     {
         static void Main(string[] args)
