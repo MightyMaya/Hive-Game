@@ -3,7 +3,19 @@ guid: ddeb658cb160d87408f162d01cf43038
 MonoImporter:
   externalObjects: {}
   serializedVersion: 2
-  defaultReferences: []
+  defaultReferences:
+  - controller: {instanceID: 0}
+  - movePlate: {instanceID: 0}
+  - b_queenBee: {instanceID: 0}
+  - b_ant: {instanceID: 0}
+  - b_beetle: {instanceID: 0}
+  - b_grasshopper: {instanceID: 0}
+  - b_spider: {fileID: 21300000, guid: 6f8b1b98e25e8cb4eba0eaabb4a896a7, type: 3}
+  - w_queenBee: {instanceID: 0}
+  - w_ant: {instanceID: 0}
+  - w_beetle: {instanceID: 0}
+  - w_grasshopper: {instanceID: 0}
+  - w_spider: {fileID: 21300000, guid: f325a38afe259774698c0634904ebca7, type: 3}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 

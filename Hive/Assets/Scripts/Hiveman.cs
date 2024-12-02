@@ -168,6 +168,20 @@ public class Hiveman : MonoBehaviour
 
     }
 
+    public List<Vector2Int> GetAdjacentHexes(Vector2Int position)
+    {
+        return new List<Vector2Int>
+    {
+        new Vector2Int(position.x + 1, position.y),     // Hex to the right
+        new Vector2Int(position.x - 1, position.y),     // Hex to the left
+        new Vector2Int(position.x, position.y + 1),     // Hex above
+        new Vector2Int(position.x, position.y - 1),     // Hex below
+        new Vector2Int(position.x + 1, position.y - 1), // Top-right diagonal hex
+        new Vector2Int(position.x - 1, position.y + 1)  // Bottom-left diagonal hex
+    };
+    }
+
+
     public void MovePlateSpawn(int matrixX, int matrixY, bool isOverlap)
     {
 
