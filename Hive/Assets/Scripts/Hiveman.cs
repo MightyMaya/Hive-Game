@@ -135,7 +135,7 @@ public class Hiveman : MonoBehaviour
                 case "b_grasshopper":
                 case "w_grasshopper":
                     LineMovePlate(1, 0);
-                    break;
+                break;
 
                 case "b_spider":
                 case "w_spider":
@@ -145,7 +145,7 @@ public class Hiveman : MonoBehaviour
             }
         //}
     }
-    //used for grasshopper move function?
+    //used for grasshopper move
     public void LineMovePlate(int xIncrement, int yIncrement)
     {
         Game sc = controller.GetComponent<Game>();
@@ -209,8 +209,8 @@ public class Hiveman : MonoBehaviour
         new Vector2Int(position.x - 1, position.y),     // Hex to the left
         new Vector2Int(position.x, position.y + 1),     // Hex above
         new Vector2Int(position.x, position.y - 1),     // Hex below
-        new Vector2Int(position.x + 1, position.y - 1), // Top-right diagonal hex
-        new Vector2Int(position.x - 1, position.y + 1)  // Bottom-left diagonal hex
+        new Vector2Int(position.x + 1, position.y + 1), // Top-right diagonal hex
+        new Vector2Int(position.x - 1, position.y + 1)  // Top-left diagonal hex
     };
     }
 
@@ -299,9 +299,8 @@ public class Hiveman : MonoBehaviour
     {
         int x = xBoard;
         int y = yBoard;
-
-
     }
+
 
     //move function for the spider
     public void SpiderMovePlate()
