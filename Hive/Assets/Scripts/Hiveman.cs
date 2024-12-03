@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
+using UnityEngine.UIElements;
 
 public class Hiveman : MonoBehaviour
 {
@@ -60,7 +61,7 @@ public class Hiveman : MonoBehaviour
             y *= 1f;
         }
         else {
-            y *= 0.5f;
+            y = y - 0.5f;
         }
 
 
@@ -102,7 +103,7 @@ public class Hiveman : MonoBehaviour
     {
         Game sc = controller.GetComponent<Game>();
 
-        if (sc.IsFirstMove())
+        /*if (sc.IsFirstMove())
         {
             // Only allow placement in the center for the first move
             if (sc.GetPosition(14, 6) == null)
@@ -111,32 +112,40 @@ public class Hiveman : MonoBehaviour
             }
         }
         else
-        {
+        {*/
             switch (this.name)
             {
                 //can't move on the top of the hive
                 case "b_queenBee":
                 case "w_queenBee":
-                    LineMovePlate(1, 0);
-                    //LineMovePlate(-1, 0);
-                    // LineMovePlate(1, -1);
-                    // LineMovePlate(-1, -1);
+                    QueenMovePlate();
                     break;
                 //can move on the top of the hive
                 case "b_beetle":
                 case "w_beetle":
                     LineMovePlate(1, 0);
-                    // LineMovePlate(-1, 0);
-                    // LineMovePlate(1, -1);
-                    // LineMovePlate(-1, -1);
+                    
                     break;
 
+                case "b_ant":
+                case "w_ant":
+                    LineMovePlate(1, 0);
+                    break;
 
+                case "b_grasshopper":
+                case "w_grasshopper":
+                    LineMovePlate(1, 0);
+                    break;
+
+                case "b_spider":
+                case "w_spider":
+                    LineMovePlate(1, 0);
+                    break;
 
             }
-        }
+        //}
     }
-    //example for a move for a certain hivepiece (placeholder)
+    //used for grasshopper move function?
     public void LineMovePlate(int xIncrement, int yIncrement)
     {
         Game sc = controller.GetComponent<Game>();
@@ -153,8 +162,6 @@ public class Hiveman : MonoBehaviour
         if (sc.IsOnBoard(x, y) && sc.GetPosition(x, y).GetComponent<Hiveman>().player != player)
         {
             MovePlateSpawn(x, y, true);
-
-
         }
 
 
@@ -218,11 +225,11 @@ public class Hiveman : MonoBehaviour
 
         if (matrixX % 2 == 0)
         {
-            y *= 1f;
+            y *= 1.0f;
         }
         else
         {
-            y *= 0.5f;
+            y -= 0.5f;
         }
 
 
@@ -242,7 +249,68 @@ public class Hiveman : MonoBehaviour
 
     }
 
-    
+
+    //move function for the queen
+    public void QueenMovePlate()
+    {
+        int x = xBoard;
+        int y = yBoard;
+
+        if (x % 2 == 0)
+        {
+            PointMovePlate(x + 1, y);    // Hex to the right
+            PointMovePlate(x - 1, y);    // Hex to the left
+            PointMovePlate(x, y + 1);     // Hex above
+            PointMovePlate(x, y - 1);     // Hex below
+            PointMovePlate(x + 1, y + 1); // Top-right diagonal hex
+            PointMovePlate(x - 1, y + 1);  // Top-left diagonal hex
+        }
+        else
+        {
+            PointMovePlate(x + 1, y);    // Hex to the right
+            PointMovePlate(x - 1, y);    // Hex to the left
+            PointMovePlate(x, y + 1);     // Hex above
+            PointMovePlate(x, y - 1);     // Hex below
+            PointMovePlate(x + 1, y - 1); // Bottom-right diagonal hex
+            PointMovePlate(x - 1, y - 1);  // Bottom-left diagonal hex
+        }
+    }
+
+    //move function for the ant
+    public void AntMovePlate()
+    {
+        int x = xBoard;
+        int y = yBoard;
+
+        
+    }
+
+    //move function for the beetle
+    public void BeetleMovePlate()
+    {
+        int x = xBoard;
+        int y = yBoard;
+
+
+    }
+
+    //move function for the grasshopper
+    public void GrassMovePlate()
+    {
+        int x = xBoard;
+        int y = yBoard;
+
+
+    }
+
+    //move function for the spider
+    public void SpiderMovePlate()
+    {
+        int x = xBoard;
+        int y = yBoard;
+
+
+    }
 
 }
 
