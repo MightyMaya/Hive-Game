@@ -12,7 +12,7 @@ public class AntMovement : MonoBehaviour
     public Vector2Int Position; // Current position of the ant on the hex grid
     private HiveBoard board; // Reference to the game board
 
-
+    //Finds all valid hexes the ant can move to while adhering to the sliding and One Hive rules.
     public List<Vector2Int> GetValidMoves()
     {
         List<Vector2Int> validMoves = new List<Vector2Int>();
@@ -44,6 +44,7 @@ public class AntMovement : MonoBehaviour
         return validMoves;
     }
 
+    //Moves the ant to a new position if the move is valid.
     public void Move(Vector2Int newPosition)
     {
         if (GetValidMoves().Contains(newPosition))
@@ -53,6 +54,7 @@ public class AntMovement : MonoBehaviour
         }
     }
 
+    //ensures the target hex is adjacent and satisfies the sliding rules (at least one occupied and one unoccupied adjacent hex).
     private bool CanSlideInto(Vector2Int from, Vector2Int to)
     {
         // Check if the movement from 'from' to 'to' allows sliding
@@ -68,6 +70,7 @@ public class AntMovement : MonoBehaviour
         return occupiedNeighbors >= 1 && !board.IsHexOccupied(from);
     }
 
+    //Checks if moving the ant would break the One Hive rule.
     private bool DoesNotBreakOneHiveRule(Vector2Int current, Vector2Int target)
     {
         // Temporarily "move" the ant to test the One Hive Rule
@@ -81,14 +84,16 @@ public class AntMovement : MonoBehaviour
 
 
 /***********************************************************************************************************************
-hive board in hiveman.cs will have the following functions 
 
+hive board in hiveman.cs will have the following functions 
 
 ************************************************************************************************************************/
 
-// Remove a piece from the board
 
-private Dictionary<Vector2Int, Hiveman> boardPositions = new Dictionary<Vector2Int, Hiveman>(); // Maps positions to pieces
+
+    private Dictionary<Vector2Int, Hiveman> boardPositions = new Dictionary<Vector2Int, Hiveman>(); // Maps positions to pieces
+    
+    // Remove a piece from the board    
     public void RemovePiece(Vector2Int position)
     {
         if (boardPositions.ContainsKey(position))
@@ -121,7 +126,7 @@ private Dictionary<Vector2Int, Hiveman> boardPositions = new Dictionary<Vector2I
         while (queue.Count > 0)
         {
             Vector2Int current = queue.Dequeue();
-            foreach (Vector2Int neighbor in GetNeighbors(current))
+            foreach (Vector2Int neighbor in GetAdjacentHexes(current))
             {
                 if (!visited.Contains(neighbor) && IsHexOccupied(neighbor))
                 {
