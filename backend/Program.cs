@@ -150,6 +150,36 @@ public List<(int, int)> GetSpiderMoves(int x, int y)
     return possibleMoves;
 }
 
+public List<(int,int)>  GetGrass_ShopperMoves(int x, int y){
+        //List of adjacent positions of the piece
+        var directions = new List<(int, int)> {
+        (1, 0),   // Right
+        (-1, 0),  // Left
+        (1, -1),  // Diagonal bottom right
+        (-1, 1),  // Diagonal top left
+        (1, 1),   // Diagonal bottom left
+        (-1, -1)  // Diagonal top right
+    };
+
+    //List to store valid moves 
+    var validMoves= new List<(int,int)>{};
+
+    foreach (var direction in directions){
+        int adj_x= x+ direction.Item1;
+        int adj_y= y+direction.Item2;
+        var adj_pos= (adj_x,adj_y);
+        if(hiveState.ContainsKey(adj_pos) && hiveState[adj_pos].Item2.Peek() != null){ //checks if there is an adjacent piece that the grass shopper can jump over
+            while(hiveState.ContainsKey(adj_pos) && hiveState[adj_pos].Item2.Peek() != null){ //keeps looping until we find an adjacent empty space after making sure there exists and adjacent piece
+                adj_pos=(adj_pos.adj_x+direction.Item1, adj_pos.adj_y+direction.Item2);//keep moving in same direction till you find empty space
+            }
+            validMoves.Add(adj_pos);//add first empty position to the list of valied moves
+
+        }         
+        }
+
+    return validMoves;
+    }
+}
  class Program
     {
         static void Main(string[] args)
