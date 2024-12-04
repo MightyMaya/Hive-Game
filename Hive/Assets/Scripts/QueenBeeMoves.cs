@@ -7,6 +7,8 @@ using static Hiveman;
 
 public class QueenBeeMoves : MonoBehaviour, IMoveLogic
 {
+    public GameObject controller;
+
     public List<Vector2Int> GetPossibleMoves(int x, int y, bool isFirstMove)
     {
         var possibleMoves = new List<Vector2Int>();

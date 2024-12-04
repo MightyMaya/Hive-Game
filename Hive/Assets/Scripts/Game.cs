@@ -1,6 +1,5 @@
 using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -8,21 +7,19 @@ public class Game : MonoBehaviour
 {
     public GameObject hivepiece;
 
+    // Dictionary to store stacks of hive pieces at each position
+    private Dictionary<(int x, int y), Stack<GameObject>> positions = new Dictionary<(int, int), Stack<GameObject>>();
 
-    //Positions and team for each hivepiece
-    //positions array , size ?????
-    private GameObject[,] positions = new GameObject [29,12];
     private GameObject[] blackPlayer = new GameObject[9];
     private GameObject[] whitePlayer = new GameObject[9];
 
     private string currentPlayer = "w";
 
     private bool gameOver = false;
-    
+
     // Start is called before the first frame update
     void Start()
     {
-
         whitePlayer = new GameObject[]
         {
             Create("w_queenBee", 28, 1),
@@ -35,7 +32,7 @@ public class Game : MonoBehaviour
             Create("w_grasshopper", 28, 8),
             Create("w_grasshopper", 28, 9)
         };
-          
+
         blackPlayer = new GameObject[]
         {
             Create("b_queenBee", 0, 1),
@@ -47,86 +44,90 @@ public class Game : MonoBehaviour
             Create("b_spider", 0, 7),
             Create("b_grasshopper", 0, 8),
             Create("b_grasshopper", 0, 9)
+        };
 
-    };
-
-        //Set all piece positions on the position board
-        for (int i = 0; i < whitePlayer.Length; i++) {
+        // Set all piece positions on the position board
+        for (int i = 0; i < whitePlayer.Length; i++)
+        {
             SetPosition(blackPlayer[i]);
             SetPosition(whitePlayer[i]);
         }
-
     }
 
     public bool IsOnBoard(int x, int y)
     {
-
-        // Default check for other moves
         return x >= 0 && y >= 0 && x < 29 && y < 12;
     }
 
-
-
-    public GameObject Create (string name, int x, int y)
+    public GameObject Create(string name, int x, int y)
     {
-        GameObject obj = Instantiate(hivepiece, new Vector3(0,0,-1), Quaternion.identity);
+        GameObject obj = Instantiate(hivepiece, new Vector3(0, 0, -1), Quaternion.identity);
         Hiveman hm = obj.GetComponent<Hiveman>();
         hm.name = name;
         hm.SetXBoard(x);
         hm.SetYBoard(y);
-        hm.Activate();  //render the sprite
+        hm.Activate(); // Render the sprite
         return obj;
     }
 
     public void SetPosition(GameObject obj)
     {
-        Hiveman hm = (obj.GetComponent<Hiveman>());
-        positions[hm.GetXBoard(), hm.GetYBoard()] = obj;
+        Hiveman hm = obj.GetComponent<Hiveman>();
+        var position = (hm.GetXBoard(), hm.GetYBoard());
+
+        if (!positions.ContainsKey(position))
+        {
+            positions[position] = new Stack<GameObject>();
+        }
+
+        positions[position].Push(obj);
     }
 
-    //set empty position to null after we move a piece
     public void SetPositionEmpty(int x, int y)
     {
-        positions[x, y] = null;
+        var position = (x, y);
+        if (positions.ContainsKey(position) && positions[position].Count > 0)
+        {
+            positions[position].Pop();
+
+            // If the stack is empty, remove the position
+            if (positions[position].Count == 0)
+            {
+                positions.Remove(position);
+            }
+        }
     }
 
-    //get object at certain position
     public GameObject GetPosition(int x, int y)
     {
-        return positions[x, y];
+        var position = (x, y);
+        if (positions.ContainsKey(position) && positions[position].Count > 0)
+        {
+            return positions[position].Peek(); // Return the top piece of the stack
+        }
+        return null;
     }
 
     public string GetCurrentPlayer()
     {
-        return currentPlayer; 
+        return currentPlayer;
     }
 
     public bool IsGameOver()
-    { 
+    {
         return gameOver;
     }
 
-    //function to switch player
     public void NextTurn()
     {
-        if (currentPlayer == "w")
-        {
-            currentPlayer = "b";
-        }
-        else
-        {
-            currentPlayer = "w";
-        }
+        currentPlayer = currentPlayer == "w" ? "b" : "w";
     }
 
-
-    //this function gets called every frame
     public void Update()
     {
-        if (gameOver == true && Input.GetMouseButtonDown(0)) { 
+        if (gameOver == true && Input.GetMouseButtonDown(0))
+        {
             gameOver = false;
-
-            //reload the scene
             SceneManager.LoadScene("Game");
         }
     }

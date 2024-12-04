@@ -10,7 +10,7 @@ public class Hiveman : MonoBehaviour
     //create an interface for move logic
     public interface IMoveLogic
     {
-        List<Vector2Int> GetPossibleMoves(int x, int y, bool IsFirstMove);
+        List<Vector2Int> GetPossibleMoves(int x, int y, bool isFirstMove);
     }
     public IMoveLogic moveLogic;
 
@@ -27,7 +27,6 @@ public class Hiveman : MonoBehaviour
 
     //is it the first move for the piece
     private bool isFirstMove = true;
-
     //will move break the hive
     public bool hiveBreak = false;
 
@@ -55,7 +54,7 @@ public class Hiveman : MonoBehaviour
             case "b_beetle":
                 this.GetComponent<SpriteRenderer>().sprite = b_beetle;
                 player = "b";
-                //moveLogic = gameObject.AddComponent<BeetleMoves>();
+                moveLogic = gameObject.AddComponent<BeetleMoves>();
                 break;
             case "b_grasshopper":
                 this.GetComponent<SpriteRenderer>().sprite = b_grasshopper;
@@ -81,7 +80,7 @@ public class Hiveman : MonoBehaviour
             case "w_beetle": 
                 this.GetComponent<SpriteRenderer>().sprite = w_beetle;
                 player = "w";
-                //moveLogic = gameObject.AddComponent<BeetleMoves>();
+                moveLogic = gameObject.AddComponent<BeetleMoves>();
                 break;
             case "w_grasshopper":
                 this.GetComponent<SpriteRenderer>().sprite = w_grasshopper;
@@ -140,14 +139,15 @@ public class Hiveman : MonoBehaviour
                     {
                         PointMovePlate(move.x, move.y);
                     }
-                    isFirstMove = false;
                 }
-                //InitiateMovePlates();
-     
         }
 
     }
 
+    public void SetFirstMove(bool firstMove)
+    {
+        isFirstMove=firstMove;
+    }
 
     public void DestroyMovePlates() {
         GameObject[] movePlates = GameObject.FindGameObjectsWithTag("movePlate");

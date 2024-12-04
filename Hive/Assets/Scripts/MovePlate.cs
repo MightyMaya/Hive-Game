@@ -49,6 +49,8 @@ public class MovePlate : MonoBehaviour
             //tell the game controller where the piece has moved
             gamesc.SetPosition(reference);
 
+            //piece is no longer in its first move
+            hivesc.SetFirstMove(false);
             //switch the player
             gamesc.NextTurn();
             //destroy the moveplates made
