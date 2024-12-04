@@ -17,28 +17,32 @@ public class Game : MonoBehaviour
     {
         whitePlayer = new GameObject[]
         {
-            Create("w_queenBee", 28, 1),
-            Create("w_ant", 28, 2),
-            Create("w_ant", 28, 3),
-            Create("w_beetle", 28, 4),
-            Create("w_beetle", 28, 5),
-            Create("w_spider", 28, 6),
-            Create("w_spider", 28, 7),
-            Create("w_grasshopper", 28, 8),
-            Create("w_grasshopper", 28, 9)
+            Create("w_queenBee", 30, 0),
+            Create("w_ant", 30, 1),
+            Create("w_ant", 30, 2),
+            Create("w_ant", 30, 3),
+            Create("w_beetle", 30, 4),
+            Create("w_beetle", 30, 5),
+            Create("w_spider", 30, 6),
+            Create("w_spider", 30, 7),
+            Create("w_grasshopper", 30, 8),
+            Create("w_grasshopper", 30, 9),
+             Create("w_grasshopper", 30, 10)
         };
 
         blackPlayer = new GameObject[]
         {
-            Create("b_queenBee", 0, 1),
-            Create("b_ant", 0, 2),
-            Create("b_ant", 0, 3),
-            Create("b_beetle", 0, 4),
-            Create("b_beetle", 0, 5),
-            Create("b_spider", 0, 6),
-            Create("b_spider", 0, 7),
-            Create("b_grasshopper", 0, 8),
-            Create("b_grasshopper", 0, 9)
+            Create("b_queenBee", -2, 0),
+            Create("b_ant", -2, 1),
+            Create("b_ant", -2, 2),
+            Create("b_ant", -2, 3),
+            Create("b_beetle", -2, 4),
+            Create("b_beetle", -2, 5),
+            Create("b_spider", -2, 6),
+            Create("b_spider", -2, 7),
+            Create("b_grasshopper", -2, 8),
+            Create("b_grasshopper", -2, 9),
+            Create("b_grasshopper", -2, 10)
         };
 
         for (int i = 0; i < whitePlayer.Length; i++)
@@ -55,6 +59,7 @@ public class Game : MonoBehaviour
         hm.name = name;
         hm.SetXBoard(x);
         hm.SetYBoard(y);
+        hm.isOnBoard = false;
         hm.Activate();
         return obj;
     }
@@ -63,6 +68,12 @@ public class Game : MonoBehaviour
     {
         Hiveman hm = obj.GetComponent<Hiveman>();
         var position = (hm.GetXBoard(), hm.GetYBoard());
+
+        // Ignore pieces placed outside the board
+        if (!IsOnBoard(hm.GetXBoard(), hm.GetYBoard()))
+        {
+            return;
+        }
 
         if (!positions.ContainsKey(position))
         {
@@ -73,13 +84,20 @@ public class Game : MonoBehaviour
         UpdateVisualStack(position);
     }
 
+    /*
     public void SetPositionEmpty(int x, int y)
     {
         var position = (x, y);
-        if (positions.ContainsKey(position) && positions[position].Count > 0)
+        // Check if the position is tracked in the dictionary
+        if (positions.ContainsKey(position)) 
         {
-            positions[position].Pop();
+            if(positions[position].Count > 0)
+            {
+                // Remove the topmost piece from the stack
+                positions[position].Pop();
+            }
 
+            // If the stack is now empty, remove the key from the dictionary
             if (positions[position].Count == 0)
             {
                 positions.Remove(position);
@@ -95,6 +113,32 @@ public class Game : MonoBehaviour
                         positions.Remove(position);
                     }
                 }
+            }
+        }
+    }
+    */
+
+    public void SetPositionEmpty(int x, int y)
+    {
+        var position = (x, y);
+
+        if (!IsOnBoard(x, y))
+        {
+            return;
+        }
+
+        if (positions.ContainsKey(position))
+        {
+            var stack = positions[position];
+
+            if (stack.Count > 0)
+            {
+                stack.Pop(); // Remove top piece
+            }
+
+            if (stack.Count == 0)
+            {
+                positions.Remove(position); // Clean up empty positions
             }
         }
     }
@@ -125,23 +169,25 @@ public class Game : MonoBehaviour
     */
     public void UpdateVisualStack((int x, int y) position)
     {
-        if (positions.ContainsKey(position))
+        if (!positions.ContainsKey(position) || positions[position].Count == 0)
         {
-            Stack<GameObject> stack = positions[position];
-            int stackSize = stack.Count;
-
-            int index = stack.Count;
-            foreach (GameObject obj in stack)
-            {
-                // Adjust the sorting order dynamically
-                SpriteRenderer sr = obj.GetComponent<SpriteRenderer>();
-                if (sr != null)
-                {
-                    sr.sortingOrder = index; // Higher index = rendered on top
-                }
-                index--;
-            }
+            return;
         }
+        
+        Stack<GameObject> stack = positions[position];
+
+        int index = stack.Count;
+        foreach (GameObject obj in stack)
+        {
+            // Adjust the sorting order dynamically
+            SpriteRenderer sr = obj.GetComponent<SpriteRenderer>();
+            if (sr != null)
+            {
+                sr.sortingOrder = index--; // Higher index = rendered on top
+            }
+          
+        }
+        
     }
 
 
