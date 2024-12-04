@@ -102,53 +102,48 @@ public class HiveGame
 // Add Spider logic to GetPossibleMoves
 
 public List<(int, int)> GetSpiderMoves(int x, int y)
-{
-    var possibleMoves = new List<(int, int)>();
-    
-    // Check all possible directions (like the queen) but with the Spider rule
-    var directions = new(int, int)[]
     {
-        (1, 0),   // Right
-        (-1, 0),  // Left
-        (1, 1),   // Top right
-        (1, -1),  // Bottom right
-        (-1, 1),  // Top left
-        (-1, -1)  // Bottom left
-    };
-
-    // Try to move in each direction, checking if a Spider can move exactly 3 steps
-    foreach (var (dx, dy) in directions)
-    {
-        var tempX = x;
-        var tempY = y;
-        int count = 0;
-        bool validMove = true;
-
-        // Try moving 3 spaces in one direction
-        while (count < 3)
+        var validMoves = new List<(int, int)>();
+        var directions = new(int, int)[]
         {
-            tempX += dx;
-            tempY += dy;
+            (1, 0),
+            (-1, 0),
+            (1, 1),
+            (1, -1),
+            (-1, 1),
+            (-1, -1)
+        };
 
-            // If we encounter an occupied position (own piece or any other piece), break out
-            if (hiveState.ContainsKey((tempX, tempY)) || !adjacentPiece(tempX, tempY, 0)) 
+        void ExplorePath(int currentX, int currentY, int steps, HashSet<(int, int)> visited)
+        {
+            if (steps == 3)
             {
-                validMove = false;
-                break;
+                validMoves.Add((currentX, currentY));
+                return;
             }
 
-            count++;
+            foreach (var (dx, dy) in directions)
+            {
+                var nextX = currentX + dx;
+                var nextY = currentY + dy;
+
+                if (!visited.Contains((nextX, nextY)) &&
+                    !hiveState.ContainsKey((nextX, nextY)) &&
+                    adjacentPiece(nextX, nextY, 0))
+                {
+                    visited.Add((nextX, nextY));
+                    ExplorePath(nextX, nextY, steps + 1, visited);
+                    visited.Remove((nextX, nextY));
+                }
+            }
         }
 
-        // If valid and moved 3 steps, add the position
-        if (validMove && count == 3)
-        {
-            possibleMoves.Add((tempX, tempY));
-        }
+        var visited = new HashSet<(int, int)> { (x, y) };
+        ExplorePath(x, y, 0, visited);
+
+        return validMoves;
     }
 
-    return possibleMoves;
-}
 
 public List<(int,int)>  GetGrass_ShopperMoves(int x, int y){
         //List of adjacent positions of the piece
