@@ -34,11 +34,11 @@ public class MovePlate : MonoBehaviour
     {
         //get the game controller object
         Controller = GameObject.FindGameObjectWithTag("GameController");
-
+        Game sc = Controller.GetComponent<Game>();
         if (!hiveBreak)
         {
             //set old position of the piece to be empty
-            Controller.GetComponent<Game>().SetPositionEmpty(reference.GetComponent<Hiveman>().GetXBoard(),
+            sc.SetPositionEmpty(reference.GetComponent<Hiveman>().GetXBoard(),
                 reference.GetComponent<Hiveman>().GetYBoard());
 
             //set new position of the piece to the clicked position
@@ -47,8 +47,10 @@ public class MovePlate : MonoBehaviour
             reference.GetComponent<Hiveman>().SetCoords();
 
             //tell the game controller where the piece has moved
-            Controller.GetComponent<Game>().SetPosition(reference);
+            sc.SetPosition(reference);
 
+            //switch the player
+            sc.NextTurn();
             //destroy the moveplates made
             reference.GetComponent<Hiveman>().DestroyMovePlates();
 

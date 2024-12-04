@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class Game : MonoBehaviour
 {
@@ -14,7 +15,7 @@ public class Game : MonoBehaviour
     private GameObject[] blackPlayer = new GameObject[9];
     private GameObject[] whitePlayer = new GameObject[9];
 
-    private string currentPlayer = "white";
+    private string currentPlayer = "w";
 
     private bool gameOver = false;
     
@@ -56,15 +57,6 @@ public class Game : MonoBehaviour
         }
 
     }
-   /* public bool IsFirstMove()
-    {
-        return isFirstMove;
-    }
-
-    public void EndFirstMove()
-    {
-        isFirstMove = false;
-    }*/
 
     public bool IsOnBoard(int x, int y)
     {
@@ -104,7 +96,39 @@ public class Game : MonoBehaviour
         return positions[x, y];
     }
 
-  
+    public string GetCurrentPlayer()
+    {
+        return currentPlayer; 
+    }
 
-  
+    public bool IsGameOver()
+    { 
+        return gameOver;
+    }
+
+    //function to switch player
+    public void NextTurn()
+    {
+        if (currentPlayer == "w")
+        {
+            currentPlayer = "b";
+        }
+        else
+        {
+            currentPlayer = "w";
+        }
+    }
+
+
+    //this function gets called every frame
+    public void Update()
+    {
+        if (gameOver == true && Input.GetMouseButtonDown(0)) { 
+            gameOver = false;
+
+            //reload the scene
+            SceneManager.LoadScene("Game");
+        }
+    }
+
 }

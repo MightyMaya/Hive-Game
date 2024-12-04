@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -76,21 +77,33 @@ public class Hiveman : MonoBehaviour
     {
         Game sc = controller.GetComponent<Game>();
 
-        DestroyMovePlates();
 
-        if (this.isFirstMove)
+        if (!sc.IsGameOver() && sc.GetCurrentPlayer() == this.player) // if current player is the same as the piece we clicked on
         {
-            // Place the selected piece in the center
-            sc.SetPosition(this.gameObject);
-            this.SetXBoard(14);
-            this.SetYBoard(6);
-            this.SetCoords();
-            this.isFirstMove = false;
+            DestroyMovePlates();
+
+            if (this.isFirstMove)
+            {
+                // Allow piece to be place anywhere on the board
+                for (int row = 0; row < 29; row++) // Iterate over rows
+                {
+                    for (int col = 0; col < 12; col++) // Iterate over columns
+                    {
+                        PointMovePlate(row, col);
+                    }
+                }
+                //now piece has finished its first move
+                this.isFirstMove = false;
+
+                
+
+            }
+            else
+            {
+                InitiateMovePlates();
+            }
         }
-        else
-        {
-            InitiateMovePlates();
-        }
+       
     }
 
 
@@ -105,16 +118,6 @@ public class Hiveman : MonoBehaviour
     {
         Game sc = controller.GetComponent<Game>();
 
-        /*if (sc.IsFirstMove())
-        {
-            // Only allow placement in the center for the first move
-            if (sc.GetPosition(14, 6) == null)
-            {
-                MovePlateSpawn(14, 6, false);
-            }
-        }
-        else
-        {*/
             switch (this.name)
             {
                 //can't move on the top of the hive
