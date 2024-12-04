@@ -83,6 +83,18 @@ public class Game : MonoBehaviour
             if (positions[position].Count == 0)
             {
                 positions.Remove(position);
+                Stack<GameObject> stack = positions[position];
+                Hiveman topPiece = stack.Peek().GetComponent<Hiveman>();
+
+                // Prevent removing a piece that is already on the board
+                if (!topPiece.isOnBoard)
+                {
+                    stack.Pop();
+                    if (stack.Count == 0)
+                    {
+                        positions.Remove(position);
+                    }
+                }
             }
         }
     }

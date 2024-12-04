@@ -34,6 +34,7 @@ public class Hiveman : MonoBehaviour
     public Sprite b_queenBee, b_ant, b_beetle, b_grasshopper, b_spider;
     public Sprite w_queenBee, w_ant, w_beetle, w_grasshopper, w_spider;
 
+    public bool isOnBoard = false;
     public void Activate()
     {
         controller = GameObject.FindGameObjectWithTag("GameController");
@@ -102,6 +103,7 @@ public class Hiveman : MonoBehaviour
     public void SetYBoard(int yBoard) { this.yBoard = yBoard; }
 
 
+
     //to be edited...
     public void SetCoords()
     {
@@ -127,21 +129,30 @@ public class Hiveman : MonoBehaviour
     {
         Game sc = controller.GetComponent<Game>();
 
-
-        if (!sc.IsGameOver() && sc.GetCurrentPlayer() == this.player) // if current player is the same as the piece we clicked on
+        // Prevent the piece from being removed or moved off the board
+        if (!sc.IsGameOver() && sc.GetCurrentPlayer() == this.player)
         {
             DestroyMovePlates();
-           
+
+            // Check if the piece is already on the board
+            if (!isOnBoard)
+            {
+                // Allow placing the piece for the first time
+                isOnBoard = true;
+            }
+            else
+            {
+                // Generate move plates only if the piece is already placed
                 if (moveLogic != null)
                 {
-                    List<Vector2Int> possibleMoves = moveLogic.GetPossibleMoves(xBoard, yBoard,this.isFirstMove,this.player);
+                    List<Vector2Int> possibleMoves = moveLogic.GetPossibleMoves(xBoard, yBoard, isFirstMove, player);
                     foreach (Vector2Int move in possibleMoves)
                     {
                         PointMovePlate(move.x, move.y);
                     }
                 }
+            }
         }
-
     }
 
     public void SetFirstMove(bool firstMove)
