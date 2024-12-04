@@ -7,6 +7,13 @@ using UnityEngine.UIElements;
 
 public class Hiveman : MonoBehaviour
 {
+    //create an interface for move logic
+    public interface IMoveLogic
+    {
+        List<Vector2Int> GetPossibleMoves(int x, int y, bool IsFirstMove);
+    }
+    public IMoveLogic moveLogic;
+
     //References
     public GameObject controller;
     public GameObject movePlate;
@@ -17,8 +24,12 @@ public class Hiveman : MonoBehaviour
 
     //"black" or "white" player
     private string player;
+
     //is it the first move for the piece
     private bool isFirstMove = true;
+
+    //will move break the hive
+    public bool hiveBreak = false;
 
     // References for all the sprites the chesspiece can be
     public Sprite b_queenBee, b_ant, b_beetle, b_grasshopper, b_spider;
@@ -31,17 +42,57 @@ public class Hiveman : MonoBehaviour
 
         switch (this.name)
         {
-            case "b_queenBee": this.GetComponent<SpriteRenderer>().sprite = b_queenBee; player = "b"; break;
-            case "b_ant": this.GetComponent<SpriteRenderer>().sprite = b_ant; player = "b"; break;
-            case "b_beetle": this.GetComponent<SpriteRenderer>().sprite = b_beetle; player = "b"; break;
-            case "b_grasshopper": this.GetComponent<SpriteRenderer>().sprite = b_grasshopper; player = "b"; break;
-            case "b_spider": this.GetComponent<SpriteRenderer>().sprite = b_spider; player = "b";  break;
+            case "b_queenBee":
+                this.GetComponent<SpriteRenderer>().sprite = b_queenBee;
+                player = "b";
+                moveLogic = gameObject.AddComponent<QueenBeeMoves>();
+                break;
+            case "b_ant": 
+                this.GetComponent<SpriteRenderer>().sprite = b_ant;
+                player = "b";
+                //moveLogic = gameObject.AddComponent<AntMoves>();
+                break;
+            case "b_beetle":
+                this.GetComponent<SpriteRenderer>().sprite = b_beetle;
+                player = "b";
+                //moveLogic = gameObject.AddComponent<BeetleMoves>();
+                break;
+            case "b_grasshopper":
+                this.GetComponent<SpriteRenderer>().sprite = b_grasshopper;
+                player = "b";
+                //moveLogic = gameObject.AddComponent<GrassMoves>();
+                break;
+            case "b_spider": 
+                this.GetComponent<SpriteRenderer>().sprite = b_spider;
+                player = "b";
+                //moveLogic = gameObject.AddComponent<SpiderMoves>();
+                break;
 
-            case "w_queenBee": this.GetComponent<SpriteRenderer>().sprite = w_queenBee; player = "w";  break;
-            case "w_ant": this.GetComponent<SpriteRenderer>().sprite = w_ant; player = "w"; break;
-            case "w_beetle": this.GetComponent<SpriteRenderer>().sprite = w_beetle; player = "w"; break;
-            case "w_grasshopper": this.GetComponent<SpriteRenderer>().sprite = w_grasshopper; player = "w"; break;
-            case "w_spider": this.GetComponent<SpriteRenderer>().sprite = w_spider; player = "w"; break;
+            case "w_queenBee":
+                this.GetComponent<SpriteRenderer>().sprite = w_queenBee;
+                player = "w";
+                moveLogic = gameObject.AddComponent<QueenBeeMoves>();
+                break;
+            case "w_ant": 
+                this.GetComponent<SpriteRenderer>().sprite = w_ant;
+                player = "w";
+                //moveLogic = gameObject.AddComponent<AntMoves>();
+                break;
+            case "w_beetle": 
+                this.GetComponent<SpriteRenderer>().sprite = w_beetle;
+                player = "w";
+                //moveLogic = gameObject.AddComponent<BeetleMoves>();
+                break;
+            case "w_grasshopper":
+                this.GetComponent<SpriteRenderer>().sprite = w_grasshopper;
+                player = "w";
+                //moveLogic = gameObject.AddComponent<GrassMoves>();
+                break;
+            case "w_spider":
+                this.GetComponent<SpriteRenderer>().sprite = w_spider;
+                player = "w";
+                //moveLogic = gameObject.AddComponent<SpiderMoves>();
+                break;
         }
 
     }
@@ -50,7 +101,7 @@ public class Hiveman : MonoBehaviour
     public int GetYBoard() { return this.yBoard; }
     public void SetXBoard(int xBoard) { this.xBoard = xBoard; }
     public void SetYBoard(int yBoard) { this.yBoard = yBoard; }
-    
+
 
     //to be edited...
     public void SetCoords()
@@ -81,29 +132,20 @@ public class Hiveman : MonoBehaviour
         if (!sc.IsGameOver() && sc.GetCurrentPlayer() == this.player) // if current player is the same as the piece we clicked on
         {
             DestroyMovePlates();
-
-            if (this.isFirstMove)
-            {
-                // Allow piece to be place anywhere on the board
-                for (int row = 0; row < 29; row++) // Iterate over rows
+           
+                if (moveLogic != null)
                 {
-                    for (int col = 0; col < 12; col++) // Iterate over columns
+                    List<Vector2Int> possibleMoves = moveLogic.GetPossibleMoves(xBoard, yBoard, isFirstMove);
+                    foreach (Vector2Int move in possibleMoves)
                     {
-                        PointMovePlate(row, col);
+                        PointMovePlate(move.x, move.y);
                     }
+                    isFirstMove = false;
                 }
-                //now piece has finished its first move
-                this.isFirstMove = false;
-
-                
-
-            }
-            else
-            {
-                InitiateMovePlates();
-            }
+                //InitiateMovePlates();
+     
         }
-       
+
     }
 
 
@@ -113,66 +155,8 @@ public class Hiveman : MonoBehaviour
             Destroy(movePlates[i]);
         }
     }
-    //placeholder code
-    public void InitiateMovePlates()
-    {
-        Game sc = controller.GetComponent<Game>();
 
-            switch (this.name)
-            {
-                //can't move on the top of the hive
-                case "b_queenBee":
-                case "w_queenBee":
-                    QueenMovePlate();
-                    break;
-                //can move on the top of the hive
-                case "b_beetle":
-                case "w_beetle":
-                    LineMovePlate(1, 0);
-                    
-                    break;
-
-                case "b_ant":
-                case "w_ant":
-                    LineMovePlate(1, 0);
-                    break;
-
-                case "b_grasshopper":
-                case "w_grasshopper":
-                    LineMovePlate(1, 0);
-                break;
-
-                case "b_spider":
-                case "w_spider":
-                    LineMovePlate(1, 0);
-                    break;
-
-            }
-        //}
-    }
-    //used for grasshopper move
-    public void LineMovePlate(int xIncrement, int yIncrement)
-    {
-        Game sc = controller.GetComponent<Game>();
-        int x = xBoard + xIncrement;
-        int y = yBoard + yIncrement;
-
-        while (sc.IsOnBoard(x, y) && sc.GetPosition(x, y) == null)
-        {
-            MovePlateSpawn(x, y, false);
-            x += xIncrement;
-            y += yIncrement;
-        }
-
-        if (sc.IsOnBoard(x, y) && sc.GetPosition(x, y).GetComponent<Hiveman>().player != player)
-        {
-            MovePlateSpawn(x, y, true);
-        }
-
-
-
-    }
-    //this will be used inside a move function for a certain piece.
+    //function to spawn a moveplate at a certain position
     public void PointMovePlate(int x, int y)
     {
         Game sc = controller.GetComponent<Game>();
@@ -206,20 +190,7 @@ public class Hiveman : MonoBehaviour
 
     }
 
-    public List<Vector2Int> GetAdjacentHexes(Vector2Int position)
-    {
-        return new List<Vector2Int>
-    {
-        new Vector2Int(position.x + 1, position.y),     // Hex to the right
-        new Vector2Int(position.x - 1, position.y),     // Hex to the left
-        new Vector2Int(position.x, position.y + 1),     // Hex above
-        new Vector2Int(position.x, position.y - 1),     // Hex below
-        new Vector2Int(position.x + 1, position.y + 1), // Top-right diagonal hex
-        new Vector2Int(position.x - 1, position.y + 1)  // Top-left diagonal hex
-    };
-    }
-
-
+    //helper function for PointMovePlate
     public void MovePlateSpawn(int matrixX, int matrixY, bool isOverlap)
     {
 
@@ -254,69 +225,7 @@ public class Hiveman : MonoBehaviour
 
     }
 
-
-    //move function for the queen
-    public void QueenMovePlate()
-    {
-        int x = xBoard;
-        int y = yBoard;
-
-        if (x % 2 == 0)
-        {
-            PointMovePlate(x + 1, y);    // Hex to the right
-            PointMovePlate(x - 1, y);    // Hex to the left
-            PointMovePlate(x, y + 1);     // Hex above
-            PointMovePlate(x, y - 1);     // Hex below
-            PointMovePlate(x + 1, y + 1); // Top-right diagonal hex
-            PointMovePlate(x - 1, y + 1);  // Top-left diagonal hex
-        }
-        else
-        {
-            PointMovePlate(x + 1, y);    // Hex to the right
-            PointMovePlate(x - 1, y);    // Hex to the left
-            PointMovePlate(x, y + 1);     // Hex above
-            PointMovePlate(x, y - 1);     // Hex below
-            PointMovePlate(x + 1, y - 1); // Bottom-right diagonal hex
-            PointMovePlate(x - 1, y - 1);  // Bottom-left diagonal hex
-        }
-    }
-
-    //move function for the ant
-    public void AntMovePlate()
-    {
-        int x = xBoard;
-        int y = yBoard;
-
-        
-    }
-
-    //move function for the beetle
-    public void BeetleMovePlate()
-    {
-        int x = xBoard;
-        int y = yBoard;
-
-
-    }
-
-    //move function for the grasshopper
-    public void GrassMovePlate()
-    {
-        int x = xBoard;
-        int y = yBoard;
-    }
-
-
-    //move function for the spider
-    public void SpiderMovePlate()
-    {
-        int x = xBoard;
-        int y = yBoard;
-
-
-    }
-
 }
 
-
+    
 
