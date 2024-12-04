@@ -26,9 +26,10 @@ public class BeetleMoves : MonoBehaviour, IMoveLogic
     /// <summary>
     /// Get possible moves for the beetle at the specified position.
     /// </summary>
-    public List<Vector2Int> GetPossibleMoves(int x, int y, bool isFirstMove)
+    public List<Vector2Int> GetPossibleMoves(int x, int y, bool isFirstMove, string currentPlayer)
     {
         controller = GameObject.FindGameObjectWithTag("GameController");
+        Game sc = controller.GetComponent<Game>();
 
         var possibleMoves = new List<Vector2Int>();
 
@@ -49,9 +50,9 @@ public class BeetleMoves : MonoBehaviour, IMoveLogic
             }
             
         }
-        else
+        else if (!sc.IsBeetleBlocked(x, y,currentPlayer) ) //if the piece is not blocked by a beetle
         {
-            Game sc = controller.GetComponent<Game>();
+            
 
             // Get all adjacent hexes
             List<Vector2Int> adjacentHexes = GetAdjacentHexes(currentPosition);

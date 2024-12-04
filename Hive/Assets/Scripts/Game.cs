@@ -1,23 +1,18 @@
-using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine;
 
 public class Game : MonoBehaviour
 {
     public GameObject hivepiece;
 
-    // Dictionary to store stacks of hive pieces at each position
     private Dictionary<(int x, int y), Stack<GameObject>> positions = new Dictionary<(int, int), Stack<GameObject>>();
-
     private GameObject[] blackPlayer = new GameObject[9];
     private GameObject[] whitePlayer = new GameObject[9];
 
     private string currentPlayer = "w";
-
     private bool gameOver = false;
 
-    // Start is called before the first frame update
     void Start()
     {
         whitePlayer = new GameObject[]
@@ -46,17 +41,11 @@ public class Game : MonoBehaviour
             Create("b_grasshopper", 0, 9)
         };
 
-        // Set all piece positions on the position board
         for (int i = 0; i < whitePlayer.Length; i++)
         {
             SetPosition(blackPlayer[i]);
             SetPosition(whitePlayer[i]);
         }
-    }
-
-    public bool IsOnBoard(int x, int y)
-    {
-        return x >= 0 && y >= 0 && x < 29 && y < 12;
     }
 
     public GameObject Create(string name, int x, int y)
@@ -66,7 +55,7 @@ public class Game : MonoBehaviour
         hm.name = name;
         hm.SetXBoard(x);
         hm.SetYBoard(y);
-        hm.Activate(); // Render the sprite
+        hm.Activate();
         return obj;
     }
 
@@ -81,6 +70,7 @@ public class Game : MonoBehaviour
         }
 
         positions[position].Push(obj);
+        UpdateVisualStack(position);
     }
 
     public void SetPositionEmpty(int x, int y)
@@ -90,7 +80,6 @@ public class Game : MonoBehaviour
         {
             positions[position].Pop();
 
-            // If the stack is empty, remove the position
             if (positions[position].Count == 0)
             {
                 positions.Remove(position);
@@ -103,21 +92,74 @@ public class Game : MonoBehaviour
         var position = (x, y);
         if (positions.ContainsKey(position) && positions[position].Count > 0)
         {
-            return positions[position].Peek(); // Return the top piece of the stack
+            return positions[position].Peek();
         }
         return null;
     }
 
-    public string GetCurrentPlayer()
+    /* public bool CanBeetleMoveOnto(int x, int y)
+     {
+         var position = (x, y);
+         if (positions.ContainsKey(position) && positions[position].Count > 0)
+         {
+             GameObject topPiece = positions[position].Peek();
+             Hiveman topHiveman = topPiece.GetComponent<Hiveman>();
+
+             // Check if the top piece allows stacking (only beetle can jump onto others)
+             return topHiveman.name.Contains("beetle");
+         }
+         return true; // If position is empty, beetle can move there
+     }
+    */
+    public void UpdateVisualStack((int x, int y) position)
     {
-        return currentPlayer;
+        if (positions.ContainsKey(position))
+        {
+            Stack<GameObject> stack = positions[position];
+            int stackSize = stack.Count;
+
+            int index = stack.Count;
+            foreach (GameObject obj in stack)
+            {
+                // Adjust the sorting order dynamically
+                SpriteRenderer sr = obj.GetComponent<SpriteRenderer>();
+                if (sr != null)
+                {
+                    sr.sortingOrder = index; // Higher index = rendered on top
+                }
+                index--;
+            }
+        }
     }
 
+
+    //is this position blocked due to a beetle
+    public bool IsBeetleBlocked(int x, int y, string player)
+    {
+        var position = (x, y);
+        if (positions.ContainsKey(position) && positions[position].Count > 1)
+        {
+            Stack<GameObject> stack = positions[position];
+            GameObject topPiece = stack.Peek();
+            Hiveman topHiveman = topPiece.GetComponent<Hiveman>();
+
+            // If top piece is a beetle, the pieces below are blocked
+            return topHiveman.name.Contains("beetle") && currentPlayer != player ; //make sure the top beetle is not blocked
+        }
+        return false;
+    }
+    public bool IsOnBoard(int x, int y)
+    {
+        return x >= 0 && y >= 0 && x < 29 && y < 12;
+    }
     public bool IsGameOver()
     {
         return gameOver;
     }
-
+    public string GetCurrentPlayer()
+    {
+        return currentPlayer;
+    }
     public void NextTurn()
     {
         currentPlayer = currentPlayer == "w" ? "b" : "w";
@@ -131,5 +173,4 @@ public class Game : MonoBehaviour
             SceneManager.LoadScene("Game");
         }
     }
-
 }

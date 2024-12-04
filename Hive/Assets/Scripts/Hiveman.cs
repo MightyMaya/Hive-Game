@@ -10,7 +10,7 @@ public class Hiveman : MonoBehaviour
     //create an interface for move logic
     public interface IMoveLogic
     {
-        List<Vector2Int> GetPossibleMoves(int x, int y, bool isFirstMove);
+        List<Vector2Int> GetPossibleMoves(int x, int y, bool isFirstMove, string currentPlayer);
     }
     public IMoveLogic moveLogic;
 
@@ -134,7 +134,7 @@ public class Hiveman : MonoBehaviour
            
                 if (moveLogic != null)
                 {
-                    List<Vector2Int> possibleMoves = moveLogic.GetPossibleMoves(xBoard, yBoard, isFirstMove);
+                    List<Vector2Int> possibleMoves = moveLogic.GetPossibleMoves(xBoard, yBoard,this.isFirstMove,this.player);
                     foreach (Vector2Int move in possibleMoves)
                     {
                         PointMovePlate(move.x, move.y);
