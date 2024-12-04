@@ -16,6 +16,8 @@ public class Hiveman : MonoBehaviour
 
     //"black" or "white" player
     private string player;
+    //is it the first move for the piece
+    private bool isFirstMove = true;
 
     // References for all the sprites the chesspiece can be
     public Sprite b_queenBee, b_ant, b_beetle, b_grasshopper, b_spider;
@@ -76,14 +78,14 @@ public class Hiveman : MonoBehaviour
 
         DestroyMovePlates();
 
-        if (sc.IsFirstMove())
+        if (this.isFirstMove)
         {
             // Place the selected piece in the center
             sc.SetPosition(this.gameObject);
             this.SetXBoard(14);
             this.SetYBoard(6);
             this.SetCoords();
-            sc.EndFirstMove();
+            this.isFirstMove = false;
         }
         else
         {
