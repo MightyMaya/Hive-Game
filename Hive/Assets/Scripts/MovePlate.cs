@@ -16,8 +16,7 @@ public class MovePlate : MonoBehaviour
     //is it going to overlap over another piece
     public bool overlap = false;
 
-    //is it going to break the hive
-    public bool hiveBreak = false;
+    
 
 
     //function called when the move plate is created
@@ -34,30 +33,32 @@ public class MovePlate : MonoBehaviour
     {
         //get the game controller object
         Controller = GameObject.FindGameObjectWithTag("GameController");
-        Game sc = Controller.GetComponent<Game>();
-        if (!hiveBreak)
+        Game gamesc = Controller.GetComponent<Game>();
+
+        Hiveman hivesc = reference.GetComponent<Hiveman>();
+        if (!hivesc.hiveBreak)
         {
             //set old position of the piece to be empty
-            sc.SetPositionEmpty(reference.GetComponent<Hiveman>().GetXBoard(),
-                reference.GetComponent<Hiveman>().GetYBoard());
+            gamesc.SetPositionEmpty(hivesc.GetXBoard(),hivesc.GetYBoard());
 
             //set new position of the piece to the clicked position
-            reference.GetComponent<Hiveman>().SetXBoard(matrixX);
-            reference.GetComponent<Hiveman>().SetYBoard(matrixY);
-            reference.GetComponent<Hiveman>().SetCoords();
+            hivesc.SetXBoard(matrixX);
+            hivesc.SetYBoard(matrixY);
+            hivesc.SetCoords();
 
             //tell the game controller where the piece has moved
-            sc.SetPosition(reference);
+            gamesc.SetPosition(reference);
 
             //switch the player
-            sc.NextTurn();
+            gamesc.NextTurn();
             //destroy the moveplates made
-            reference.GetComponent<Hiveman>().DestroyMovePlates();
+            hivesc.DestroyMovePlates();
 
         }
-        //else { 
+        else {
             //stop piece from moving
-       // }
+            Debug.Log("This move will break the hive");
+        }
     }
 
     public void SetCoords(int x, int y)
