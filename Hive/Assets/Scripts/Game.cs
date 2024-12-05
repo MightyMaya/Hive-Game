@@ -15,6 +15,7 @@ public class Game : MonoBehaviour
     private bool gameOver = false;
 
     public bool isFirstMove = true;
+    public int moveCount = 0;
 
 
     // New variables to store the last two moves of each player
@@ -216,44 +217,103 @@ public class Game : MonoBehaviour
     }
 
 
-    public List<Vector2Int> GetAdjacentTiles()
+    //Handling Adjacent movements
+    //helper fn
+    private HashSet<Vector2Int> GetAdjacentTiles(Vector2Int position)
     {
-        List<Vector2Int> adjacentTiles = new List<Vector2Int>();
+        HashSet<Vector2Int> adjacentTiles = new HashSet<Vector2Int>();
 
-        foreach (var pos in positions.Keys)
+        int x = position.x;
+        int y = position.y;
+
+        // Add all adjacent positions directly to the HashSet
+        adjacentTiles.Add(new Vector2Int(x, y - 1));
+        adjacentTiles.Add(new Vector2Int(x, y + 1));
+        adjacentTiles.Add(new Vector2Int(x - 1, y));
+        adjacentTiles.Add(new Vector2Int(x + 1, y));
+
+        if (x % 2 == 0)
         {
-            int x = pos.Item1;
-            int y = pos.Item2;
-
-            adjacentTiles.Add(new Vector2Int(x, y - 1));
-            adjacentTiles.Add(new Vector2Int(x, y + 1));
-            if (x % 2 == 0)
-            {
-                // Add all six adjacent positions in a hexagonal grid
-                adjacentTiles.Add(new Vector2Int(x - 1, y));
-                adjacentTiles.Add(new Vector2Int(x + 1, y));
-
-                adjacentTiles.Add(new Vector2Int(x - 1, y + 1));
-                adjacentTiles.Add(new Vector2Int(x + 1, y + 1));
-
-            }
-            else
-            {
-                adjacentTiles.Add(new Vector2Int(x - 1, y));
-                adjacentTiles.Add(new Vector2Int(x + 1, y));
-
-                adjacentTiles.Add(new Vector2Int(x - 1, y - 1));
-                adjacentTiles.Add(new Vector2Int(x + 1, y - 1));
-            }
+            adjacentTiles.Add(new Vector2Int(x - 1, y + 1));
+            adjacentTiles.Add(new Vector2Int(x + 1, y + 1));
+        }
+        else
+        {
+            adjacentTiles.Add(new Vector2Int(x - 1, y - 1));
+            adjacentTiles.Add(new Vector2Int(x + 1, y - 1));
         }
 
         return adjacentTiles;
     }
 
-    public bool IsValidPlacement(int x, int y)
+    //Get Adjacent to all pieces
+    public HashSet<Vector2Int> GetTilesAdjacentToAllPieces()
     {
-        return IsOnBoard(x, y) && GetPosition(x, y) == null;
+        HashSet<Vector2Int> allAdjacentTiles = new HashSet<Vector2Int>();
+
+        foreach (var pos in positions.Keys)
+        {
+            HashSet<Vector2Int> adjacentTiles = GetAdjacentTiles(new Vector2Int(pos.Item1, pos.Item2));
+
+            foreach (var tile in adjacentTiles)
+            {
+                if (!positions.ContainsKey((tile.x, tile.y)) && IsOnBoard(tile.x, tile.y)) // Exclude occupied tiles and not on board tiles
+                {
+                    allAdjacentTiles.Add(tile);
+                }
+            }
+        }
+
+        return allAdjacentTiles;
     }
+
+
+    public HashSet<Vector2Int> GetAdjacentTilesForCurrentPlayer()
+    {
+        HashSet<Vector2Int> adjacentTiles = new HashSet<Vector2Int>();
+        HashSet<Vector2Int> opponentAdjacentTiles = new HashSet<Vector2Int>();
+
+        // Get adjacent tiles for the current player's pieces
+        foreach (var position in positions.Keys)
+        {
+            var stack = positions[position];
+            if (stack.Count > 0)
+            {
+                GameObject topPiece = stack.Peek();
+                Hiveman piece = topPiece.GetComponent<Hiveman>();
+
+                if (piece.player == currentPlayer)
+                {
+                    var adjacent = GetAdjacentTiles(new Vector2Int(position.Item1, position.Item2));
+                    foreach (var tile in adjacent)
+                    {
+                        if (IsOnBoard(tile.x, tile.y) && GetPosition(tile.x, tile.y) == null)
+                        {
+                            adjacentTiles.Add(tile);
+                        }
+                    }
+                }
+                else // Opponent's pieces
+                {
+                    var adjacent = GetAdjacentTiles(new Vector2Int(position.Item1, position.Item2));
+                    foreach (var tile in adjacent)
+                    {
+                        if (IsOnBoard(tile.x, tile.y))
+                        {
+                            opponentAdjacentTiles.Add(tile);
+                        }
+                    }
+                }
+            }
+        }
+
+        // Remove tiles adjacent to opponent pieces
+        adjacentTiles.ExceptWith(opponentAdjacentTiles);
+
+        return adjacentTiles;
+    }
+
+
 
     //is this position blocked due to a beetle
     public bool IsBeetleBlocked(int x, int y, string player)

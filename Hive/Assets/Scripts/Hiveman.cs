@@ -24,7 +24,7 @@ public class Hiveman : MonoBehaviour
     private int yBoard = -1;
 
     //"black" or "white" player
-    private string player;
+    public string player;
 
     //is it the first move for the piece
     //private bool isFirstMove = true;
@@ -133,44 +133,53 @@ public class Hiveman : MonoBehaviour
     {
         Game sc = controller.GetComponent<Game>();
 
-        // Prevent the piece from being removed or moved off the board
-        if (!sc.IsGameOver() && sc.GetCurrentPlayer() == this.player)
-        {
-            DestroyMovePlates();
+        // Destroy any existing move plates to clear previous highlights
+        DestroyMovePlates();
 
-            // Check if the piece is already on the board
-            if (!isOnBoard)
+        // Prevent the piece from being removed or moved off the board
+        if (sc.IsGameOver() || sc.GetCurrentPlayer() != this.player)
+            return;
+
+        // Check if the piece is already on the board
+        if (!isOnBoard)
+        {
+            if (sc.isFirstMove) // If it's the first move in the game
             {
-                if (sc.isFirstMove) // If it's the first move in the game
+                // Highlight the center of the board
+                PointMovePlate(14, 5);
+            }
+            else if (sc.moveCount == 1) //If it is the second move in the game '0 indexed'
+            {
+                // Second move: Highlight tiles adjacent to all pieces on the board
+                HashSet<Vector2Int> validTiles = sc.GetTilesAdjacentToAllPieces();
+                foreach (Vector2Int tile in validTiles)
                 {
-                    // Highlight the center of the board
-                    PointMovePlate(14, 5);
-                }
-                else // Highlight adjacent tiles to already moved pieces
-                {
-                    List<Vector2Int> adjacentTiles = sc.GetAdjacentTiles();
-                    foreach (Vector2Int tile in adjacentTiles)
-                    {
-                        if (sc.IsValidPlacement(tile.x, tile.y))
-                        {
-                            PointMovePlate(tile.x, tile.y);
-                        }
-                    }
+                    PointMovePlate(tile.x, tile.y);
                 }
             }
-            else  //if Piece is already on the board -> check for the piece allowed moves
+            else 
             {
-                if (moveLogic != null)
+                // Subsequent moves: Highlight tiles adjacent to pieces of the current player
+                HashSet<Vector2Int> validTiles = sc.GetAdjacentTilesForCurrentPlayer();
+                foreach (Vector2Int tile in validTiles)
                 {
-                    List<Vector2Int> possibleMoves = moveLogic.GetPossibleMoves(xBoard, yBoard, player);
-                    foreach (Vector2Int move in possibleMoves)
-                    {
-                        PointMovePlate(move.x, move.y);
-                    }
+                    PointMovePlate(tile.x, tile.y);
                 }
-                
             }
         }
+        else  //if Piece is already on the board -> check for the piece allowed moves
+        {
+            if (moveLogic != null)
+            {
+                List<Vector2Int> possibleMoves = moveLogic.GetPossibleMoves(xBoard, yBoard, player);
+                foreach (Vector2Int move in possibleMoves)
+                {
+                    PointMovePlate(move.x, move.y);
+                }
+            }
+                
+        }
+        
     }
 
     /*public void SetFirstMove(bool firstMove)

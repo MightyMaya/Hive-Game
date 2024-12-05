@@ -65,8 +65,13 @@ public class MovePlate : MonoBehaviour
                 gamesc.isFirstMove = false;
                 Debug.Log("First move completed.");
             }
+            gamesc.moveCount++;
+            if (hivesc.isOnBoard == false)
+            {
+                hivesc.isOnBoard = true ;
+                Debug.Log("Piece is placed on board.");
+            }
 
-         
 
             // Record the move           
             gamesc.RecordPlayerMove(gamesc.GetCurrentPlayer(), hivesc.name, hivesc.GetXBoard(), hivesc.GetYBoard()); // Record current position as the move
