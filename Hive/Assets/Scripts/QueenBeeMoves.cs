@@ -9,13 +9,13 @@ public class QueenBeeMoves : MonoBehaviour, IMoveLogic
 {
     public GameObject controller;
 
-    public List<Vector2Int> GetPossibleMoves(int x, int y, bool isFirstMove, string currentPlayer)
+    public List<Vector2Int> GetPossibleMoves(int x, int y, string currentPlayer)
     {
         controller = GameObject.FindGameObjectWithTag("GameController");
         Game sc = controller.GetComponent<Game>();
         var possibleMoves = new List<Vector2Int>();
 
-        if (isFirstMove)
+        /*if (isFirstMove)
         {
             // Allow movement to any position on the board for the first move.
             int maxX = 29; 
@@ -29,7 +29,7 @@ public class QueenBeeMoves : MonoBehaviour, IMoveLogic
                 }
             }
         }
-        else if(!sc.IsBeetleBlocked(x,y,currentPlayer)) //if the piece is not blocked by a beetle
+        else*/ if(!sc.IsBeetleBlocked(x,y,currentPlayer)) //if the piece is not blocked by a beetle
         {
             // Standard queen movement logic
             if (x % 2 == 0)

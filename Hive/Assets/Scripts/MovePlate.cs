@@ -16,13 +16,19 @@ public class MovePlate : MonoBehaviour
     //is it going to overlap over another piece
     public bool overlap = false;
 
-    
+    // Highlight center during the first move
+    public bool isFirstMove = false;
 
 
     //function called when the move plate is created
     public void Start()
     {
-        if (overlap) { 
+        if(isFirstMove)
+        {
+            // Highlight the center with a special color for the first move
+            gameObject.GetComponent<SpriteRenderer>().color = Color.yellow; // You can choose the color here
+        }
+        else if (overlap) { 
             //change to green
             gameObject.GetComponent<SpriteRenderer>().color = Color.green;
         }
@@ -50,7 +56,16 @@ public class MovePlate : MonoBehaviour
             gamesc.SetPosition(reference);
 
             //piece is no longer in its first move
-            hivesc.SetFirstMove(false);
+            //hivesc.SetFirstMove(false);
+
+
+            // If this was the first move, toggle the flag
+            if (gamesc.isFirstMove)
+            {
+                gamesc.isFirstMove = false;
+                Debug.Log("First move completed.");
+            }
+
             //switch the player
             gamesc.NextTurn();
             //destroy the moveplates made

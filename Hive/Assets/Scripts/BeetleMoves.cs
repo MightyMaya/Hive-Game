@@ -26,7 +26,7 @@ public class BeetleMoves : MonoBehaviour, IMoveLogic
     /// <summary>
     /// Get possible moves for the beetle at the specified position.
     /// </summary>
-    public List<Vector2Int> GetPossibleMoves(int x, int y, bool isFirstMove, string currentPlayer)
+    public List<Vector2Int> GetPossibleMoves(int x, int y, string currentPlayer)
     {
         controller = GameObject.FindGameObjectWithTag("GameController");
         Game sc = controller.GetComponent<Game>();
@@ -35,7 +35,7 @@ public class BeetleMoves : MonoBehaviour, IMoveLogic
 
         Vector2Int currentPosition = new Vector2Int(x, y);
 
-        if (isFirstMove)
+        /*if (isFirstMove)
         {
             // Allow movement to any position on the board for the first move.
             int maxX = 29;
@@ -50,7 +50,7 @@ public class BeetleMoves : MonoBehaviour, IMoveLogic
             }
             
         }
-        else if (!sc.IsBeetleBlocked(x, y,currentPlayer) ) //if the piece is not blocked by a beetle
+        else */if (!sc.IsBeetleBlocked(x, y,currentPlayer) ) //if the piece is not blocked by a beetle
         {
             
 
