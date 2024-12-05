@@ -10,10 +10,23 @@ public class Game : MonoBehaviour
     private GameObject[] blackPlayer = new GameObject[9];
     private GameObject[] whitePlayer = new GameObject[9];
 
+
     private string currentPlayer = "w";
     private bool gameOver = false;
 
     public bool isFirstMove = true;
+
+
+    // New variables to store the last two moves of each player
+    private List<(string pieceName, int x, int y)> whitePlayerMoves = new List<(string pieceName, int x, int y)>();
+    private List<(string pieceName, int x, int y)> blackPlayerMoves = new List<(string pieceName, int x, int y)>();
+
+    private const int MAX_MOVES_HISTORY = 2; // New: Track only the last two moves for each player
+
+    // New variable to track if the game has been declared a draw
+    private bool isDraw = false;
+
+
 
     void Start()
     {
@@ -276,10 +289,90 @@ public class Game : MonoBehaviour
 
     public void Update()
     {
+        // New: Check for the draw condition each time a turn ends
+        if (CheckForDraw())
+        {
+            isDraw = true;
+            Debug.Log("The game is a draw (Fady).");
+            // Optionally, trigger game over or stop further moves
+            return; // Stop further game updates
+        }
+
+
+
+        // Check if the player has any valid moves or piece placements
+        if (CanPlayerMoveOrPlace(currentPlayer) == false)
+        {
+            // If no valid moves are available, pass the turn to the opponent
+            NextTurn(); // NEW: Pass the turn to the opponent
+        }
+
+
         if (gameOver == true && Input.GetMouseButtonDown(0))
         {
             gameOver = false;
             SceneManager.LoadScene("Game");
         }
     }
+  
+    private bool CanPlayerMoveOrPlace(string player)
+    {
+        bool canMoveOrPlace = false;
+
+        // Check for valid placements of pieces (placement is done in the `IsValidPlacement` method)
+        // Assuming a method `IsValidPlacement` already exists in the Hiveman class
+        foreach (var piece in FindObjectsOfType<Hiveman>())
+        {
+            if (GetCurrentPlayer() == player)
+            {
+                // Check if this piece can move or if a new piece can be placed
+                List<Vector2Int> possibleMoves = piece.moveLogic.GetPossibleMoves(piece.GetXBoard(), piece.GetYBoard(), player);
+
+                // If there are any valid moves or placements
+                if (possibleMoves.Count > 0 /*||  piece.IsValidPlacement(piece.GetXBoard(), piece.GetYBoard())*/)
+                {
+                    canMoveOrPlace = true;
+                    break; // No need to check further if one valid move/placement is found
+                }
+            }
+        }
+
+        return canMoveOrPlace;
+    }
+
+    // New: This method checks if the game is in a draw condition
+    private bool CheckForDraw()
+    {
+        // Check if both players have repeated their last two moves
+        if (whitePlayerMoves.Count >= 2 && blackPlayerMoves.Count >= 2)
+        {
+            var whiteLastMoves = whitePlayerMoves.GetRange(whitePlayerMoves.Count - 2, 2);
+            var blackLastMoves = blackPlayerMoves.GetRange(blackPlayerMoves.Count - 2, 2);
+
+            // Check if both players have repeated the same two moves
+            if (whiteLastMoves[0].Equals(whiteLastMoves[1]) && blackLastMoves[0].Equals(blackLastMoves[1]))
+            {
+                // If both players are stuck in a loop, declare a draw
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // New: Method to record a player's move (for both white and black)
+    public void RecordPlayerMove(string player, string pieceName, int x, int y)
+    {
+        // New: Store the last two moves for each player
+        List<(string pieceName, int x, int y)> playerMoves = player == "w" ? whitePlayerMoves : blackPlayerMoves;
+        playerMoves.Add((pieceName, x, y));
+
+        // Limit the list to the last 2 moves
+        if (playerMoves.Count > MAX_MOVES_HISTORY)
+        {
+            playerMoves.RemoveAt(0);
+        }
+    }
+
+
+
 }

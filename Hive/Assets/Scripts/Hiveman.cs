@@ -261,7 +261,36 @@ public class Hiveman : MonoBehaviour
 
     }
 
+    //public bool IsValidPlacement(int x, int y)
+    //{
+    //    // Access the Game controller reference from the scene to call IsOnBoard and GetPosition methods
+    //    Game gameController = GameObject.FindGameObjectWithTag("GameController").GetComponent<Game>();
+
+    //    // Check if the position is within the board and the space is empty (no pieces are present)
+    //    return gameController.IsOnBoard(x, y) && gameController.GetPosition(x, y) == null;
+    //}
+
+
+    // New: When a piece is moved, record the move in the Game class
+
+
+    //  TO be moved where our peace Moving Logic exisits
+    public void MovePiece(int newX, int newY)
+    {
+        // Assuming we have a valid move logic here to handle the movement
+        Game game = GameObject.FindGameObjectWithTag("GameController").GetComponent<Game>();
+
+        // Record the move
+        game.RecordPlayerMove(player, this.name, xBoard, yBoard); // Record current position as the move
+
+        // Update the piece's new position
+        xBoard = newX;
+        yBoard = newY;
+
+    }
+
+
 }
 
-    
+
 

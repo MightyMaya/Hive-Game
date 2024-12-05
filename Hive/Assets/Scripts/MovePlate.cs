@@ -66,6 +66,13 @@ public class MovePlate : MonoBehaviour
                 Debug.Log("First move completed.");
             }
 
+         
+
+            // Record the move           
+            gamesc.RecordPlayerMove(gamesc.GetCurrentPlayer(), hivesc.name, hivesc.GetXBoard(), hivesc.GetYBoard()); // Record current position as the move
+
+
+
             //switch the player
             gamesc.NextTurn();
             //destroy the moveplates made
