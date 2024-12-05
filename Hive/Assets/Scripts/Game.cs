@@ -13,6 +13,8 @@ public class Game : MonoBehaviour
     private string currentPlayer = "w";
     private bool gameOver = false;
 
+    public bool isFirstMove = true;
+
     void Start()
     {
         whitePlayer = new GameObject[]
@@ -68,10 +70,20 @@ public class Game : MonoBehaviour
     {
         Hiveman hm = obj.GetComponent<Hiveman>();
         var position = (hm.GetXBoard(), hm.GetYBoard());
+        /*// For the first move, place the piece at the center of the board
+        if (isFirstMove)
+        {
+            position = (14, 5); // Center of the board
+            hm.SetXBoard(14);  
+            hm.SetYBoard(5);   
+            isFirstMove = false; // After the first move, set the flag to false
+        }
+        */
 
         // Ignore pieces placed outside the board
         if (!IsOnBoard(hm.GetXBoard(), hm.GetYBoard()))
         {
+            Debug.LogWarning("Attempted to set position outside of board boundaries.");
             return;
         }
 
@@ -190,6 +202,45 @@ public class Game : MonoBehaviour
         
     }
 
+
+    public List<Vector2Int> GetAdjacentTiles()
+    {
+        List<Vector2Int> adjacentTiles = new List<Vector2Int>();
+
+        foreach (var pos in positions.Keys)
+        {
+            int x = pos.Item1;
+            int y = pos.Item2;
+
+            adjacentTiles.Add(new Vector2Int(x, y - 1));
+            adjacentTiles.Add(new Vector2Int(x, y + 1));
+            if (x % 2 == 0)
+            {
+                // Add all six adjacent positions in a hexagonal grid
+                adjacentTiles.Add(new Vector2Int(x - 1, y));
+                adjacentTiles.Add(new Vector2Int(x + 1, y));
+
+                adjacentTiles.Add(new Vector2Int(x - 1, y + 1));
+                adjacentTiles.Add(new Vector2Int(x + 1, y + 1));
+
+            }
+            else
+            {
+                adjacentTiles.Add(new Vector2Int(x - 1, y));
+                adjacentTiles.Add(new Vector2Int(x + 1, y));
+
+                adjacentTiles.Add(new Vector2Int(x - 1, y - 1));
+                adjacentTiles.Add(new Vector2Int(x + 1, y - 1));
+            }
+        }
+
+        return adjacentTiles;
+    }
+
+    public bool IsValidPlacement(int x, int y)
+    {
+        return IsOnBoard(x, y) && GetPosition(x, y) == null;
+    }
 
     //is this position blocked due to a beetle
     public bool IsBeetleBlocked(int x, int y, string player)

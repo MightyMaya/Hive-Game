@@ -10,7 +10,8 @@ public class Hiveman : MonoBehaviour
     //create an interface for move logic
     public interface IMoveLogic
     {
-        List<Vector2Int> GetPossibleMoves(int x, int y, bool isFirstMove, string currentPlayer);
+        //List<Vector2Int> GetPossibleMoves(int x, int y, bool isFirstMove, string currentPlayer);
+        List<Vector2Int> GetPossibleMoves(int x, int y, string currentPlayer);
     }
     public IMoveLogic moveLogic;
 
@@ -26,7 +27,8 @@ public class Hiveman : MonoBehaviour
     private string player;
 
     //is it the first move for the piece
-    private bool isFirstMove = true;
+    //private bool isFirstMove = true;
+
     //will move break the hive
     public bool hiveBreak = false;
 
@@ -104,7 +106,6 @@ public class Hiveman : MonoBehaviour
 
 
 
-    //to be edited...
     public void SetCoords()
     {
         float x = xBoard;
@@ -125,6 +126,9 @@ public class Hiveman : MonoBehaviour
         this.transform.position = new Vector3(x, y, -1.0f);   //-z to be infront of the board not behind it
 
     }
+
+    //fn to handle user interaction when a piece is clicked
+    //generates move plates to indicate possible moves
     private void OnMouseUp()
     {
         Game sc = controller.GetComponent<Game>();
@@ -137,28 +141,42 @@ public class Hiveman : MonoBehaviour
             // Check if the piece is already on the board
             if (!isOnBoard)
             {
-                // Allow placing the piece for the first time
-                isOnBoard = true;
+                if (sc.isFirstMove) // If it's the first move in the game
+                {
+                    // Highlight the center of the board
+                    PointMovePlate(14, 5);
+                }
+                else // Highlight adjacent tiles to already moved pieces
+                {
+                    List<Vector2Int> adjacentTiles = sc.GetAdjacentTiles();
+                    foreach (Vector2Int tile in adjacentTiles)
+                    {
+                        if (sc.IsValidPlacement(tile.x, tile.y))
+                        {
+                            PointMovePlate(tile.x, tile.y);
+                        }
+                    }
+                }
             }
-            else
+            else  //if Piece is already on the board -> check for the piece allowed moves
             {
-                // Generate move plates only if the piece is already placed
                 if (moveLogic != null)
                 {
-                    List<Vector2Int> possibleMoves = moveLogic.GetPossibleMoves(xBoard, yBoard, isFirstMove, player);
+                    List<Vector2Int> possibleMoves = moveLogic.GetPossibleMoves(xBoard, yBoard, player);
                     foreach (Vector2Int move in possibleMoves)
                     {
                         PointMovePlate(move.x, move.y);
                     }
                 }
+                
             }
         }
     }
 
-    public void SetFirstMove(bool firstMove)
+    /*public void SetFirstMove(bool firstMove)
     {
         isFirstMove=firstMove;
-    }
+    }*/
 
     public void DestroyMovePlates() {
         GameObject[] movePlates = GameObject.FindGameObjectsWithTag("movePlate");
@@ -168,41 +186,43 @@ public class Hiveman : MonoBehaviour
     }
 
     //function to spawn a moveplate at a certain position
+    //highlight valid moves for selected piece
     public void PointMovePlate(int x, int y)
     {
         Game sc = controller.GetComponent<Game>();
-        if (sc.IsOnBoard(x, y))
+        if (sc.isFirstMove && x == 14 && y == 5)
+        {
+            // Highlight the center tile for first move in the game
+            MovePlateSpawn(x, y, false, true);
+        }
+        else if (sc.IsOnBoard(x, y))
         {
 
             GameObject cp = sc.GetPosition(x, y);
+            bool isOverlap = cp != null && cp.GetComponent<Hiveman>().player != player;
+
+            // Highlight the tile only if it's valid for this piece
             if (this.name == "b_beetle" || this.name == "w_beetle")
             {
-                if (cp == null)
-                {
-                    MovePlateSpawn(x, y, false);
-                }
-                else if (cp.GetComponent<Hiveman>().player != player)
-                {
-
-                    MovePlateSpawn(x, y, true);
-                }
-
+                MovePlateSpawn(x, y, isOverlap, sc.isFirstMove);
             }
-            else
+            else if (cp == null) // No overlapping condition for other pieces
             {
-                if (cp == null)
-                {
-                    MovePlateSpawn(x, y, false);
-                }
-
+                MovePlateSpawn(x, y, false, sc.isFirstMove);
             }
 
+        }
+        else
+        {
+            // Handle the off-board case (optional)
+            Debug.Log($"Position ({x}, {y}) is off the board and will not be highlighted.");
+        
         }
 
     }
 
     //helper function for PointMovePlate
-    public void MovePlateSpawn(int matrixX, int matrixY, bool isOverlap)
+    public void MovePlateSpawn(int matrixX, int matrixY, bool isOverlap, bool isFirstMove)
     {
 
         float x = matrixX;
@@ -226,6 +246,11 @@ public class Hiveman : MonoBehaviour
         GameObject mp = Instantiate(movePlate, new Vector3(x, y, -3.0f), Quaternion.identity);
 
         MovePlate mpScript = mp.GetComponent<MovePlate>();
+
+        if (isFirstMove)
+        {
+            mpScript.isFirstMove = isFirstMove;
+        }
         if (isOverlap)
         {
             mpScript.overlap = isOverlap;
