@@ -433,6 +433,70 @@ public class Game : MonoBehaviour
         }
     }
 
+    public void CheckGameEndCondition()
+    {
+        // Find the Queen Bee of the current player
+        GameObject queen = FindQueenBee(currentPlayer);
 
+        if (queen != null)
+        {
+            Hiveman queenPiece = queen.GetComponent<Hiveman>();
+            List<Vector2Int> validMoves = queenPiece.moveLogic.GetPossibleMoves(queenPiece.GetXBoard(), queenPiece.GetYBoard(), currentPlayer);
 
+            if (validMoves.Count == 0)
+            {
+                EndGame(currentPlayer);
+            }
+        }
+        else
+        {
+            Debug.LogError($"No Queen Bee found for player {currentPlayer}!");
+        }
+    }
+
+    private GameObject FindQueenBee(string player)
+    {
+        // Find all pieces on the board
+        GameObject[] pieces = GameObject.FindGameObjectsWithTag("Piece");
+
+        foreach (GameObject piece in pieces)
+        {
+            if (piece.name == $"{player}_queenBee")
+            {
+                return piece;
+            }
+        }
+
+        return null; // Queen Bee not found
+    }
+
+    private void EndGame(string losingPlayer)
+    {
+        string winner = losingPlayer == "b" ? "White" : "Black";
+        Debug.Log($"Congratulations {winner}, you win!");
+
+        // Handle game-ending logic (disable input, display winner, etc.)
+        gameOver = true;
+    }
+
+    public void ProcessTurnEnd()
+    {
+        CheckGameEndCondition();
+
+        if (gameOver)
+        {
+            NextTurn();
+        }
+    }
+    /*
+    public void HandlePieceMove(GameObject piece, int targetX, int targetY)
+    {
+        // Move the piece
+        piece.GetComponent<Hiveman>().MovePiece(targetX, targetY);
+
+        // Record the move and check if the game ends
+        ProcessTurnEnd();
+    }
+
+    */
 }
