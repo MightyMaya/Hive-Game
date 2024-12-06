@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using UnityEngine.SceneManagement;
 using UnityEngine;
 using System.Reflection;
+using System.Linq;
 
 public class Game : MonoBehaviour
 {
@@ -84,7 +85,7 @@ public class Game : MonoBehaviour
 
     public void SetPosition(GameObject obj)
     {
-        
+
         Hiveman hm = obj.GetComponent<Hiveman>();
         int z = hm.GetZBoard();
         var position = (hm.GetXBoard(), hm.GetYBoard());
@@ -113,7 +114,7 @@ public class Game : MonoBehaviour
             Debug.Log($"stack position is {z}");
             positions[position].Push(obj);
         }
-        else 
+        else
         {
             //z position of the piece should be zero
             hm.SetZBoard(0);
@@ -121,7 +122,7 @@ public class Game : MonoBehaviour
             Debug.Log($"stack position is {z}");
             positions[position].Push(obj);
         }
-        
+
         UpdateVisualStack(position);
     }
 
@@ -214,7 +215,7 @@ public class Game : MonoBehaviour
         {
             return;
         }
-        
+
         Stack<GameObject> stack = positions[position];
 
         int index = stack.Count;
@@ -226,9 +227,9 @@ public class Game : MonoBehaviour
             {
                 sr.sortingOrder = index--; // Higher index = rendered on top
             }
-          
+
         }
-        
+
     }
 
 
@@ -355,7 +356,7 @@ public class Game : MonoBehaviour
                     isBlocked = true;
                 }
             }
-            
+
             // If the specified piece is the top and a beetle from the same player, allow movement
             GameObject topPiece = stack.Peek();
             Hiveman topHiveman = topPiece.GetComponent<Hiveman>();
@@ -363,7 +364,7 @@ public class Game : MonoBehaviour
             {
                 isBlocked = false;
             }
-               
+
             return isBlocked;
         }
         return false;
@@ -399,14 +400,14 @@ public class Game : MonoBehaviour
 
     public void Update()
     {
-        
+
         if (gameOver == true && Input.GetMouseButtonDown(0))
         {
             gameOver = false;
             SceneManager.LoadScene("Game");
         }
     }
-  
+
     public bool CanPlayerMoveOrPlace(string player)
     {
         bool canMoveOrPlace = false;
@@ -418,7 +419,7 @@ public class Game : MonoBehaviour
             if (GetCurrentPlayer() == player)
             {
                 // Check if this piece can move or if a new piece can be placed
-                List<Vector2Int> possibleMoves = piece.moveLogic.GetPossibleMoves(piece.GetXBoard(), piece.GetYBoard(), piece.GetZBoard(),player);
+                List<Vector2Int> possibleMoves = piece.moveLogic.GetPossibleMoves(piece.GetXBoard(), piece.GetYBoard(), piece.GetZBoard(), player);
 
                 // If there are any valid moves or placements
                 if (possibleMoves.Count > 0 /*||  piece.IsValidPlacement(piece.GetXBoard(), piece.GetYBoard())*/)
@@ -473,7 +474,7 @@ public class Game : MonoBehaviour
         if (queen != null)
         {
             Hiveman queenPiece = queen.GetComponent<Hiveman>();
-            List<Vector2Int> validMoves = queenPiece.moveLogic.GetPossibleMoves(queenPiece.GetXBoard(), queenPiece.GetYBoard(),queenPiece.GetZBoard(), currentPlayer);
+            List<Vector2Int> validMoves = queenPiece.moveLogic.GetPossibleMoves(queenPiece.GetXBoard(), queenPiece.GetYBoard(), queenPiece.GetZBoard(), currentPlayer);
 
             if (validMoves.Count == 0)
             {
@@ -531,4 +532,78 @@ public class Game : MonoBehaviour
     }
 
     */
+
+
+
+    public bool DoesPieceDisconnectHive(GameObject piece, int x, int y)
+    {
+        var position = (x, y);
+
+        // Temporarily add the piece to the position
+        if (!positions.ContainsKey(position))
+        {
+            positions[position] = new Stack<GameObject>();
+        }
+        positions[position].Push(piece);
+
+        // Check if the hive is still connected
+        bool isHiveConnected = IsHiveConnected();
+
+        // Restore the original state
+        positions[position].Pop();
+        if (positions[position].Count == 0)
+        {
+            positions.Remove(position);
+        }
+
+        return !isHiveConnected; // Return true if the hive becomes disconnected
+    }
+
+    /// <summary>
+    /// Checks if the entire hive is connected.
+    /// </summary>
+    /// <returns>True if the hive is connected, false otherwise.</returns>
+    private bool IsHiveConnected()
+    {
+        if (positions.Count == 0)
+            return true; // No pieces on the board
+
+        // Get the starting position for BFS (any occupied position)
+        var start = (14, 5);
+
+        // Set for visited positions
+        HashSet<(int x, int y)> visited = new HashSet<(int x, int y)>();
+        Queue<(int x, int y)> queue = new Queue<(int x, int y)>();
+        queue.Enqueue(start);
+        visited.Add(start);
+
+        // Perform BFS
+        while (queue.Count > 0)
+        {
+            var current = queue.Dequeue();
+
+            foreach (var neighbor in GetAdjacentTiles(new Vector2Int(current.x, current.y)))
+            {
+                var neighborTuple = (neighbor.x, neighbor.y);
+
+                // Only consider positions with pieces
+                if (positions.ContainsKey(neighborTuple) && positions[neighborTuple].Count > 0 && !visited.Contains(neighborTuple))
+                {
+                    visited.Add(neighborTuple);
+                    queue.Enqueue(neighborTuple);
+                }
+            }
+        }
+
+        // Check if all pieces are visited
+        foreach (var position in positions.Keys)
+        {
+            if (positions[position].Count > 0 && !visited.Contains(position))
+            {
+                return false; // Found a piece that isn't connected
+            }
+        }
+
+        return true; // All pieces are connected
+    }
 }

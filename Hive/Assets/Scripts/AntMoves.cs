@@ -1,5 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 using UnityEngine;
 
 
@@ -27,78 +29,31 @@ public class AntMoves : MonoBehaviour, IMoveLogic
         Game sc = controller.GetComponent<Game>();
 
         var possibleMoves = new List<Vector2Int>();
-        Vector2Int currentPosition = new Vector2Int(x, y);
+        UnityEngine.Debug.Log($"Current Position: ({x}, {y})");
 
-        if (!sc.IsBeetleBlocked(x, y,z, currentPlayer)) //if the piece is not blocked by a beetle
+        if (!sc.IsBeetleBlocked(x, y, z, currentPlayer)) // If the piece is not blocked by a beetle
         {
+            // Loop through the entire board (assuming a 2D grid, adjust according to your board size)
+            for (int i = 0; i < 30 ; i++)  // Assuming `sc.boardWidth` defines the board's width
             {
-                // Perform a flood-fill to find all reachable positions
-                var visited = new HashSet<Vector2Int>();
-                var stack = new Stack<Vector2Int>();
-
-                stack.Push(currentPosition);
-
-                while (stack.Count > 0)
+                for (int j = 0; j < 12 ; j++)  // Assuming `sc.boardHeight` defines the board's height
                 {
-                    var current = stack.Pop();
+                    Vector2Int hex = new Vector2Int(i, j);
 
-                    if (visited.Contains(current))
-                        continue;
+                    // Skip if the hex is the current position (no need to move there)
+                    if (hex == new Vector2Int(x, y)) continue;
 
-                    visited.Add(current);
-
-                    // Get all adjacent hexes
-                    var adjacentHexes = GetAdjacentHexes(current);
-
-                    foreach (var hex in adjacentHexes)
+                    // Check if the hex is empty and the move maintains hive integrity
+                    if (sc.GetPosition(hex.x, hex.y) == null && !sc.DoesPieceDisconnectHive(gameObject, hex.x, hex.y))
                     {
-                        if (!sc.IsOnBoard(hex.x, hex.y) || visited.Contains(hex))
-                            continue;
+                        possibleMoves.Add(hex); // Add valid move to the list
+                        //UnityEngine.Debug.Log("Possible Moves: " + string.Join(", ", possibleMoves.Select(m => $"({m.x}, {m.y})")));
 
-                        // Check if the hex is empty and the move maintains hive integrity
-                        if (sc.GetPosition(hex.x, hex.y) == null)
-                        //&& sc.DoesHiveRemainConnected(currentPosition, hex))
-                        {
-                            possibleMoves.Add(hex);
-                            stack.Push(hex);
-                        }
                     }
                 }
             }
         }
-            return possibleMoves;
-       }
 
-        /// <summary>
-        /// Get all adjacent hexes for a given position.
-        /// </summary>
-        public List<Vector2Int> GetAdjacentHexes(Vector2Int position)
-        {
-            var adjacentHexes = new List<Vector2Int>();
-
-            // Add hexes based on board rules (accounting for hexagonal grid)
-            if (position.x % 2 == 0)
-            {
-                adjacentHexes.Add(new Vector2Int(position.x + 1, position.y));
-                adjacentHexes.Add(new Vector2Int(position.x - 1, position.y));
-                adjacentHexes.Add(new Vector2Int(position.x, position.y + 1));
-                adjacentHexes.Add(new Vector2Int(position.x, position.y - 1));
-                adjacentHexes.Add(new Vector2Int(position.x + 1, position.y + 1));
-                adjacentHexes.Add(new Vector2Int(position.x - 1, position.y + 1));
-            }
-            else
-            {
-                adjacentHexes.Add(new Vector2Int(position.x + 1, position.y));
-                adjacentHexes.Add(new Vector2Int(position.x - 1, position.y));
-                adjacentHexes.Add(new Vector2Int(position.x, position.y + 1));
-                adjacentHexes.Add(new Vector2Int(position.x, position.y - 1));
-                adjacentHexes.Add(new Vector2Int(position.x + 1, position.y - 1));
-                adjacentHexes.Add(new Vector2Int(position.x - 1, position.y - 1));
-            }
-
-            return adjacentHexes;
-        }
+        return possibleMoves;
     }
-
-
-
+}
