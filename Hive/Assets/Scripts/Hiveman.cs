@@ -11,7 +11,7 @@ public class Hiveman : MonoBehaviour
     public interface IMoveLogic
     {
         //List<Vector2Int> GetPossibleMoves(int x, int y, bool isFirstMove, string currentPlayer);
-        List<Vector2Int> GetPossibleMoves(int x, int y, string currentPlayer);
+        List<Vector2Int> GetPossibleMoves(int x, int y, int z, string currentPlayer);
     }
     public IMoveLogic moveLogic;
 
@@ -22,6 +22,7 @@ public class Hiveman : MonoBehaviour
     //Positions
     private int xBoard = -1;    //not on the board yet
     private int yBoard = -1;
+    private int zBoard = -1;
 
     //"black" or "white" player
     public string player;
@@ -52,7 +53,7 @@ public class Hiveman : MonoBehaviour
             case "b_ant": 
                 this.GetComponent<SpriteRenderer>().sprite = b_ant;
                 player = "b";
-                //moveLogic = gameObject.AddComponent<AntMoves>();
+                moveLogic = gameObject.AddComponent<AntMoves>();
                 break;
             case "b_beetle":
                 this.GetComponent<SpriteRenderer>().sprite = b_beetle;
@@ -62,12 +63,12 @@ public class Hiveman : MonoBehaviour
             case "b_grasshopper":
                 this.GetComponent<SpriteRenderer>().sprite = b_grasshopper;
                 player = "b";
-                //moveLogic = gameObject.AddComponent<GrassMoves>();
+                moveLogic = gameObject.AddComponent<GrassMoves>();
                 break;
             case "b_spider": 
                 this.GetComponent<SpriteRenderer>().sprite = b_spider;
                 player = "b";
-                //moveLogic = gameObject.AddComponent<SpiderMoves>();
+                moveLogic = gameObject.AddComponent<SpiderMoves>();
                 break;
 
             case "w_queenBee":
@@ -78,7 +79,7 @@ public class Hiveman : MonoBehaviour
             case "w_ant": 
                 this.GetComponent<SpriteRenderer>().sprite = w_ant;
                 player = "w";
-                //moveLogic = gameObject.AddComponent<AntMoves>();
+                moveLogic = gameObject.AddComponent<AntMoves>();
                 break;
             case "w_beetle": 
                 this.GetComponent<SpriteRenderer>().sprite = w_beetle;
@@ -88,12 +89,12 @@ public class Hiveman : MonoBehaviour
             case "w_grasshopper":
                 this.GetComponent<SpriteRenderer>().sprite = w_grasshopper;
                 player = "w";
-                //moveLogic = gameObject.AddComponent<GrassMoves>();
+                moveLogic = gameObject.AddComponent<GrassMoves>();
                 break;
             case "w_spider":
                 this.GetComponent<SpriteRenderer>().sprite = w_spider;
                 player = "w";
-                //moveLogic = gameObject.AddComponent<SpiderMoves>();
+                moveLogic = gameObject.AddComponent<SpiderMoves>();
                 break;
         }
 
@@ -101,8 +102,10 @@ public class Hiveman : MonoBehaviour
 
     public int GetXBoard() { return this.xBoard; }
     public int GetYBoard() { return this.yBoard; }
+    public int GetZBoard() { return this.zBoard; }  
     public void SetXBoard(int xBoard) { this.xBoard = xBoard; }
     public void SetYBoard(int yBoard) { this.yBoard = yBoard; }
+    public void SetZBoard(int zBoard) { this.zBoard = zBoard; }
 
 
 
@@ -171,7 +174,7 @@ public class Hiveman : MonoBehaviour
         {
             if (moveLogic != null)
             {
-                List<Vector2Int> possibleMoves = moveLogic.GetPossibleMoves(xBoard, yBoard, player);
+                List<Vector2Int> possibleMoves = moveLogic.GetPossibleMoves(xBoard, yBoard, zBoard ,player);
                 foreach (Vector2Int move in possibleMoves)
                 {
                     PointMovePlate(move.x, move.y);

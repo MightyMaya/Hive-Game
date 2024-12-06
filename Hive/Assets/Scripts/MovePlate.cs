@@ -83,6 +83,24 @@ public class MovePlate : MonoBehaviour
             //destroy the moveplates made
             hivesc.DestroyMovePlates();
 
+            // New: Check for the draw condition each time a turn ends
+            if (gamesc.CheckForDraw())
+            {
+                gamesc.SetDraw(true);
+                Debug.Log("The game is a draw (Fady).");
+                // Optionally, trigger game over or stop further moves
+                return; // Stop further game updates
+            }
+
+
+
+            // Check if the player has any valid moves or piece placements
+            if (gamesc.CanPlayerMoveOrPlace(gamesc.GetCurrentPlayer()) == false)
+            {
+                // If no valid moves are available, pass the turn to the opponent
+                gamesc.NextTurn(); // NEW: Pass the turn to the opponent
+            }
+
         }
         else {
             //stop piece from moving

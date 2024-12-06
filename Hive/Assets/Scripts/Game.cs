@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine.SceneManagement;
 using UnityEngine;
+using System.Reflection;
 
 public class Game : MonoBehaviour
 {
@@ -33,32 +34,32 @@ public class Game : MonoBehaviour
     {
         whitePlayer = new GameObject[]
         {
-            Create("w_queenBee", 30, 0),
-            Create("w_ant", 30, 1),
-            Create("w_ant", 30, 2),
-            Create("w_ant", 30, 3),
-            Create("w_beetle", 30, 4),
-            Create("w_beetle", 30, 5),
-            Create("w_spider", 30, 6),
-            Create("w_spider", 30, 7),
-            Create("w_grasshopper", 30, 8),
-            Create("w_grasshopper", 30, 9),
-             Create("w_grasshopper", 30, 10)
+            Create("w_queenBee", 30, 0,0),
+            Create("w_ant", 30, 1, 0),
+            Create("w_ant", 30, 2, 0),
+            Create("w_ant", 30, 3, 0),
+            Create("w_beetle", 30, 4, 0),
+            Create("w_beetle", 30, 5, 0),
+            Create("w_spider", 30, 6, 0),
+            Create("w_spider", 30, 7, 0),
+            Create("w_grasshopper", 30, 8, 0),
+            Create("w_grasshopper", 30, 9, 0),
+             Create("w_grasshopper", 30, 10, 0)
         };
 
         blackPlayer = new GameObject[]
         {
-            Create("b_queenBee", -2, 0),
-            Create("b_ant", -2, 1),
-            Create("b_ant", -2, 2),
-            Create("b_ant", -2, 3),
-            Create("b_beetle", -2, 4),
-            Create("b_beetle", -2, 5),
-            Create("b_spider", -2, 6),
-            Create("b_spider", -2, 7),
-            Create("b_grasshopper", -2, 8),
-            Create("b_grasshopper", -2, 9),
-            Create("b_grasshopper", -2, 10)
+            Create("b_queenBee", -2, 0, 0),
+            Create("b_ant", -2, 1, 0),
+            Create("b_ant", -2, 2, 0),
+            Create("b_ant", -2, 3, 0),
+            Create("b_beetle", -2, 4, 0),
+            Create("b_beetle", -2, 5, 0),
+            Create("b_spider", -2, 6, 0),
+            Create("b_spider", -2, 7, 0),
+            Create("b_grasshopper", -2, 8, 0),
+            Create("b_grasshopper", -2, 9, 0),
+            Create("b_grasshopper", -2, 10, 0 )
         };
 
         for (int i = 0; i < whitePlayer.Length; i++)
@@ -68,13 +69,14 @@ public class Game : MonoBehaviour
         }
     }
 
-    public GameObject Create(string name, int x, int y)
+    public GameObject Create(string name, int x, int y, int z)
     {
         GameObject obj = Instantiate(hivepiece, new Vector3(0, 0, -1), Quaternion.identity);
         Hiveman hm = obj.GetComponent<Hiveman>();
         hm.name = name;
         hm.SetXBoard(x);
         hm.SetYBoard(y);
+        hm.SetZBoard(z);
         hm.isOnBoard = false;
         hm.Activate();
         return obj;
@@ -82,7 +84,9 @@ public class Game : MonoBehaviour
 
     public void SetPosition(GameObject obj)
     {
+        
         Hiveman hm = obj.GetComponent<Hiveman>();
+        int z = hm.GetZBoard();
         var position = (hm.GetXBoard(), hm.GetYBoard());
         /*// For the first move, place the piece at the center of the board
         if (isFirstMove)
@@ -101,12 +105,23 @@ public class Game : MonoBehaviour
             return;
         }
 
-        if (!positions.ContainsKey(position))
+        //if the position already has a piece
+        if (positions.ContainsKey(position))
         {
-            positions[position] = new Stack<GameObject>();
+            //z position of the piece should be incremented
+            hm.SetZBoard(++z);
+            Debug.Log($"stack position is {z}");
+            positions[position].Push(obj);
         }
-
-        positions[position].Push(obj);
+        else 
+        {
+            //z position of the piece should be zero
+            hm.SetZBoard(0);
+            positions[position] = new Stack<GameObject>();
+            Debug.Log($"stack position is {z}");
+            positions[position].Push(obj);
+        }
+        
         UpdateVisualStack(position);
     }
 
@@ -316,20 +331,45 @@ public class Game : MonoBehaviour
 
 
     //is this position blocked due to a beetle
-    public bool IsBeetleBlocked(int x, int y, string player)
+    public bool IsBeetleBlocked(int x, int y, int z, string player)
     {
         var position = (x, y);
         if (positions.ContainsKey(position) && positions[position].Count > 1)
         {
             Stack<GameObject> stack = positions[position];
+            bool isBlocked = false;
+
+            foreach (var piece in stack)
+            {
+                Hiveman pieceHiveman = piece.GetComponent<Hiveman>();
+
+                // If we reach the specified z level, stop checking further
+                if (pieceHiveman.GetZBoard() == z)
+                {
+                    break;
+                }
+
+                // If there's a beetle above the specified z level, block movement
+                if (pieceHiveman.name.Contains("beetle"))
+                {
+                    isBlocked = true;
+                }
+            }
+            
+            // If the specified piece is the top and a beetle from the same player, allow movement
             GameObject topPiece = stack.Peek();
             Hiveman topHiveman = topPiece.GetComponent<Hiveman>();
-
-            // If top piece is a beetle, the pieces below are blocked
-            return topHiveman.name.Contains("beetle") && currentPlayer != player ; //make sure the top beetle is not blocked
+            if (topHiveman.name.Contains("beetle") && topHiveman.player == player && topHiveman.GetZBoard() == z)
+            {
+                isBlocked = false;
+            }
+               
+            return isBlocked;
         }
         return false;
     }
+
+
     public bool IsOnBoard(int x, int y)
     {
         return x >= 0 && y >= 0 && x < 29 && y < 12;
@@ -342,6 +382,16 @@ public class Game : MonoBehaviour
     {
         return currentPlayer;
     }
+    public bool IsDraw(int x, int y)
+    {
+        return isDraw;
+    }
+    public void SetDraw(bool isDraw_)
+    {
+        isDraw = isDraw_;
+    }
+
+    //function to switch current player
     public void NextTurn()
     {
         currentPlayer = currentPlayer == "w" ? "b" : "w";
@@ -349,25 +399,7 @@ public class Game : MonoBehaviour
 
     public void Update()
     {
-        // New: Check for the draw condition each time a turn ends
-        if (CheckForDraw())
-        {
-            isDraw = true;
-            Debug.Log("The game is a draw (Fady).");
-            // Optionally, trigger game over or stop further moves
-            return; // Stop further game updates
-        }
-
-
-
-        // Check if the player has any valid moves or piece placements
-        if (CanPlayerMoveOrPlace(currentPlayer) == false)
-        {
-            // If no valid moves are available, pass the turn to the opponent
-            NextTurn(); // NEW: Pass the turn to the opponent
-        }
-
-
+        
         if (gameOver == true && Input.GetMouseButtonDown(0))
         {
             gameOver = false;
@@ -375,7 +407,7 @@ public class Game : MonoBehaviour
         }
     }
   
-    private bool CanPlayerMoveOrPlace(string player)
+    public bool CanPlayerMoveOrPlace(string player)
     {
         bool canMoveOrPlace = false;
 
@@ -386,7 +418,7 @@ public class Game : MonoBehaviour
             if (GetCurrentPlayer() == player)
             {
                 // Check if this piece can move or if a new piece can be placed
-                List<Vector2Int> possibleMoves = piece.moveLogic.GetPossibleMoves(piece.GetXBoard(), piece.GetYBoard(), player);
+                List<Vector2Int> possibleMoves = piece.moveLogic.GetPossibleMoves(piece.GetXBoard(), piece.GetYBoard(), piece.GetZBoard(),player);
 
                 // If there are any valid moves or placements
                 if (possibleMoves.Count > 0 /*||  piece.IsValidPlacement(piece.GetXBoard(), piece.GetYBoard())*/)
@@ -401,7 +433,7 @@ public class Game : MonoBehaviour
     }
 
     // New: This method checks if the game is in a draw condition
-    private bool CheckForDraw()
+    public bool CheckForDraw()
     {
         // Check if both players have repeated their last two moves
         if (whitePlayerMoves.Count >= 2 && blackPlayerMoves.Count >= 2)
@@ -441,7 +473,7 @@ public class Game : MonoBehaviour
         if (queen != null)
         {
             Hiveman queenPiece = queen.GetComponent<Hiveman>();
-            List<Vector2Int> validMoves = queenPiece.moveLogic.GetPossibleMoves(queenPiece.GetXBoard(), queenPiece.GetYBoard(), currentPlayer);
+            List<Vector2Int> validMoves = queenPiece.moveLogic.GetPossibleMoves(queenPiece.GetXBoard(), queenPiece.GetYBoard(),queenPiece.GetZBoard(), currentPlayer);
 
             if (validMoves.Count == 0)
             {

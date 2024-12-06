@@ -9,7 +9,7 @@ public class QueenBeeMoves : MonoBehaviour, IMoveLogic
 {
     public GameObject controller;
 
-    public List<Vector2Int> GetPossibleMoves(int x, int y, string currentPlayer)
+    public List<Vector2Int> GetPossibleMoves(int x, int y, int z, string currentPlayer)
     {
         controller = GameObject.FindGameObjectWithTag("GameController");
         Game sc = controller.GetComponent<Game>();
@@ -29,7 +29,7 @@ public class QueenBeeMoves : MonoBehaviour, IMoveLogic
                 }
             }
         }
-        else*/ if(!sc.IsBeetleBlocked(x,y,currentPlayer)) //if the piece is not blocked by a beetle
+        else*/ if(!sc.IsBeetleBlocked(x,y,z,currentPlayer)) //if the piece is not blocked by a beetle
         {
             // Standard queen movement logic
             if (x % 2 == 0)
