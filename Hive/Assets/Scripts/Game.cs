@@ -478,7 +478,7 @@ public class Game : MonoBehaviour
         // Handle game-ending logic (disable input, display winner, etc.)
         gameOver = true;
     }
-
+    /*
     public void ProcessTurnEnd()
     {
         CheckGameEndCondition();
@@ -487,7 +487,7 @@ public class Game : MonoBehaviour
         {
             NextTurn();
         }
-    }
+    }*/
     /*
     public void HandlePieceMove(GameObject piece, int targetX, int targetY)
     {
