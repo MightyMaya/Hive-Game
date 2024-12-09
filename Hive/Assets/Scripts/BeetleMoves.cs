@@ -50,7 +50,7 @@ public class BeetleMoves : MonoBehaviour, IMoveLogic
             }
             
         }
-        else */if (!sc.IsBeetleBlocked(x, y, z, currentPlayer) ) //if the piece is not blocked by a beetle
+        else */if (!sc.IsBeetleBlocked(x, y, z, currentPlayer)) //if the piece is not blocked by a beetle 
         {
             
 
@@ -59,9 +59,9 @@ public class BeetleMoves : MonoBehaviour, IMoveLogic
 
             foreach (var hex in adjacentHexes)
             {
-                if (sc.IsOnBoard(hex.x, hex.y))
+                if (sc.IsOnBoard(hex.x, hex.y) && !sc.DoesPieceDisconnectHive(gameObject, hex.x, hex.y)) // if move does not break the hive
                 {
-                    GameObject targetTile = sc.GetPosition(x, y);
+                    GameObject targetTile = sc.GetPosition(hex.x, hex.y);  
 
                     if (targetTile == null)
                     {
@@ -70,7 +70,7 @@ public class BeetleMoves : MonoBehaviour, IMoveLogic
                     }
                     else
                     {
-                        // Check if the tile contains a piec
+                        // Check if the tile contains a piece
                         Hiveman hiveman = targetTile.GetComponent<Hiveman>();
                         if (hiveman != null)
                         {

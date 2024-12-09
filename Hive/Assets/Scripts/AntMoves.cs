@@ -34,9 +34,9 @@ public class AntMoves : MonoBehaviour, IMoveLogic
         if (!sc.IsBeetleBlocked(x, y, z, currentPlayer)) // If the piece is not blocked by a beetle
         {
             // Loop through the entire board (assuming a 2D grid, adjust according to your board size)
-            for (int i = 0; i < 30 ; i++)  // Assuming `sc.boardWidth` defines the board's width
+            for (int i = 0; i < 30 ; i++)  
             {
-                for (int j = 0; j < 12 ; j++)  // Assuming `sc.boardHeight` defines the board's height
+                for (int j = 0; j < 12 ; j++)  
                 {
                     Vector2Int hex = new Vector2Int(i, j);
 

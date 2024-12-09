@@ -534,30 +534,52 @@ public class Game : MonoBehaviour
     */
 
 
-
-    public bool DoesPieceDisconnectHive(GameObject piece, int x, int y)
+    //function to simulate moving a piece and check if the movement will diconnect the hive
+    public bool DoesPieceDisconnectHive(GameObject piece, int targetX, int targetY)
     {
-        var position = (x, y);
+        // Get the current position of the piece
+        int currentX = piece.GetComponent<Hiveman>().GetXBoard();
+        int currentY = piece.GetComponent<Hiveman>().GetYBoard();
+        var currentPosition = (currentX, currentY);
+        var targetPosition = (targetX, targetY);
 
-        // Temporarily add the piece to the position
-        if (!positions.ContainsKey(position))
+        // Temporarily remove the piece from its current position
+        Stack<GameObject> originalStack = positions[currentPosition];
+        originalStack.Pop();
+        if (originalStack.Count == 0)
         {
-            positions[position] = new Stack<GameObject>();
+            positions.Remove(currentPosition);
         }
-        positions[position].Push(piece);
 
-        // Check if the hive is still connected
+        // Temporarily add the piece to the target position
+        if (!positions.ContainsKey(targetPosition))
+        {
+            positions[targetPosition] = new Stack<GameObject>();
+        }
+        positions[targetPosition].Push(piece);
+
+        // Check if the hive remains connected
         bool isHiveConnected = IsHiveConnected();
 
         // Restore the original state
-        positions[position].Pop();
-        if (positions[position].Count == 0)
+        // Remove the piece from the target position
+        positions[targetPosition].Pop();
+        if (positions[targetPosition].Count == 0)
         {
-            positions.Remove(position);
+            positions.Remove(targetPosition);
         }
 
-        return !isHiveConnected; // Return true if the hive becomes disconnected
+        // Restore the piece to its original position
+        if (!positions.ContainsKey(currentPosition))
+        {
+            positions[currentPosition] = new Stack<GameObject>();
+        }
+        positions[currentPosition].Push(piece);
+
+        // Return true if moving the piece causes the hive to disconnect
+        return !isHiveConnected;
     }
+
 
     /// <summary>
     /// Checks if the entire hive is connected.
@@ -568,14 +590,25 @@ public class Game : MonoBehaviour
         if (positions.Count == 0)
             return true; // No pieces on the board
 
-        // Get the starting position for BFS (any occupied position)
-        var start = (14, 5);
+        // Find a starting position with at least one piece
+        (int x, int y)? start = null;
+        foreach (var position in positions.Keys)
+        {
+            if (positions[position].Count > 0)
+            {
+                start = position;
+                break;
+            }
+        }
+
+        if (start == null)
+            return true; // No active pieces, so the hive is trivially connected
 
         // Set for visited positions
         HashSet<(int x, int y)> visited = new HashSet<(int x, int y)>();
         Queue<(int x, int y)> queue = new Queue<(int x, int y)>();
-        queue.Enqueue(start);
-        visited.Add(start);
+        queue.Enqueue(start.Value);
+        visited.Add(start.Value);
 
         // Perform BFS
         while (queue.Count > 0)
@@ -606,4 +639,5 @@ public class Game : MonoBehaviour
 
         return true; // All pieces are connected
     }
+
 }
