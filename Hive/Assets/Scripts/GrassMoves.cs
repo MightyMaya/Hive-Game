@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using static Hiveman;
@@ -14,47 +15,75 @@ public class GrassMoves : MonoBehaviour, IMoveLogic
         var validMoves = new List<Vector2Int>();
         Vector2Int currentPosition = new Vector2Int(x, y);
         List<Vector2Int> directions = GetValidDirections(currentPosition.x);
+        Debug.Log("Entering Valid Direction");
+        //foreach (var direction in directions)
+        //{
+        //    Debug.Log((int)direction.x + (int)direction.y+  " 1 \n");
+        //    Debug.Log($"Direction: x = {direction.x}, y = {direction.y}"+ " 2 \n");
+
+        //}
+        //foreach (var direction in directions)
+        //{
+        //    Debug.Log(direction.ToString());
+        //}
 
         // Process each direction for a valid jump
         foreach (var direction in directions)
         {
-           
+
             Vector2Int adjustedDirection = MapDirection(direction, currentPosition.x);  //variable to hold the adjusted direction
 
             Vector2Int nextPosition = currentPosition + adjustedDirection; // move in the given direction
 
-            bool hasJumped = false;
+          //  bool hasJumped = false;
 
             while (sc.IsOnBoard(nextPosition.x, nextPosition.y))  // Ensure we're within board bounds
             {
                 GameObject targetTile = sc.GetPosition(nextPosition.x, nextPosition.y);
 
+            //  Debug.Log($"targetT is null  = {targetTile==null} it's X:Y ={nextPosition.x} {nextPosition.y} \n");
+
                 if (targetTile == null) // No piece here
                 {
-                    if (hasJumped) // If we jumped, this is a valid landing spot
-                    {
-                        if (!sc.DoesPieceDisconnectHive(gameObject, nextPosition.x, nextPosition.y))
-                        {
-                            validMoves.Add(nextPosition);
-                        }
-                    }
+
+
+                    // if (hasJumped) // If we jumped, this is a valid landing spot
+                    //  {
+
+                    //  }
                     break; // Stop further checks in this direction
                 }
+                else
+                {
 
-                // If we encounter an occupied tile, mark that we've jumped
-                hasJumped = true;
+                    while (targetTile != null)
+                    {
 
-                // Move to the next position in the same direction
-                adjustedDirection = MapDirection(adjustedDirection, nextPosition.x);
-                nextPosition += adjustedDirection;
-                adjustedDirection = MapDirection(adjustedDirection, nextPosition.x);
+
+                        // If we encounter an occupied tile, mark that we've jumped
+                        //  hasJumped = true;
+
+                        // Move to the next position in the same direction
+                        adjustedDirection = MapDirection(adjustedDirection, nextPosition.x);
+                        nextPosition += adjustedDirection;
+                        targetTile = sc.GetPosition(nextPosition.x, nextPosition.y);
+                        //adjustedDirection = MapDirection(adjustedDirection, nextPosition.x);
+
+
+                    }
+                    if (!sc.DoesPieceDisconnectHive(gameObject, nextPosition.x, nextPosition.y))
+                    {
+                        validMoves.Add(nextPosition);
+                    }
+
+
+                }
             }
 
         }
 
         return validMoves;
     }
-
 
     /// <summary>
     /// Dynamically calculate directions based on the current row's parity.
@@ -90,7 +119,7 @@ public class GrassMoves : MonoBehaviour, IMoveLogic
         return directions;
     }
 
-    //function to remap the direction based on what row we are on
+//    function to remap the direction based on what row we are on
     private Vector2Int MapDirection(Vector2Int direction, int currentX)
     {
         bool isEvenRow = currentX % 2 == 0;
@@ -99,7 +128,7 @@ public class GrassMoves : MonoBehaviour, IMoveLogic
         if (direction == new Vector2Int(1, 0)) // Right
             return isEvenRow ? new Vector2Int(1, 1) : new Vector2Int(1, -1);
         if (direction == new Vector2Int(-1, 0)) // Left
-            return isEvenRow ? new Vector2Int(-1, 1) : new Vector2Int(-1, -1);
+            return isEvenRow ? new Vector2Int(-1, 1): new Vector2Int(-1, -1);
         if (direction == new Vector2Int(1, 1)) // Up-right
             return isEvenRow ? direction : new Vector2Int(1, 0);
         if (direction == new Vector2Int(-1, 1)) // Up-left
@@ -109,10 +138,10 @@ public class GrassMoves : MonoBehaviour, IMoveLogic
         if (direction == new Vector2Int(-1, -1)) // Down-left
             return isEvenRow ? new Vector2Int(-1, 0) : direction;
 
+
         // Default: no remapping
         return direction;
     }
-
 
 
 }
