@@ -575,6 +575,20 @@ public class Game : MonoBehaviour
         {
             positions.Remove(currentPosition);
         }
+        
+        // Check if the hive remains connected after removal
+        bool isHiveConnectedAfterRemoval = IsHiveConnected();
+        if (!isHiveConnectedAfterRemoval)
+        {
+            Debug.Log("Move invalid: Removing this piece disconnects the hive.");
+            // Restore the piece to its original position
+            if (!positions.ContainsKey(currentPosition))
+            {
+                positions[currentPosition] = new Stack<GameObject>();
+            }
+            positions[currentPosition].Push(piece);
+            return true; // The move is invalid
+        }
 
         // Temporarily add the piece to the target position
         if (!positions.ContainsKey(targetPosition))
