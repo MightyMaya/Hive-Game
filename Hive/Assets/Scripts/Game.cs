@@ -426,6 +426,26 @@ public class Game : MonoBehaviour
     public void Update()
     {
 
+        // Leave this code commented  , DO NOT Delete it (Fady)
+        /**
+         *  // New: Check for the draw condition each time a turn ends
+        if (CheckForDraw())
+        {
+            isDraw = true;
+            Debug.Log("The game is a draw (Fady).");
+            // Optionally, trigger game over or stop further moves
+            return; // Stop further game updates
+        }
+        // Check if the player has any valid moves or piece placements
+        if (CanPlayerMoveOrPlace(currentPlayer) == false)
+        {
+            // If no valid moves are available, pass the turn to the opponent
+            NextTurn(); // NEW: Pass the turn to the opponent
+        }
+
+         * **/
+
+
         if (gameOver == true && Input.GetMouseButtonDown(0))
         {
             gameOver = false;
@@ -459,7 +479,7 @@ public class Game : MonoBehaviour
     }
 
     // New: This method checks if the game is in a draw condition
-    public bool CheckForDraw()
+    public bool CheckForDrawDueRedundentMoves()
     {
         // Check if both players have repeated their last two moves
         if (whitePlayerMoves.Count >= 2 && blackPlayerMoves.Count >= 2)
@@ -493,24 +513,73 @@ public class Game : MonoBehaviour
 
     public void CheckGameEndCondition()
     {
-        // Find the Queen Bee of the current player
-        GameObject queen = FindQueenBee(currentPlayer);
+        // Find the Queen Bees of both players
+        GameObject queenWhite = FindQueenBee("w");
+        GameObject queenBlack = FindQueenBee("b");
 
-        if (queen != null)
+        if (queenWhite != null && queenBlack != null)
         {
-            Hiveman queenPiece = queen.GetComponent<Hiveman>();
-            List<Vector2Int> validMoves = queenPiece.moveLogic.GetPossibleMoves(queenPiece.GetXBoard(), queenPiece.GetYBoard(), queenPiece.GetZBoard(), currentPlayer);
+            // Check if both queens are surrounded
+            Hiveman whiteQueenPiece = queenWhite.GetComponent<Hiveman>();
+            Hiveman blackQueenPiece = queenBlack.GetComponent<Hiveman>();
 
-            if (validMoves.Count == 0)
+            List<Vector2Int> whiteQueenMoves = whiteQueenPiece.moveLogic.GetPossibleMoves(whiteQueenPiece.GetXBoard(), whiteQueenPiece.GetYBoard(), whiteQueenPiece.GetZBoard(), "w");
+            List<Vector2Int> blackQueenMoves = blackQueenPiece.moveLogic.GetPossibleMoves(blackQueenPiece.GetXBoard(), blackQueenPiece.GetYBoard(), blackQueenPiece.GetZBoard(), "b");
+
+            // Check for no valid moves for both queens (surrounded)
+            bool whiteQueenSurrounded = whiteQueenMoves.Count == 0;
+            bool blackQueenSurrounded = blackQueenMoves.Count == 0;
+
+            if (whiteQueenSurrounded && blackQueenSurrounded)
             {
-                EndGame(currentPlayer);
+                // Check if the last move surrounds both queens
+                //   if (LastMoveSurroundsBothQueens())
+                //    {
+                // New: Both queens are surrounded by the same move, game is a draw
+                SetDraw(true);
+                    EndGameDraw();
+
+                    return;
+             //       }
+            }
+
+            if (whiteQueenSurrounded)
+            {
+                EndGame("b");
+            }
+            else if (blackQueenSurrounded)
+            {
+                EndGame("w");
             }
         }
         else
         {
-            Debug.LogError($"No Queen Bee found for player {currentPlayer}!");
+            Debug.LogError("One or both queens are missing, cannot determine game end condition.");
         }
     }
+
+
+
+    //public void CheckGameEndCondition()
+    //{
+    //    // Find the Queen Bee of the current player
+    //    GameObject queen = FindQueenBee(currentPlayer);
+
+    //    if (queen != null)
+    //    {
+    //        Hiveman queenPiece = queen.GetComponent<Hiveman>();
+    //        List<Vector2Int> validMoves = queenPiece.moveLogic.GetPossibleMoves(queenPiece.GetXBoard(), queenPiece.GetYBoard(), queenPiece.GetZBoard(), currentPlayer);
+
+    //        if (validMoves.Count == 0)
+    //        {
+    //            EndGame(currentPlayer);
+    //        }
+    //    }
+    //    else
+    //    {
+    //        Debug.LogError($"No Queen Bee found for player {currentPlayer}!");
+    //    }
+    //}
 
     private GameObject FindQueenBee(string player)
     {
@@ -528,12 +597,20 @@ public class Game : MonoBehaviour
         return null; // Queen Bee not found
     }
 
+
     private void EndGame(string losingPlayer)
     {
         string winner = losingPlayer == "b" ? "White" : "Black";
         Debug.Log($"Congratulations {winner}, you win!");
 
         // Handle game-ending logic (disable input, display winner, etc.)
+        gameOver = true;
+    }
+    public void EndGameDraw()
+    {
+        Debug.Log("The game is a draw! Both queens were surrounded by the same move.");
+
+        // Handle draw logic (disable input, show draw message, etc.)
         gameOver = true;
     }
     /*

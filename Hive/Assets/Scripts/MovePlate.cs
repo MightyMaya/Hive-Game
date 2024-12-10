@@ -84,9 +84,11 @@ public class MovePlate : MonoBehaviour
             hivesc.DestroyMovePlates();
 
             // New: Check for the draw condition each time a turn ends
-            if (gamesc.CheckForDraw())
+            if (gamesc.CheckForDrawDueRedundentMoves())
             {
                 gamesc.SetDraw(true);
+                gamesc.EndGameDraw();
+               
                 Debug.Log("The game is a draw (Fady).");
                 // Optionally, trigger game over or stop further moves
                 return; // Stop further game updates
