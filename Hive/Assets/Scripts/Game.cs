@@ -28,7 +28,8 @@ public class Game : MonoBehaviour
 
     // New variable to track if the game has been declared a draw
     private bool isDraw = false;
-
+    public int b_turncount = 0;
+    public int w_turncount = 0;
 
 
     void Start()
@@ -395,7 +396,31 @@ public class Game : MonoBehaviour
     //function to switch current player
     public void NextTurn()
     {
+        if (currentPlayer == "w")
+        {
+            w_turncount++;
+        }
+        else if (currentPlayer == "b")
+        {
+            b_turncount++;
+        }
         currentPlayer = currentPlayer == "w" ? "b" : "w";
+    }
+
+    public bool IsQueenOnBoard(string player)
+    {
+        GameObject[] playerPieces = player == "w" ? whitePlayer : blackPlayer;
+
+        foreach (GameObject piece in playerPieces)
+        {
+            Hiveman hiveman = piece.GetComponent<Hiveman>();
+            if (hiveman.name == $"{player}_queenBee" && hiveman.isOnBoard)
+            {
+                return true; // Queen is on the board
+            }
+        }
+
+        return false; // Queen is not on the board
     }
 
     public void Update()

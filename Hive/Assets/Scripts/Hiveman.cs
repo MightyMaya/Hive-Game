@@ -38,6 +38,9 @@ public class Hiveman : MonoBehaviour
     public Sprite w_queenBee, w_ant, w_beetle, w_grasshopper, w_spider;
 
     public bool isOnBoard = false;
+    public bool b_queenBee_isOnBoard = false;
+    public bool w_queenBee_isOnBoard = false;
+
     public void Activate()
     {
         controller = GameObject.FindGameObjectWithTag("GameController");
@@ -142,6 +145,28 @@ public class Hiveman : MonoBehaviour
         // Prevent the piece from being removed or moved off the board
         if (sc.IsGameOver() || sc.GetCurrentPlayer() != this.player)
             return;
+
+        // Allow placing the Queen Bee freely (before turn count reaches 4)
+        // But restrict other pieces from moving until the Queen Bee is placed
+        if (sc.GetCurrentPlayer() == "w" && !sc.IsQueenOnBoard("w") && sc.w_turncount == 3)
+        {
+            if (this.name != "w_queenBee")
+            {
+                //Debug.Log($"{player}'s Queen Bee must be placed before any other pieces can move.");
+                Debug.Log($"{w_queenBee_isOnBoard}");
+                return; // Prevent moving any piece except the Queen Bee
+            }
+        }
+        if (sc.GetCurrentPlayer() == "b" && !sc.IsQueenOnBoard("b") && sc.b_turncount == 3)
+        {
+            if (this.name != "b_queenBee")
+            {
+                //Debug.Log($"{player}'s Queen Bee must be placed before any other pieces can move.");
+                Debug.Log($"{b_queenBee_isOnBoard}");
+                return; // Prevent moving any piece except the Queen Bee
+            }
+        }
+
 
         // Check if the piece is already on the board
         if (!isOnBoard)
