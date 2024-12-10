@@ -39,6 +39,7 @@ public class SpiderMoves : MonoBehaviour, IMoveLogic
             }
         }
         else*/
+        /*
         if (!sc.IsBeetleBlocked(x, y,z, currentPlayer)) //if the piece is not blocked by a beetle
         {
             // Standard queen movement logic
@@ -66,4 +67,83 @@ public class SpiderMoves : MonoBehaviour, IMoveLogic
     }
 
 }
+        */
+        if (sc.IsBeetleBlocked(x, y, z, currentPlayer))
+        {
+            return possibleMoves; // Spider cannot move if blocked by a beetle.
+        }
 
+        // Start recursive search for paths of exactly 3 steps.
+        HashSet<Vector2Int> visited = new HashSet<Vector2Int>();
+        List<Vector2Int> currentPath = new List<Vector2Int>();
+        Vector2Int start = new Vector2Int(x, y);
+
+        RecursiveSearch(start, 3, visited, currentPath, sc, possibleMoves, currentPlayer);
+
+        return possibleMoves;
+    }
+
+    private void RecursiveSearch(
+     Vector2Int currentPosition,
+     int stepsRemaining,
+     HashSet<Vector2Int> visited,
+     List<Vector2Int> currentPath,
+     Game sc,
+     List<Vector2Int> possibleMoves,
+     string currentPlayer)
+    {
+        // If we have made exactly 3 steps, add the final position to possible moves
+        if (stepsRemaining == 0)
+        {
+            possibleMoves.Add(currentPath[currentPath.Count - 1]);
+            return;
+        }
+
+        visited.Add(currentPosition);
+        currentPath.Add(currentPosition);
+
+        foreach (var neighbor in GetNeighbors(currentPosition, sc))
+        {
+            // Only proceed if the neighbor hasn't been visited yet
+            if (!visited.Contains(neighbor))
+            {
+                RecursiveSearch(neighbor, stepsRemaining - 1, visited, currentPath, sc, possibleMoves, currentPlayer);
+            }
+        }
+
+        // Backtrack
+        visited.Remove(currentPosition);
+        currentPath.RemoveAt(currentPath.Count - 1);
+    }
+
+    private List<Vector2Int> GetNeighbors(Vector2Int position, Game sc)
+    {
+        int x = position.x;
+        int y = position.y;
+
+        var neighbors = new List<Vector2Int>();
+
+        if (x % 2 == 0)
+        {
+            neighbors.Add(new Vector2Int(x + 1, y));     // Hex to the right
+            neighbors.Add(new Vector2Int(x - 1, y));     // Hex to the left
+            neighbors.Add(new Vector2Int(x, y + 1));     // Hex above
+            neighbors.Add(new Vector2Int(x, y - 1));     // Hex below
+            neighbors.Add(new Vector2Int(x + 1, y + 1)); // Top-right diagonal hex
+            neighbors.Add(new Vector2Int(x - 1, y + 1)); // Top-left diagonal hex
+        }
+        else
+        {
+            neighbors.Add(new Vector2Int(x + 1, y));     // Hex to the right
+            neighbors.Add(new Vector2Int(x - 1, y));     // Hex to the left
+            neighbors.Add(new Vector2Int(x, y + 1));     // Hex above
+            neighbors.Add(new Vector2Int(x, y - 1));     // Hex below
+            neighbors.Add(new Vector2Int(x + 1, y - 1)); // Bottom-right diagonal hex
+            neighbors.Add(new Vector2Int(x - 1, y - 1)); // Bottom-left diagonal hex
+        }
+
+ 
+
+        return neighbors;
+    }
+}
