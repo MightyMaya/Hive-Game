@@ -197,7 +197,7 @@ public class Hiveman : MonoBehaviour
         }
         else  //if Piece is already on the board -> check for the piece allowed moves
         {
-            if (moveLogic != null)
+            if (moveLogic != null && sc.IsQueenOnBoard(player))
             {
                 List<Vector2Int> possibleMoves = moveLogic.GetPossibleMoves(xBoard, yBoard, zBoard ,player);
                 foreach (Vector2Int move in possibleMoves)
