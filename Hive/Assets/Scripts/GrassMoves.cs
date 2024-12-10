@@ -85,6 +85,7 @@ public class GrassMoves : MonoBehaviour, IMoveLogic
         return validMoves;
     }
 
+    /*
     /// <summary>
     /// Dynamically calculate directions based on the current row's parity.
     /// </summary>
@@ -118,7 +119,25 @@ public class GrassMoves : MonoBehaviour, IMoveLogic
 
         return directions;
     }
+    */
+    private List<Vector2Int> GetValidDirections(int x)
+    {
+        // Include all possible directions regardless of parity
+        return new List<Vector2Int>
+    {
+        new Vector2Int(1, 0),       // Right
+        new Vector2Int(-1, 0),      // Left
+        new Vector2Int(0, 1),       // Up
+        new Vector2Int(0, -1),      // Down
+        new Vector2Int(1, 1),       // Diagonal Right-Up
+        new Vector2Int(-1, 1),      // Diagonal Left-Up
+        new Vector2Int(1, -1),      // Diagonal Right-Down
+        new Vector2Int(-1, -1)      // Diagonal Left-Down
+    };
+    }
 
+
+    /*
 //    function to remap the direction based on what row we are on
     private Vector2Int MapDirection(Vector2Int direction, int currentX)
     {
@@ -138,6 +157,35 @@ public class GrassMoves : MonoBehaviour, IMoveLogic
         if (direction == new Vector2Int(-1, -1)) // Down-left
             return isEvenRow ? new Vector2Int(-1, 0) : direction;
 
+
+        // Default: no remapping
+        return direction;
+    }
+    */
+
+    private Vector2Int MapDirection(Vector2Int direction, int currentX)
+    {
+        bool isEvenRow = currentX % 2 == 0;
+
+        // Vertical directions (Up and Down) remain unaffected by row parity
+        if (direction == new Vector2Int(0, 1)) // Up
+            return direction;
+        if (direction == new Vector2Int(0, -1)) // Down
+            return direction;
+
+        // Diagonal and horizontal directions
+        if (direction == new Vector2Int(1, 0)) // Right
+            return isEvenRow ? new Vector2Int(1, 1) : new Vector2Int(1, -1);
+        if (direction == new Vector2Int(-1, 0)) // Left
+            return isEvenRow ? new Vector2Int(-1, 1) : new Vector2Int(-1, -1);
+        if (direction == new Vector2Int(1, 1)) // Up-right
+            return isEvenRow ? new Vector2Int(1, 1) : new Vector2Int(1, 0);
+        if (direction == new Vector2Int(-1, 1)) // Up-left
+            return isEvenRow ? new Vector2Int(-1, 1) : new Vector2Int(-1, 0);
+        if (direction == new Vector2Int(1, -1)) // Down-right
+            return isEvenRow ? new Vector2Int(1, 0) : new Vector2Int(1, -1);
+        if (direction == new Vector2Int(-1, -1)) // Down-left
+            return isEvenRow ? new Vector2Int(-1, 0) : new Vector2Int(-1, -1);
 
         // Default: no remapping
         return direction;
