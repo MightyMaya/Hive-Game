@@ -2,7 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-
 using static Hiveman;
 
 /*
@@ -10,10 +9,9 @@ Spider Rules:
 Movement Type: The Spider moves by crawling around the edges of the hive.
 Range: It always moves exactly three spaces per turn, no more, no less.
 Sliding: Like all pieces in Hive, the Spider must slide between pieces without breaking the hive (ensuring it maintains one contiguous group).
-Restrictions: It cannot move onto or over other pieces or climb
+Restrictions: It cannot move onto or over other pieces or climb.
 */
 
-//this movement is a placeholder
 public class SpiderMoves : MonoBehaviour, IMoveLogic
 {
     public GameObject controller;
@@ -22,128 +20,97 @@ public class SpiderMoves : MonoBehaviour, IMoveLogic
     {
         controller = GameObject.FindGameObjectWithTag("GameController");
         Game sc = controller.GetComponent<Game>();
-        var possibleMoves = new List<Vector2Int>();
 
-        /*if (isFirstMove)
-        {
-            // Allow movement to any position on the board for the first move.
-            int maxX = 29; 
-            int maxY = 12; 
+        var validMoves = new List<Vector2Int>();
+        Vector2Int currentPosition = new Vector2Int(x, y);
 
-            for (int row = 0; row < maxX; row++)
-            {
-                for (int col = 0; col < maxY; col++)
-                {
-                    possibleMoves.Add(new Vector2Int(row, col));
-                }
-            }
-        }
-        else*/
-        /*
-        if (!sc.IsBeetleBlocked(x, y,z, currentPlayer)) //if the piece is not blocked by a beetle
+        if (!sc.IsBeetleBlocked(x, y, z, currentPlayer)) // Check if the piece is blocked by a beetle
         {
-            // Standard queen movement logic
-            if (x % 2 == 0)
-            {
-                possibleMoves.Add(new Vector2Int(x + 1, y));     // Hex to the right
-                possibleMoves.Add(new Vector2Int(x - 1, y));     // Hex to the left
-                possibleMoves.Add(new Vector2Int(x, y + 1));     // Hex above
-                possibleMoves.Add(new Vector2Int(x, y - 1));     // Hex below
-                possibleMoves.Add(new Vector2Int(x + 1, y + 1)); // Top-right diagonal hex
-                possibleMoves.Add(new Vector2Int(x - 1, y + 1)); // Top-left diagonal hex
-            }
-            else
-            {
-                possibleMoves.Add(new Vector2Int(x + 1, y));     // Hex to the right
-                possibleMoves.Add(new Vector2Int(x - 1, y));     // Hex to the left
-                possibleMoves.Add(new Vector2Int(x, y + 1));     // Hex above
-                possibleMoves.Add(new Vector2Int(x, y - 1));     // Hex below
-                possibleMoves.Add(new Vector2Int(x + 1, y - 1)); // Bottom-right diagonal hex
-                possibleMoves.Add(new Vector2Int(x - 1, y - 1)); // Bottom-left diagonal hex
-            }
+            // Perform a Depth-First Search (DFS) to validate all 3-move paths
+            DFSForSpiderMoves(currentPosition, new List<Vector2Int> { currentPosition }, 3, sc, validMoves);
         }
 
-        return possibleMoves;
+        return validMoves;
     }
 
-}
-        */
-        if (sc.IsBeetleBlocked(x, y, z, currentPlayer))
-        {
-            return possibleMoves; // Spider cannot move if blocked by a beetle.
-        }
-
-        // Start recursive search for paths of exactly 3 steps.
-        HashSet<Vector2Int> visited = new HashSet<Vector2Int>();
-        List<Vector2Int> currentPath = new List<Vector2Int>();
-        Vector2Int start = new Vector2Int(x, y);
-
-        RecursiveSearch(start, 3, visited, currentPath, sc, possibleMoves, currentPlayer);
-
-        return possibleMoves;
-    }
-
-    private void RecursiveSearch(
-     Vector2Int currentPosition,
-     int stepsRemaining,
-     HashSet<Vector2Int> visited,
-     List<Vector2Int> currentPath,
-     Game sc,
-     List<Vector2Int> possibleMoves,
-     string currentPlayer)
+    private void DFSForSpiderMoves(Vector2Int currentPosition, List<Vector2Int> visited, int depth, Game sc, List<Vector2Int> validMoves)
     {
-        // If we have made exactly 3 steps, add the final position to possible moves
-        if (stepsRemaining == 0)
+        if (depth == 0) // Spider must move exactly 3 spaces
         {
-            possibleMoves.Add(currentPath[currentPath.Count - 1]);
+            visited.RemoveRange(1, visited.Count - 1);
+            if (!sc.DoesPieceDisconnectHive(gameObject, currentPosition.x, currentPosition.y))
+            {
+                
+                validMoves.Add(currentPosition);
+            }
             return;
         }
 
-        visited.Add(currentPosition);
-        currentPath.Add(currentPosition);
+        List<Vector2Int> directions = GetValidDirections(currentPosition.x);
 
-        foreach (var neighbor in GetNeighbors(currentPosition, sc))
+        foreach (var direction in directions)
         {
-            // Only proceed if the neighbor hasn't been visited yet
-            if (!visited.Contains(neighbor))
+            Vector2Int nextPosition = currentPosition + MapDirection(direction, currentPosition.x);
+
+            // Check if the next position is valid
+            if (sc.IsOnBoard(nextPosition.x, nextPosition.y) &&
+                !visited.Contains(nextPosition) && // Prevent backtracking
+                sc.GetPosition(nextPosition.x, nextPosition.y) == null)// Ensure the tile is unoccupied
+                                                                       //sc.AreTilesAdjacent(currentPosition, nextPosition)) // Ensure sliding around the hive
             {
-                RecursiveSearch(neighbor, stepsRemaining - 1, visited, currentPath, sc, possibleMoves, currentPlayer);
+
+                visited.Add(nextPosition);
+                Debug.Log($"Current Position: {currentPosition}, Depth: {depth}, Visited: {string.Join(", ", visited)}");
+                DFSForSpiderMoves(nextPosition, visited, depth - 1, sc, validMoves);
+                //visited.Remove(nextPosition); // Backtrack to explore other paths
             }
-        }
 
-        // Backtrack
-        visited.Remove(currentPosition);
-        currentPath.RemoveAt(currentPath.Count - 1);
+        }
+        
     }
 
-    private List<Vector2Int> GetNeighbors(Vector2Int position, Game sc)
+    private List<Vector2Int> GetValidDirections(int x)
     {
-        int x = position.x;
-        int y = position.y;
-
-        var neighbors = new List<Vector2Int>();
-
-        if (x % 2 == 0)
+        // Include all possible directions regardless of parity
+        return new List<Vector2Int>
         {
-            neighbors.Add(new Vector2Int(x + 1, y));     // Hex to the right
-            neighbors.Add(new Vector2Int(x - 1, y));     // Hex to the left
-            neighbors.Add(new Vector2Int(x, y + 1));     // Hex above
-            neighbors.Add(new Vector2Int(x, y - 1));     // Hex below
-            neighbors.Add(new Vector2Int(x + 1, y + 1)); // Top-right diagonal hex
-            neighbors.Add(new Vector2Int(x - 1, y + 1)); // Top-left diagonal hex
-        }
-        else
-        {
-            neighbors.Add(new Vector2Int(x + 1, y));     // Hex to the right
-            neighbors.Add(new Vector2Int(x - 1, y));     // Hex to the left
-            neighbors.Add(new Vector2Int(x, y + 1));     // Hex above
-            neighbors.Add(new Vector2Int(x, y - 1));     // Hex below
-            neighbors.Add(new Vector2Int(x + 1, y - 1)); // Bottom-right diagonal hex
-            neighbors.Add(new Vector2Int(x - 1, y - 1)); // Bottom-left diagonal hex
-        }
-
- 
-
-        return neighbors;
+            new Vector2Int(1, 0),       // Right
+            new Vector2Int(-1, 0),      // Left
+            new Vector2Int(0, 1),       // Up
+            new Vector2Int(0, -1),      // Down
+            new Vector2Int(1, 1),       // Diagonal Right-Up
+            new Vector2Int(-1, 1),      // Diagonal Left-Up
+            new Vector2Int(1, -1),      // Diagonal Right-Down
+            new Vector2Int(-1, -1)      // Diagonal Left-Down
+        };
     }
+
+    private Vector2Int MapDirection(Vector2Int direction, int currentX)
+    {
+        bool isEvenRow = currentX % 2 == 0;
+
+        // Vertical directions (Up and Down) remain unaffected by row parity
+        if (direction == new Vector2Int(0, 1)) // Up
+            return direction;
+        if (direction == new Vector2Int(0, -1)) // Down
+            return direction;
+
+        // Diagonal and horizontal directions
+        if (direction == new Vector2Int(1, 0)) // Right
+            return isEvenRow ? new Vector2Int(1, 1) : new Vector2Int(1, -1);
+        if (direction == new Vector2Int(-1, 0)) // Left
+            return isEvenRow ? new Vector2Int(-1, 1) : new Vector2Int(-1, -1);
+        if (direction == new Vector2Int(1, 1)) // Up-right
+            return isEvenRow ? new Vector2Int(1, 1) : new Vector2Int(1, 0);
+        if (direction == new Vector2Int(-1, 1)) // Up-left
+            return isEvenRow ? new Vector2Int(-1, 1) : new Vector2Int(-1, 0);
+        if (direction == new Vector2Int(1, -1)) // Down-right
+            return isEvenRow ? new Vector2Int(1, 0) : new Vector2Int(1, -1);
+        if (direction == new Vector2Int(-1, -1)) // Down-left
+            return isEvenRow ? new Vector2Int(-1, 0) : new Vector2Int(-1, -1);
+
+        // Default: no remapping
+        return direction;
+    }
+    
 }
