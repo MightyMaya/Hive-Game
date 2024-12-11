@@ -3,6 +3,7 @@ using UnityEngine.SceneManagement;
 using UnityEngine;
 using System.Reflection;
 using System.Linq;
+using System;
 
 public class Game : MonoBehaviour
 {
@@ -756,4 +757,85 @@ public class Game : MonoBehaviour
         return true; // All pieces are connected
     }
 
+    //function to check if a piece can physically slide out of it's position
+    public bool IsPositionBlocked(Vector2Int position, Vector2Int targetPosition)
+    {
+        // Get all adjacent positions
+        HashSet<Vector2Int> neighbors = GetAdjacentTiles(position);
+
+        // Find all empty neighbors
+        List<Vector2Int> emptyNeighbors = new List<Vector2Int>();
+        foreach (var neighbor in neighbors)
+        {
+            if (GetPosition(neighbor.x, neighbor.y) == null)
+                emptyNeighbors.Add(neighbor);
+        }
+
+        // If fewer than two empty neighbors, the piece is blocked
+        if (emptyNeighbors.Count < 2)
+            return true;
+
+        // Calculate the target position based on the movement direction
+        //Vector2Int targetPosition = position + moveDirection;
+
+        // Ensure the target position is empty
+        if (!emptyNeighbors.Contains(targetPosition))
+            return true;
+
+        // Get the connecting sides for the current move direction
+        List<Vector2Int> connectingSides = GetConnectingSides(position.x, position.y, targetPosition.x, targetPosition.y);
+
+        // Check if at least one connecting side is empty
+        bool validSlide = false;
+        foreach (var side in connectingSides)
+        {
+            if (GetPosition(side.x, side.y) == null)
+            {
+                validSlide = true;
+                break;
+            }
+        }
+
+        // If no valid slide, position is blocked
+        if (!validSlide)
+            return true;
+
+        // If all checks pass, the position is not blocked
+        return false;
+    }
+
+    // Helper function to get connecting sides based on parity-aware movement
+    private List<Vector2Int> GetConnectingSides(int fromX, int fromY, int toX, int toY)
+    {
+        int dx = toX - fromX;
+        int dy = toY - fromY;
+        bool isEvenRow = fromX % 2 == 0; // Check parity of the current hex
+
+        // Define connecting sides based on movement direction and row parity
+        if (dx == 1 && dy == 1) // Moving top-right
+            return isEvenRow
+                ? new List<Vector2Int> { new Vector2Int(fromX, fromY + 1), new Vector2Int(fromX + 1, fromY) }
+                : new List<Vector2Int> { new Vector2Int(fromX, fromY + 1), new Vector2Int(fromX + 1, fromY + 1) };
+        if (dx == -1 && dy == 0) // Moving bottom-left
+            return isEvenRow
+                ? new List<Vector2Int> { new Vector2Int(fromX - 1, fromY), new Vector2Int(fromX, fromY - 1) }
+                : new List<Vector2Int> { new Vector2Int(fromX - 1, fromY + 1), new Vector2Int(fromX, fromY - 1) };
+        if (dx == 0 && dy == 1) // Moving upward
+            return new List<Vector2Int> { new Vector2Int(fromX - 1, fromY + 1), new Vector2Int(fromX + 1, fromY + 1) };
+        if (dx == 0 && dy == -1) // Moving downward
+            return new List<Vector2Int> { new Vector2Int(fromX - 1, fromY), new Vector2Int(fromX + 1, fromY) };
+        if (dx == 1 && dy == 0) // Moving bottom-right
+            return isEvenRow
+                ? new List<Vector2Int> { new Vector2Int(fromX, fromY - 1), new Vector2Int(fromX + 1, fromY) }
+                : new List<Vector2Int> { new Vector2Int(fromX + 1, fromY + 1), new Vector2Int(fromX, fromY - 1) };
+        if (dx == -1 && dy == 1) // Moving top-left
+            return isEvenRow
+                ? new List<Vector2Int> { new Vector2Int(fromX, fromY + 1), new Vector2Int(fromX - 1, fromY) }
+                : new List<Vector2Int> { new Vector2Int(fromX, fromY + 1), new Vector2Int(fromX - 1, fromY + 1) };
+
+        throw new ArgumentException($"Invalid movement from ({fromX}, {fromY}) to ({toX}, {toY})");
+    }
+
+
+    
 }

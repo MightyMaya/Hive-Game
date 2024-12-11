@@ -40,7 +40,8 @@ public class QueenBeeMoves : MonoBehaviour, IMoveLogic
 
             foreach (var hex in adjacentHexes)
             {
-                if (sc.IsOnBoard(hex.x, hex.y) && !sc.DoesPieceDisconnectHive(gameObject, hex.x, hex.y)) // if move does not break the hive
+                if (sc.IsOnBoard(hex.x, hex.y) && !sc.DoesPieceDisconnectHive(gameObject, hex.x, hex.y)
+                    && !sc.IsPositionBlocked(currentPosition, hex)) // if move does not break the hive and can slide into position
                 {
                     GameObject targetTile = sc.GetPosition(hex.x, hex.y);
 

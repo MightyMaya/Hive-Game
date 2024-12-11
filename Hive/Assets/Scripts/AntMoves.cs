@@ -29,7 +29,7 @@ public class AntMoves : MonoBehaviour, IMoveLogic
         Game sc = controller.GetComponent<Game>();
 
         var possibleMoves = new List<Vector2Int>();
-        UnityEngine.Debug.Log($"Current Position: ({x}, {y})");
+        Vector2Int currentPosition = new Vector2Int(x, y);
 
         if (!sc.IsBeetleBlocked(x, y, z, currentPlayer)) // If the piece is not blocked by a beetle
         {
@@ -43,8 +43,8 @@ public class AntMoves : MonoBehaviour, IMoveLogic
                     // Skip if the hex is the current position (no need to move there)
                     if (hex == new Vector2Int(x, y)) continue;
 
-                    // Check if the hex is empty and the move maintains hive integrity
-                    if (sc.GetPosition(hex.x, hex.y) == null && !sc.DoesPieceDisconnectHive(gameObject, hex.x, hex.y))
+                    // Check if the hex is empty and the move maintains hive integrity 
+                    if (sc.IsOnBoard(hex.x, hex.y) && !sc.DoesPieceDisconnectHive(gameObject, hex.x, hex.y))
                     {
                         possibleMoves.Add(hex); // Add valid move to the list
                         //UnityEngine.Debug.Log("Possible Moves: " + string.Join(", ", possibleMoves.Select(m => $"({m.x}, {m.y})")));
