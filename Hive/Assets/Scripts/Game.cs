@@ -816,24 +816,24 @@ public class Game : MonoBehaviour
             return isEvenRow
                 ? new List<Vector2Int> { new Vector2Int(fromX, fromY + 1), new Vector2Int(fromX + 1, fromY) }
                 : new List<Vector2Int> { new Vector2Int(fromX, fromY + 1), new Vector2Int(fromX + 1, fromY + 1) };
-        if (dx == -1 && dy == 0) // Moving bottom-left
+       else if (dx == -1 && dy == 0) // Moving bottom-left
             return isEvenRow
                 ? new List<Vector2Int> { new Vector2Int(fromX - 1, fromY), new Vector2Int(fromX, fromY - 1) }
                 : new List<Vector2Int> { new Vector2Int(fromX - 1, fromY + 1), new Vector2Int(fromX, fromY - 1) };
-        if (dx == 0 && dy == 1) // Moving upward
+        else if (dx == 0 && dy == 1) // Moving upward
             return new List<Vector2Int> { new Vector2Int(fromX - 1, fromY + 1), new Vector2Int(fromX + 1, fromY + 1) };
-        if (dx == 0 && dy == -1) // Moving downward
+        else if (dx == 0 && dy == -1) // Moving downward
             return new List<Vector2Int> { new Vector2Int(fromX - 1, fromY), new Vector2Int(fromX + 1, fromY) };
-        if (dx == 1 && dy == 0) // Moving bottom-right
+        else if (dx == 1 && dy == 0) // Moving bottom-right
             return isEvenRow
                 ? new List<Vector2Int> { new Vector2Int(fromX, fromY - 1), new Vector2Int(fromX + 1, fromY) }
                 : new List<Vector2Int> { new Vector2Int(fromX + 1, fromY + 1), new Vector2Int(fromX, fromY - 1) };
-        if (dx == -1 && dy == 1) // Moving top-left
+        else //if (dx == -1 && dy == 1) // Moving top-left
             return isEvenRow
                 ? new List<Vector2Int> { new Vector2Int(fromX, fromY + 1), new Vector2Int(fromX - 1, fromY) }
                 : new List<Vector2Int> { new Vector2Int(fromX, fromY + 1), new Vector2Int(fromX - 1, fromY + 1) };
 
-        throw new ArgumentException($"Invalid movement from ({fromX}, {fromY}) to ({toX}, {toY})");
+        //throw new ArgumentException($"Invalid movement from ({fromX}, {fromY}) to ({toX}, {toY})");
     }
 
 
