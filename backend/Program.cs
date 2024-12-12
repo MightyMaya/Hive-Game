@@ -143,7 +143,73 @@ public List<(int, int)> GetSpiderMoves(int x, int y)
 
         return validMoves;
     }
+	public int EvaluateTotalHeuristics(int currentPlayerID)
+{
+    int queenSafetyScore = EvaluateQueenSafety(currentPlayerID);
+    int mobilityScore = EvaluatePieceMobility(currentPlayerID);
+		
+    return mobilityScore + queenSafetyScore;
+}
+	public (int,move) MinMax(int depth, int currentPlayerID, bool isMaximizingPlayer)
+{
+    // Base case : stop searching if we reached max depth or the game is over(Queen is surrounded)
+    if (depth == 0 || IsGameOver())
+    {
+        // Use combined heuristic
+        return  EvaluateTotalHeuristics(currentPlayerIDnull);
+    }
 
+    Move bestmove=null;
+    int bestValue;
+
+    if (isMaximizingPlayer)
+    {
+	//initialize best value to smallest possible value and then it can take greater values
+        bestValue = int.MinValue;
+
+	//loop over all the possible moves the current player can take
+        foreach (var move in GenerateAllMoves(currentPlayerID))
+        {
+	    //simulate the game by making a move
+            MakeMove(move);
+		
+	    //Recursively call MinMax for the opponent(Min) at next depth
+            int value = MinMax(depth - 1, GetOpponentID(currentPlayerID), false);
+
+	    //undo the move to return to original state
+            UndoMove(move);
+	    if ( value > bestValue){
+		bestvalue = value; 	    // Choose the highest score from all possible moves
+		bestMove = move;	   // saving the best move
+	    }
+          
+        }
+    }
+    else //in minimizing player turn
+    {
+	//initialize best value to the max possible number and then it will decrease
+        bestValue = int.MaxValue;
+
+        foreach (var move in GenerateAllMoves(GetOpponentID(currentPlayerID)))
+        {
+            MakeMove(move);
+            int value = MinMax(depth - 1, currentPlayerID, true);
+            UndoMove(move);
+
+              if ( value < bestValue){
+		bestvalue = value; 	    // saving best value
+		bestMove = move;	   // saving the best move
+	    }
+        }
+    }
+
+    return (bestValue,bestMove);
+}
+
+private int GetOpponentID(int currentPlayerID)
+{
+    return currentPlayerID == 1 ? 2 : 1;
+}
 
 public List<(int,int)>  GetGrass_ShopperMoves(int x, int y){
         //List of adjacent positions of the piece
