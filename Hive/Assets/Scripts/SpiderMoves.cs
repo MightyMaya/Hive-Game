@@ -32,7 +32,7 @@ public class SpiderMoves : MonoBehaviour, IMoveLogic
 
         return validMoves;
     }
-
+    /*
     private void DFSForSpiderMoves(Vector2Int currentPosition, List<Vector2Int> visited, int depth, Game sc, List<Vector2Int> validMoves)
     {
         if (depth == 0) // Spider must move exactly 3 spaces
@@ -62,12 +62,52 @@ public class SpiderMoves : MonoBehaviour, IMoveLogic
                 visited.Add(nextPosition);
                 Debug.Log($"Current Position: {currentPosition}, Depth: {depth}, Visited: {string.Join(", ", visited)}");
                 DFSForSpiderMoves(nextPosition, visited, depth - 1, sc, validMoves);
-                //visited.Remove(nextPosition); // Backtrack to explore other paths
+               //visited.Remove(nextPosition); Backtrack to explore other paths
             }
 
         }
         
     }
+    */
+
+    private void DFSForSpiderMoves(Vector2Int currentPosition, List<Vector2Int> visited, int depth, Game sc, List<Vector2Int> validMoves)
+    {
+        if (depth == 0) // Spider must move exactly 3 spaces
+        {
+            // Add the current position to validMoves if the visited path is exactly 3 steps
+            if (visited.Count == 4 && !sc.DoesPieceDisconnectHive(gameObject, currentPosition.x, currentPosition.y))
+            {
+                validMoves.Add(currentPosition);
+                //remove the explored path from the visited list
+                //visited.RemoveRange(1, visited.Count - 1);
+            }
+            return;
+        }
+
+        List<Vector2Int> directions = GetValidDirections(currentPosition.x);
+
+        foreach (var direction in directions)
+        {
+            Vector2Int nextPosition = currentPosition + MapDirection(direction, currentPosition.x);
+
+            // Check if the next position is valid
+            if (sc.IsOnBoard(nextPosition.x, nextPosition.y) &&
+                !visited.Contains(nextPosition) && // Prevent backtracking
+                sc.GetPosition(nextPosition.x, nextPosition.y) == null && // Ensure the tile is unoccupied
+                IsAdjacentToHive(nextPosition, sc)) // Ensure the tile is in contact with the hive
+            {
+                // Add the next position to the path
+                visited.Add(nextPosition);
+
+                // Continue exploring paths with reduced depth
+                DFSForSpiderMoves(nextPosition, visited, depth - 1, sc, validMoves);
+
+                // Backtrack to explore other paths
+                visited.RemoveAt(visited.Count - 1);
+            }
+        }
+    }
+
 
     private List<Vector2Int> GetValidDirections(int x)
     {
@@ -112,5 +152,28 @@ public class SpiderMoves : MonoBehaviour, IMoveLogic
         // Default: no remapping
         return direction;
     }
-    
+
+    //function to check if spider is in contact with another piece
+    private bool IsAdjacentToHive(Vector2Int position, Game sc)
+    {
+        List<Vector2Int> directions = GetValidDirections(position.x);
+
+        foreach (var direction in directions)
+        {
+            Vector2Int adjacentPosition = position + MapDirection(direction, position.x);
+
+            // Check if the adjacent position is on the board and occupied, but not by the Spider itself
+            if (sc.IsOnBoard(adjacentPosition.x, adjacentPosition.y))
+            {
+                GameObject pieceAtAdjacentPosition = sc.GetPosition(adjacentPosition.x, adjacentPosition.y);
+                if (pieceAtAdjacentPosition != null && pieceAtAdjacentPosition != gameObject) // Avoid counting the Spider itself
+                {
+                    return true; // Found a valid hive connection
+                }
+            }
+        }
+        return false;
+    }
+
+
 }
