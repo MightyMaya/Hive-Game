@@ -6,7 +6,7 @@ public class MovePlate : MonoBehaviour
 {
     public GameObject Controller;
 
-    //referemce to the piece that created the moveplate
+    //reference to the piece that created the moveplate
     GameObject reference = null;
 
     //Board positions

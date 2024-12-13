@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 1941149110734646952}
   m_Layer: 0
   m_Name: hivepiece
-  m_TagString: Untagged
+  m_TagString: Piece
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -61,6 +61,8 @@ MonoBehaviour:
   w_grasshopper: {fileID: 21300000, guid: c2a2e8b058c2a1647be0ddcb90abdbb1, type: 3}
   w_spider: {fileID: 21300000, guid: f325a38afe259774698c0634904ebca7, type: 3}
   isOnBoard: 0
+  b_queenBee_isOnBoard: 0
+  w_queenBee_isOnBoard: 0
 --- !u!212 &-4298761497114087295
 SpriteRenderer:
   m_ObjectHideFlags: 0

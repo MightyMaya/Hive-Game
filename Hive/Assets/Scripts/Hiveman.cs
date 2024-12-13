@@ -135,7 +135,7 @@ public class Hiveman : MonoBehaviour
 
     //fn to handle user interaction when a piece is clicked
     //generates move plates to indicate possible moves
-    private void OnMouseUp()
+    public void OnMouseUp()
     {
         Game sc = controller.GetComponent<Game>();
 
