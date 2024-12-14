@@ -31,7 +31,19 @@ public class Game : MonoBehaviour
     private bool isDraw = false;
     public int b_turncount = 0;
     public int w_turncount = 0;
+    
+    public enum GameMode
+    {
+        HumanVsHuman,
+        AIvsHuman,
+        AIvsAI
+    }
 
+    public GameMode currentMode = GameMode.AIvsHuman;
+    public string aiPlayer1 = "b"; // AI player 1
+    public string aiPlayer2 = "w"; // AI player 2
+    public GameObject aiPlayer;
+    public PlayerAI ai;
 
     void Start()
     {
@@ -70,6 +82,10 @@ public class Game : MonoBehaviour
             SetPosition(blackPlayer[i]);
             SetPosition(whitePlayer[i]);
         }
+        
+        aiPlayer=GameObject.FindGameObjectWithTag("AiPlayer1");
+        ai = aiPlayer.GetComponent<PlayerAI>();
+
     }
 
     public GameObject Create(string name, int x, int y, int z)
@@ -397,15 +413,30 @@ public class Game : MonoBehaviour
     //function to switch current player
     public void NextTurn()
     {
+        
         if (currentPlayer == "w")
         {
             w_turncount++;
+            currentPlayer = "b";
         }
         else if (currentPlayer == "b")
         {
+            if (ai != null)
+            {
+                Debug.Log("AI Turn");
+                // ai.MakeMove(currentPlayer);
+                // MovePlate aiMovePlate = null;
+                // List<GameObject> allPieces = ai.GetPlayerPieces();
+                //
+                // aiMovePlate.SetReference(allPieces[0]);
+                // aiMovePlate.SetCoords(15, 6);
+                // aiMovePlate.OnMouseUp();
+            } 
+            Debug.Log("next white turn");
+            currentPlayer = "w";
             b_turncount++;
         }
-        currentPlayer = currentPlayer == "w" ? "b" : "w";
+        // currentPlayer = currentPlayer == "w" ? "b" : "w";
     }
 
     public bool IsQueenOnBoard(string player)
@@ -424,11 +455,13 @@ public class Game : MonoBehaviour
         return false; // Queen is not on the board
     }
 
+   
+
     public void Update()
     {
 
         // Leave this code commented  , DO NOT Delete it (Fady)
-        /**
+        /*
          *  // New: Check for the draw condition each time a turn ends
         if (CheckForDraw())
         {
@@ -437,21 +470,81 @@ public class Game : MonoBehaviour
             // Optionally, trigger game over or stop further moves
             return; // Stop further game updates
         }
-        // Check if the player has any valid moves or piece placements
+       // Check if the player has any valid moves or piece placements
         if (CanPlayerMoveOrPlace(currentPlayer) == false)
         {
             // If no valid moves are available, pass the turn to the opponent
             NextTurn(); // NEW: Pass the turn to the opponent
         }
 
-         * **/
+         */
+        
+        
+        //Update method content on git
+        
+        //  if (gameOver == true && Input.GetMouseButtonDown(0))
+        // {
+        //     gameOver = false;
+        //     SceneManager.LoadScene("Game");
+        // }
+        //  
+        //---------------------------------------------------------------------------
+        // if (gameOver == true && Input.GetMouseButtonDown(0))
+        // {
+        //     gameOver = false;
+        //     SceneManager.LoadScene("Game");
+        // }
+        // // if (gameOver) return;
+        //
+        // if (Input.GetKeyDown(KeyCode.A)) // Press "A" to trigger AI move
+        // {
+        //     this.StartAI();
+        // }
+        // // Check if it's the AI's turn
+        // if (GetCurrentPlayer() == "b") // Assuming "b" is the AI player
+        // {
+        //     PlayerAI ai = GetComponent<PlayerAI>();
+        //     if (ai != null)
+        //     {
+        //         ai.MakeMove();
+        //         NextTurn(); // Pass the turn to the next player
+        //     }
+        // }
+        //----------------------------------------------
+        if (gameOver) return;
 
-
-        if (gameOver == true && Input.GetMouseButtonDown(0))
+        if (currentMode == GameMode.HumanVsHuman)
         {
-            gameOver = false;
-            SceneManager.LoadScene("Game");
+            Debug.Log("Human vs Human");
+            // No AI logic, both players are human
+            return;
         }
+
+        if (currentMode == GameMode.AIvsHuman)
+        {
+            Debug.Log("AI vs Human");
+            if (GetCurrentPlayer() == aiPlayer1)
+            {
+                Debug.Log("AI vs Human 2");
+                // StartAI(aiPlayer1);
+                // NextTurn();
+                MovePlate aiMovePlate = null;
+                List<GameObject> allPieces = ai.GetPlayerPieces();
+                
+                ai.MovePiece(ai.b_pieces[0],(15,6));
+            }
+        }
+        else if (currentMode == GameMode.AIvsAI)
+        {
+            Debug.Log("AI vs AI");
+            if (GetCurrentPlayer() == aiPlayer1 || GetCurrentPlayer() == aiPlayer2)
+            {
+                // StartAI(GetCurrentPlayer());
+                NextTurn();
+            }
+        }
+
+
     }
 
     public bool CanPlayerMoveOrPlace(string player)
@@ -756,7 +849,83 @@ public class Game : MonoBehaviour
 
         return true; // All pieces are connected
     }
+    //---------------------------------------------------------------
+    public Dictionary<(int x, int y), Stack<GameObject>> GetPositions()
+    {
+        return positions;
+    }
+    
+    public void SetPositions(Dictionary<(int x, int y), Stack<GameObject>> newPositions)
+    {
+        positions = new Dictionary<(int x, int y), Stack<GameObject>>();
+        foreach (var pos in newPositions)
+        {
+            positions[pos.Key] = new Stack<GameObject>(pos.Value); // Clone the stack
+        }
+    }
+    public void SetCurrentPlayer(string player)
+    {
+        currentPlayer = player;
+    }
 
+    public string GetOpponent(string player)
+    {
+        return player == "w" ? "b" : "w";
+    }
+    public List<GameObject> GetPlayerPieces(string player)
+    {
+        List<GameObject> playerPieces = new List<GameObject>();
+
+        foreach (var stack in positions.Values)
+        {
+            foreach (var piece in stack)
+            {
+                Hiveman hiveman = piece.GetComponent<Hiveman>();
+                if (hiveman.player == player)
+                {
+                    playerPieces.Add(piece);
+                }
+            }
+        }
+
+        return playerPieces;
+    }
+    
+    public List<GameObject> GetOpponentPieces(string player)
+    {
+        string opponent = GetOpponent(player);
+        return GetPlayerPieces(opponent);
+    }
+    
+    public GameObject GetUnplacedPiece(string player, string pieceType)
+    {
+        GameObject[] playerPieces = player == "w" ? whitePlayer : blackPlayer;
+
+        foreach (GameObject piece in playerPieces)
+        {
+            Hiveman hiveman = piece.GetComponent<Hiveman>();
+            if (!hiveman.isOnBoard && hiveman.name.Contains(pieceType))
+            {
+                return piece;
+            }
+        }
+        return null;
+    }
+
+    
+    // public void StartAI(string aiPlayer)
+    // {
+    //     PlayerAI ai = GetComponent<PlayerAI>();
+    //     if (ai != null)
+    //     {
+    //         ai.MakeMove(aiPlayer);
+    //         NextTurn(); // Pass the turn to the next player
+    //     }
+    // }
+
+
+//----------------------------------------------------------------------------------------------------------------------------
+ 
     //function to check if a piece can physically slide out of it's position
     public bool IsPositionBlocked(Vector2Int position, Vector2Int targetPosition)
     {
@@ -837,5 +1006,5 @@ public class Game : MonoBehaviour
     }
 
 
-    
+   
 }

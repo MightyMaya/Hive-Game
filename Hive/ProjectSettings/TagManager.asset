@@ -8,6 +8,7 @@ TagManager:
   - movePlate
   - Selectable
   - Piece
+  - AiPlayer1
   layers:
   - Default
   - TransparentFX

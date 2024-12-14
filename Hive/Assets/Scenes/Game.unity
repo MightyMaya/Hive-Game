@@ -3610,7 +3610,7 @@ GameObject:
   - component: {fileID: 167970335}
   m_Layer: 0
   m_Name: AIPlayer
-  m_TagString: Untagged
+  m_TagString: AiPlayer1
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -3627,6 +3627,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ab12195df11130a47853ad3f791014c2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  controller: {fileID: 0}
+  aiDifficulty: 4
+  aiMovePlate: {fileID: 0}
 --- !u!4 &167970336
 Transform:
   m_ObjectHideFlags: 0
@@ -3813,6 +3816,11 @@ MonoBehaviour:
   moveCount: 0
   b_turncount: 0
   w_turncount: 0
+  currentMode: 1
+  aiPlayer1: b
+  aiPlayer2: w
+  aiPlayer: {fileID: 0}
+  ai: {fileID: 0}
 --- !u!4 &1903599247
 Transform:
   m_ObjectHideFlags: 0

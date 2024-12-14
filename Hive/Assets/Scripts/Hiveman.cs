@@ -12,6 +12,7 @@ public class Hiveman : MonoBehaviour
     {
         //List<Vector2Int> GetPossibleMoves(int x, int y, bool isFirstMove, string currentPlayer);
         List<Vector2Int> GetPossibleMoves(int x, int y, int z, string currentPlayer);
+
     }
     public IMoveLogic moveLogic;
 
@@ -195,14 +196,15 @@ public class Hiveman : MonoBehaviour
                 }
             }
         }
-        else  //if Piece is already on the board -> check for the piece allowed moves
+        else  //if Piece is already on the board and Queen is placed -> check for the piece allowed moves
         {
             if (moveLogic != null && sc.IsQueenOnBoard(player))
             {
                 List<Vector2Int> possibleMoves = moveLogic.GetPossibleMoves(xBoard, yBoard, zBoard ,player);
                 foreach (Vector2Int move in possibleMoves)
                 {
-                    PointMovePlate(move.x, move.y);
+                  
+                        PointMovePlate(move.x, move.y);
                 }
             }
                 
