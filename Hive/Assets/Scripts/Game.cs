@@ -91,16 +91,7 @@ public class Game : MonoBehaviour
         Hiveman hm = obj.GetComponent<Hiveman>();
         int z = hm.GetZBoard();
         var position = (hm.GetXBoard(), hm.GetYBoard());
-        /*// For the first move, place the piece at the center of the board
-        if (isFirstMove)
-        {
-            position = (14, 5); // Center of the board
-            hm.SetXBoard(14);  
-            hm.SetYBoard(5);   
-            isFirstMove = false; // After the first move, set the flag to false
-        }
-        */
-
+       
         // Ignore pieces placed outside the board
         if (!IsOnBoard(hm.GetXBoard(), hm.GetYBoard()))
         {
@@ -197,20 +188,7 @@ public class Game : MonoBehaviour
         return null;
     }
 
-    /* public bool CanBeetleMoveOnto(int x, int y)
-     {
-         var position = (x, y);
-         if (positions.ContainsKey(position) && positions[position].Count > 0)
-         {
-             GameObject topPiece = positions[position].Peek();
-             Hiveman topHiveman = topPiece.GetComponent<Hiveman>();
-
-             // Check if the top piece allows stacking (only beetle can jump onto others)
-             return topHiveman.name.Contains("beetle");
-         }
-         return true; // If position is empty, beetle can move there
-     }
-    */
+  
     public void UpdateVisualStack((int x, int y) position)
     {
         if (!positions.ContainsKey(position) || positions[position].Count == 0)
