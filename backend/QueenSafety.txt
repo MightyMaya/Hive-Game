@@ -1,0 +1,84 @@
+public int EvaluateQueenSafety(GameObject queen, string pieceType)
+{
+    // Determine the opposite piece type based on the given pieceType
+    string opponentType = pieceType == "friendly" ? "opponent" : "friendly";
+
+    // Get the number of surrounding opponent pieces
+    int opponentSurrounding = GetSurroundingPiecesCount(queen, opponentType);
+
+    // Get the number of surrounding friendly pieces (supporting pieces)
+    int friendlySupport = GetSurroundingPiecesCount(queen, pieceType);
+
+    // Get the number of legal moves for the Queen
+    int queenMobility = GetLegalMovesForPiece(queen).Count;  // replace it with on mouse up but should be updated to return count 
+
+    // Calculate the heuristic value by applying weights to the different factors
+    int heuristicValue = (queenMobility * 5) + (friendlySupport * 3)
+                         - (opponentSurrounding * 7);
+
+    // Return the heuristic value
+    return heuristicValue;
+}
+
+
+// Function to get the number of surrounding pieces of a specific type (friendly or opponent)
+public int GetSurroundingPiecesCount(GameObject piece, string pieceType)
+{
+    // Get the position of the piece using GetXBoard() and GetYBoard()
+    int x = piece.GetComponent<Hiveman>().GetXBoard();
+    int y = piece.GetComponent<Hiveman>().GetYBoard();
+
+    // Initialize the count
+    int surroundingCount = 0;
+
+    // Get the adjacent tiles
+    List<Vector2Int> adjacentTiles = GetAdjacentTiles(new Vector2Int(x, y));
+
+    // Loop through the adjacent tiles and check the type of pieces on them
+    foreach (var tile in adjacentTiles)
+    {
+        var position = (tile.x, tile.y);
+
+        // Check if there are any pieces on the adjacent tile
+        if (positions.ContainsKey(position) && positions[position].Count > 0)
+        {
+            // Check the piece type on the adjacent tile
+            GameObject adjacentPiece = positions[position].Peek();  // Get the top piece
+            string currentPieceType = adjacentPiece.GetComponent<Hiveman>().GetPieceType();  // Assuming GetPieceType() returns "friendly" or "opponent"
+
+            // Compare the piece type to the specified one
+            if (currentPieceType.Equals(pieceType))
+            {
+                surroundingCount++;
+            }
+        }
+    }
+
+    return surroundingCount;
+}
+
+public string GetPieceType(GameObject piece)
+{
+    // Check if the piece has a SpriteRenderer
+    SpriteRenderer spriteRenderer = piece.GetComponent<SpriteRenderer>();
+    if (spriteRenderer == null)
+    {
+        Debug.LogWarning("GameObject does not have a SpriteRenderer component!");
+        return null;
+    }
+
+    Sprite sprite = spriteRenderer.sprite;
+
+    // Check if the sprite matches black or white references
+    if (sprite == b_queenBee || sprite == b_ant || sprite == b_beetle || sprite == b_grasshopper || sprite == b_spider)
+    {
+        return "friendly"; // Black pieces are friendly
+    }
+    else if (sprite == w_queenBee || sprite == w_ant || sprite == w_beetle || sprite == w_grasshopper || sprite == w_spider)
+    {
+        return "opponent"; // White pieces are opponent
+    }
+
+    Debug.LogWarning("Unknown piece affiliation!");
+    return "Unknown";
+}
