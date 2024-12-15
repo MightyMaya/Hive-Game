@@ -614,6 +614,53 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_ShowMaskGraphic: 0
+--- !u!1 &153365169
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 153365170}
+  - component: {fileID: 153365171}
+  m_Layer: 0
+  m_Name: GameSettings
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &153365170
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 153365169}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 556.53406, y: 1011.3948, z: -4.2901397}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &153365171
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 153365169}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 157c8899c1bf2cf419ddf981ab216080, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  currentMode: 0
+  aiDifficulty1: 4
+  aiDifficulty2: 4
 --- !u!1 &188819402
 GameObject:
   m_ObjectHideFlags: 0
@@ -1055,19 +1102,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 327660173}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 865747156}
-        m_TargetAssemblyTypeName: MainMenu, Assembly-CSharp
-        m_MethodName: OnHumanAIButtonClick
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!114 &327660173
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1314,19 +1349,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 426330000}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 865747156}
-        m_TargetAssemblyTypeName: MainMenu, Assembly-CSharp
-        m_MethodName: OnHumanTwoButtonClick
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!114 &426330000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2602,7 +2625,6 @@ GameObject:
   m_Component:
   - component: {fileID: 865747155}
   - component: {fileID: 865747156}
-  - component: {fileID: 865747157}
   m_Layer: 0
   m_Name: Controller
   m_TagString: Untagged
@@ -2637,23 +2659,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9264db133af05a043b09f40e36f8e1b6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  humanVsHumanButton: {fileID: 426329999}
+  humanVsAIButton: {fileID: 327660172}
+  aiVsAIButton: {fileID: 1016004509}
   dd1: {fileID: 481350163}
   dd2: {fileID: 1790089654}
---- !u!114 &865747157
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 865747154}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 157c8899c1bf2cf419ddf981ab216080, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  currentMode: 0
-  aiDifficulty1: 4
-  aiDifficulty2: 4
+  optionsPanel: {fileID: 1960198664}
 --- !u!1 &892568572
 GameObject:
   m_ObjectHideFlags: 0
@@ -2955,19 +2966,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1016004510}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 865747156}
-        m_TargetAssemblyTypeName: MainMenu, Assembly-CSharp
-        m_MethodName: OnAITwoButtonClick
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!114 &1016004510
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3770,7 +3769,7 @@ GameObject:
   - component: {fileID: 1790089655}
   - component: {fileID: 1790089654}
   m_Layer: 5
-  m_Name: AI2Difficulty (1)
+  m_Name: AI2Difficulty
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4549,7 +4548,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1960198665
 RectTransform:
   m_ObjectHideFlags: 0
@@ -4768,3 +4767,4 @@ SceneRoots:
   - {fileID: 1857025433}
   - {fileID: 2128394098}
   - {fileID: 865747155}
+  - {fileID: 153365170}

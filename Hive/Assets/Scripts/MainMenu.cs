@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
@@ -7,77 +6,134 @@ using UnityEngine.SceneManagement;
 
 public class MainMenu : MonoBehaviour
 {
-    //add variable to keep track of AIPlayer number
+    [SerializeField] private Button humanVsHumanButton; // Assigned in Inspector
+    [SerializeField] private Button humanVsAIButton;    // Assigned in Inspector
+    [SerializeField] private Button aiVsAIButton;      // Assigned in Inspector
 
-    //add variable to control difficulty
+    [SerializeField] private TMP_Dropdown dd1;         // Assigned in Inspector
+    [SerializeField] private TMP_Dropdown dd2;         // Assigned in Inspector
+    [SerializeField] private GameObject optionsPanel;  // Assigned in Inspector (e.g., OptionsPanel)
 
-    //get reference to first dropdown menu
-    [SerializeField] private TMP_Dropdown dd1;
-
-    //get reference to second dropdown menu
-    [SerializeField] private TMP_Dropdown dd2;
-    // This function will be called when the options button is clicked
-    public void OnOptionButtonClick()
+    private void OnEnable()
     {
-        Debug.Log("Option button clicked!");
-        
+        // Subscribe to sceneLoaded event
+        SceneManager.sceneLoaded += OnSceneLoaded;
+
+        // Attach UI listeners for the current scene
+        AttachListeners();
     }
 
-    // This function will be called when the Human Vs. Human button is clicked
+    private void OnDisable()
+    {
+        // Unsubscribe from sceneLoaded event
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
+
+    private void Start()
+    {
+        // Ensure UI listeners are attached on start
+        AttachListeners();
+    }
+
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        // Ensure UI listeners are re-attached after the scene is loaded
+        StartCoroutine(AttachListenersNextFrame());
+    }
+
+    private IEnumerator AttachListenersNextFrame()
+    {
+        // Wait for the next frame to ensure UI is fully initialized
+        yield return null;
+        AttachListeners();
+    }
+
+    private void AttachListeners()
+    {
+        if (optionsPanel == null)
+        {
+            Debug.LogError("OptionsPanel is not assigned in the Inspector!");
+            return;
+        }
+
+        // Enable the options panel temporarily if needed
+        if (!optionsPanel.activeInHierarchy)
+        {
+            optionsPanel.SetActive(true);
+        }
+
+        // Attach button listeners
+        if (humanVsHumanButton != null)
+        {
+            humanVsHumanButton.onClick.RemoveAllListeners();
+            humanVsHumanButton.onClick.AddListener(OnHumanTwoButtonClick);
+        }
+
+        if (humanVsAIButton != null)
+        {
+            humanVsAIButton.onClick.RemoveAllListeners();
+            humanVsAIButton.onClick.AddListener(OnHumanAIButtonClick);
+        }
+
+        if (aiVsAIButton != null)
+        {
+            aiVsAIButton.onClick.RemoveAllListeners();
+            aiVsAIButton.onClick.AddListener(OnAITwoButtonClick);
+        }
+
+        // Attach dropdown listeners
+        if (dd1 != null)
+        {
+            dd1.onValueChanged.RemoveAllListeners();
+            dd1.onValueChanged.AddListener(index => OnDifficulty1Changed(index));
+        }
+
+        if (dd2 != null)
+        {
+            dd2.onValueChanged.RemoveAllListeners();
+            dd2.onValueChanged.AddListener(index => OnDifficulty2Changed(index));
+        }
+
+        // Re-disable the options panel after attaching listeners
+        if (optionsPanel.activeInHierarchy)
+        {
+            optionsPanel.SetActive(false);
+        }
+    }
+
+    // Button Click Handlers
     public void OnHumanTwoButtonClick()
     {
         if (GameSettings.Instance != null)
         {
             GameSettings.Instance.currentMode = GameSettings.GameMode.HumanVsHuman;
         }
-
-        // Load the scene
         SceneManager.LoadScene("Game");
     }
 
-    // This function will be called when the Human Vs. AI button is clicked
     public void OnHumanAIButtonClick()
     {
         if (GameSettings.Instance != null)
         {
             GameSettings.Instance.currentMode = GameSettings.GameMode.HumanVsAI;
-            Debug.Log("Game mode is HumanvsAI");
         }
-
-        // load the scene
         SceneManager.LoadScene("Game");
     }
 
-    // This function will be called when the AI Vs. AI button is clicked
     public void OnAITwoButtonClick()
     {
         if (GameSettings.Instance != null)
         {
             GameSettings.Instance.currentMode = GameSettings.GameMode.AIvsAI;
         }
-        // load the scene
         SceneManager.LoadScene("Game");
     }
-    void Start()
-    {
-        // Set up listeners for dropdowns
-        if (dd1 != null)
-        {
-            dd1.onValueChanged.AddListener(delegate { OnDifficulty1Changed(dd1.value); });
-        }
 
-        if (dd2 != null)
-        {
-            dd2.onValueChanged.AddListener(delegate { OnDifficulty2Changed(dd2.value); });
-        }
-    }
-
-    // Called when dropdown 1 changes
+    // Dropdown Value Changed Handlers
     public void OnDifficulty1Changed(int index)
     {
         if (GameSettings.Instance != null)
         {
-            // Map dropdown index to Difficulty
             GameSettings.Instance.aiDifficulty1 = MapDropdownIndexToDifficulty(index);
         }
         Debug.Log($"AI Difficulty 1 set to: {GameSettings.Instance.aiDifficulty1}");
@@ -87,12 +143,12 @@ public class MainMenu : MonoBehaviour
     {
         if (GameSettings.Instance != null)
         {
-            // Map dropdown index to Difficulty
             GameSettings.Instance.aiDifficulty2 = MapDropdownIndexToDifficulty(index);
         }
         Debug.Log($"AI Difficulty 2 set to: {GameSettings.Instance.aiDifficulty2}");
     }
 
+    // Map Dropdown Index to Difficulty Enum
     private GameSettings.Difficulty MapDropdownIndexToDifficulty(int index)
     {
         switch (index)
@@ -103,5 +159,4 @@ public class MainMenu : MonoBehaviour
             default: return GameSettings.Difficulty.Medium;
         }
     }
-
 }

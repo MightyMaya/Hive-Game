@@ -28,15 +28,22 @@ public class GameSettings : MonoBehaviour
 
     void Awake()
     {
-        if (Instance != null && Instance != this)
+        if (Instance == null)
+        {
+            Instance = this;
+            DontDestroyOnLoad(gameObject);
+        }
+        else
         {
             Destroy(gameObject);
-            return;
         }
-
-        Instance = this;
-        DontDestroyOnLoad(gameObject); // Keeps this object alive across scenes
     }
 
 
+    public void ResetState()
+    {
+        currentMode = GameMode.HumanVsHuman;
+        aiDifficulty1 = Difficulty.Medium;
+        aiDifficulty2 = Difficulty.Medium;
+    }
 }
