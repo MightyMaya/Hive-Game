@@ -40,7 +40,7 @@ public class PlayerAI : MonoBehaviour
     }
 
     public Difficulty aiDifficulty = Difficulty.Medium;
-    public MovePlate aiMovePlate;
+    
 
 
     private void Start()

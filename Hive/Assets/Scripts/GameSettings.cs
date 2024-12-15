@@ -1,9 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using UnityEngine.UI;
 public class GameSettings : MonoBehaviour
 {
+   
     public static GameSettings Instance { get; private set; }
 
     public enum GameMode
@@ -36,4 +37,6 @@ public class GameSettings : MonoBehaviour
         Instance = this;
         DontDestroyOnLoad(gameObject); // Keeps this object alive across scenes
     }
+
+
 }
