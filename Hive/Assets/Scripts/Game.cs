@@ -509,7 +509,7 @@ public class Game : MonoBehaviour
                 MovePlate aiMovePlate = null;
                 List<GameObject> allPieces = ai.GetPlayerPieces();
                 
-                ai.MovePiece(ai.b_pieces[0],(15,6));
+                ai.MovePiece(ai.b_pieces[0],new Vector2Int(15,6));
             }
         }
         else if (currentMode == GameMode.AIvsAI)
