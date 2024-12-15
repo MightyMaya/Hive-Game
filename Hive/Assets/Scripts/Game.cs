@@ -440,26 +440,6 @@ public class Game : MonoBehaviour
 
     public void Update()
     {
-
-        // Leave this code commented  , DO NOT Delete it (Fady)
-        /*
-         *  // New: Check for the draw condition each time a turn ends
-        if (CheckForDraw())
-        {
-            isDraw = true;
-            Debug.Log("The game is a draw (Fady).");
-            // Optionally, trigger game over or stop further moves
-            return; // Stop further game updates
-        }
-       // Check if the player has any valid moves or piece placements
-        if (CanPlayerMoveOrPlace(currentPlayer) == false)
-        {
-            // If no valid moves are available, pass the turn to the opponent
-            NextTurn(); // NEW: Pass the turn to the opponent
-        }
-
-         */
-        
         
         //Update method content on git
         
@@ -631,17 +611,23 @@ public class Game : MonoBehaviour
 
         if (queenWhite != null && queenBlack != null)
         {
-            // Check if both queens are surrounded
             Hiveman whiteQueenPiece = queenWhite.GetComponent<Hiveman>();
             Hiveman blackQueenPiece = queenBlack.GetComponent<Hiveman>();
 
-            List<Vector2Int> whiteQueenMoves = whiteQueenPiece.moveLogic.GetPossibleMoves(whiteQueenPiece.GetXBoard(), whiteQueenPiece.GetYBoard(), whiteQueenPiece.GetZBoard(), "w");
-            List<Vector2Int> blackQueenMoves = blackQueenPiece.moveLogic.GetPossibleMoves(blackQueenPiece.GetXBoard(), blackQueenPiece.GetYBoard(), blackQueenPiece.GetZBoard(), "b");
+            QueenBeeMoves whiteQueensc = queenWhite.GetComponent<QueenBeeMoves>();
+            QueenBeeMoves blackQueensc = queenBlack.GetComponent<QueenBeeMoves>();
+
+            //check if both queens are on board
+            if (!whiteQueenPiece.isOnBoard || !blackQueenPiece.isOnBoard)
+            {
+                return; //if one of the queens is still not on the board, don't check for game end
+            }
+            // Check if both queens are surrounded
+            bool whiteQueenSurrounded = whiteQueensc.IsQueenSurrounded(whiteQueenPiece.GetXBoard(), whiteQueenPiece.GetYBoard(), whiteQueenPiece.GetZBoard(), "w");
+            bool blackQueenSurrounded = blackQueensc.IsQueenSurrounded(blackQueenPiece.GetXBoard(), blackQueenPiece.GetYBoard(), blackQueenPiece.GetZBoard(), "b");
 
             // Check for no valid moves for both queens (surrounded)
-            bool whiteQueenSurrounded = whiteQueenMoves.Count == 0;
-            bool blackQueenSurrounded = blackQueenMoves.Count == 0;
-
+            
             if (whiteQueenSurrounded && blackQueenSurrounded)
             {
                 // Check if the last move surrounds both queens
@@ -649,7 +635,7 @@ public class Game : MonoBehaviour
                 //    {
                 // New: Both queens are surrounded by the same move, game is a draw
                 SetDraw(true);
-                    EndGameDraw();
+                EndGameDraw();
 
                     return;
              //       }
@@ -657,11 +643,11 @@ public class Game : MonoBehaviour
 
             if (whiteQueenSurrounded)
             {
-                EndGame("b");
+                EndGame("w");
             }
             else if (blackQueenSurrounded)
             {
-                EndGame("w");
+                EndGame("b");
             }
         }
         else
@@ -670,7 +656,12 @@ public class Game : MonoBehaviour
         }
     }
 
-
+    //function to go back to Menu
+    public void BackToMenu()
+    {
+        // load menu scene
+        SceneManager.LoadScene("Menu");
+    }
 
     //public void CheckGameEndCondition()
     //{
