@@ -32,14 +32,14 @@ public class Game : MonoBehaviour
     public int b_turncount = 0;
     public int w_turncount = 0;
     
-    public enum GameMode
+    /*public enum GameMode
     {
         HumanVsHuman,
         AIvsHuman,
         AIvsAI
-    }
+    }*/
 
-    public GameMode currentMode = GameMode.AIvsHuman;
+    //public GameMode currentMode = GameMode.AIvsHuman;
     public string aiPlayer1 = "b"; // AI player 1
     public string aiPlayer2 = "w"; // AI player 2
     public GameObject aiPlayer;
@@ -494,7 +494,43 @@ public class Game : MonoBehaviour
         //----------------------------------------------
         if (gameOver) return;
 
-        if (currentMode == GameMode.HumanVsHuman)
+        if (GameSettings.Instance != null)
+        {
+            switch (GameSettings.Instance.currentMode)
+            {
+                case GameSettings.GameMode.HumanVsHuman:
+                    Debug.Log("Game Mode: Human Vs. Human");
+                    // No AI logic, both players are human
+                    break;
+
+                case GameSettings.GameMode.HumanVsAI:
+                    Debug.Log("Game Mode: Human Vs. AI");
+                    if (GetCurrentPlayer() == aiPlayer1)
+                    {
+                        Debug.Log("AI vs Human 2");
+                        // StartAI(aiPlayer1);
+
+                        List<GameObject> allPieces = ai.GetPlayerPieces();
+
+                        ai.MakeMove(aiPlayer1);
+                    }
+                        break;
+
+                case GameSettings.GameMode.AIvsAI:
+                    Debug.Log("Game Mode: AI Vs. AI");
+                    if (GetCurrentPlayer() == aiPlayer1)
+                    {
+                        ai.MakeMove(aiPlayer1);
+                    }
+                    else
+                    {
+                        ai.MakeMove(aiPlayer2);
+                    }
+                        break;
+            }
+        }
+
+      /*  if (currentMode == GameMode.HumanVsHuman)
         {
             Debug.Log("Human vs Human");
             // No AI logic, both players are human
@@ -524,7 +560,7 @@ public class Game : MonoBehaviour
                 NextTurn();
             }
         }
-
+      */
 
     }
 

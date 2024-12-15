@@ -21,16 +21,23 @@ public class MainMenu : MonoBehaviour
     // This function will be called when the Human Vs. Human button is clicked
     public void OnHumanTwoButtonClick()
     {
-        //ensure AI players are deactivated
+        if (GameSettings.Instance != null)
+        {
+            GameSettings.Instance.currentMode = GameSettings.GameMode.HumanVsHuman;
+        }
 
-        // load the scene
+        // Load the scene
         SceneManager.LoadScene("Game");
     }
 
     // This function will be called when the Human Vs. AI button is clicked
     public void OnHumanAIButtonClick()
     {
-        //ensure 1 AI player is activated
+        if (GameSettings.Instance != null)
+        {
+            GameSettings.Instance.currentMode = GameSettings.GameMode.HumanVsAI;
+            Debug.Log("Game mode is HumanvsAI");
+        }
 
         // load the scene
         SceneManager.LoadScene("Game");
@@ -39,8 +46,10 @@ public class MainMenu : MonoBehaviour
     // This function will be called when the AI Vs. AI button is clicked
     public void OnAITwoButtonClick()
     {
-        //ensure both AI playera are activated
-
+        if (GameSettings.Instance != null)
+        {
+            GameSettings.Instance.currentMode = GameSettings.GameMode.AIvsAI;
+        }
         // load the scene
         SceneManager.LoadScene("Game");
     }
