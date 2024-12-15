@@ -3,18 +3,29 @@ using UnityEngine.SceneManagement;
 using UnityEngine;
 using System.Reflection;
 using System.Linq;
+using TMPro;
 using System;
 
 public class Game : MonoBehaviour
 {
     public GameObject hivepiece;
 
+    //Dictionary to keep track of game state
     private Dictionary<(int x, int y), Stack<GameObject>> positions = new Dictionary<(int, int), Stack<GameObject>>();
     public GameObject[] blackPlayer = new GameObject[9];
     public GameObject[] whitePlayer = new GameObject[9];
 
+    //textbox to display current player
+    [SerializeField] private TextMeshProUGUI currentPlayerName;
 
+    //variable to keep track of current player
     private string currentPlayer = "w";
+
+    //Reference to GameEnd panel
+    [SerializeField] private GameObject resultPanel;
+    //textbox to display game result
+    [SerializeField] private TextMeshProUGUI result;
+
     private bool gameOver = false;
 
     public bool isFirstMove = true;
@@ -32,14 +43,6 @@ public class Game : MonoBehaviour
     public int b_turncount = 0;
     public int w_turncount = 0;
     
-    /*public enum GameMode
-    {
-        HumanVsHuman,
-        AIvsHuman,
-        AIvsAI
-    }*/
-
-    //public GameMode currentMode = GameMode.AIvsHuman;
     public string aiPlayer1 = "b"; // AI player 1
     public string aiPlayer2 = "w"; // AI player 2
     public GameObject aiPlayer;
@@ -396,6 +399,8 @@ public class Game : MonoBehaviour
         {
             w_turncount++;
             currentPlayer = "b";
+            //Show on the UI
+            currentPlayerName.text = "Black Player's turn";
         }
         else if (currentPlayer == "b")
         {
@@ -412,10 +417,12 @@ public class Game : MonoBehaviour
             }
             else {*/
                 Debug.Log("next white turn");
+                b_turncount++;  
                 currentPlayer = "w";
-                b_turncount++;
+                //Show on the UI
+                currentPlayerName.text = "White Player's turn";
             //}
-            
+
         }
         // currentPlayer = currentPlayer == "w" ? "b" : "w";
     }
@@ -706,14 +713,18 @@ public class Game : MonoBehaviour
         string winner = losingPlayer == "b" ? "White" : "Black";
         Debug.Log($"Congratulations {winner}, you win!");
 
-        // Handle game-ending logic (disable input, display winner, etc.)
+        // Show game over panel
+        result.text = $"Congratulations {winner}, you win!";
+        resultPanel.SetActive(true);
         gameOver = true;
     }
     public void EndGameDraw()
     {
         Debug.Log("The game is a draw! Both queens were surrounded by the same move.");
 
-        // Handle draw logic (disable input, show draw message, etc.)
+        // Show game over panel
+        result.text = "The game is a draw! Both queens were surrounded.";
+        resultPanel.SetActive(true);
         gameOver = true;
     }
     /*
