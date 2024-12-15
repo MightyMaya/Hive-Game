@@ -104,6 +104,7 @@ public class PlayerAI : MonoBehaviour
     // }
 
 
+
     public void MakeMove(string aiPlayer)
     {
         int maxDepth = (int)aiDifficulty; // Use depth based on difficulty
@@ -169,7 +170,7 @@ public class PlayerAI : MonoBehaviour
             else
             {
                 Debug.Log("else placement");
-                (bestPieceToPlace, bestTile, bestScorePlacement) = GetBestPlacement(aiPlayer);
+                (bestPieceToPlace, bestTile, bestScorePlacement) = GetBestPlacement(piece,aiPlayer);
                 Debug.Log($"piece returned {bestPieceToPlace.name}, score: {bestScorePlacement}");
             }
         }
@@ -210,32 +211,36 @@ public class PlayerAI : MonoBehaviour
         return playerPieces;
     }
 
-    public (GameObject bestPiece, Vector2Int bestTile, int bestScore) GetBestPlacement(string player)
+    public (GameObject bestPiece, Vector2Int bestTile, int bestScore) GetBestPlacement(GameObject piece,string player)
     {
         Debug.Log("Getting best piece placement function");
-        string[] piecePriority = { "ant", "grasshopper", "spider", "beetle", "queenBee" };
+        // string[] piecePriority = { "queenBee","ant", "grasshopper", "spider", "beetle" };
         GameObject bestPieceToPlace = null;
         Vector2Int bestPlacement = Vector2Int.zero;
         int bestScore = int.MinValue;
+        int maxDepth = (int)aiDifficulty; // Use depth based on difficulty
 
-        foreach (string pieceType in piecePriority)
-        {
-            GameObject unplacedPiece = gamesc.GetUnplacedPiece(player, pieceType);
-            if (unplacedPiece == null) continue;
+
+        // foreach (string pieceType in piecePriority)
+        // {
+            // GameObject unplacedPiece = gamesc.GetUnplacedPiece(player, pieceType);
+            // if (unplacedPiece == null) continue;
 
             HashSet<Vector2Int> validTiles = gamesc.GetTilesAdjacentToAllPieces();
 
             foreach (Vector2Int tile in validTiles)
             {
-                int score = EvaluatePiecePriority(unplacedPiece.name);
+                // int score = EvaluatePlacement(bestPieceToPlace,tile,player);
+                // int score = EvaluatePlacement(bestPieceToPlace,tile,player);
+                int score = Minimax(maxDepth, false, int.MinValue, int.MaxValue);
 
                 if (score > bestScore)
                 {
                     bestScore = score;
-                    bestPieceToPlace = unplacedPiece;
+                    bestPieceToPlace = piece;
                     bestPlacement = tile;
                 }
-            }
+            // }
         }
 
         return (bestPieceToPlace, bestPlacement, bestScore);
@@ -247,8 +252,11 @@ public class PlayerAI : MonoBehaviour
         if (pieceName.Contains("grasshopper")) return 20; // Jumping capability
         if (pieceName.Contains("beetle")) return 20; // Defensive
         if (pieceName.Contains("spider")) return 10; // Strategic movement
-        if (pieceName.Contains("queenBee") && !gamesc.IsQueenOnBoard(gamesc.GetCurrentPlayer())) return 5; // Only if mandatory
-
+        if (pieceName.Contains("queenBee"))
+        {
+                int queen=(gamesc.moveCount < 8 && !gamesc.IsQueenOnBoard(gamesc.GetCurrentPlayer())) ?  50 :  5; // Only if mandatory
+                return queen;
+        }
         return 0; // Default for unrecognized pieces
     }
     
@@ -258,15 +266,15 @@ public class PlayerAI : MonoBehaviour
     private int EvaluatePlacement(GameObject piece, Vector2Int position, string player)
     {
         // int hiveConnectivity = EvaluateHiveConnectivity(position);
-        int opponentProximity = EvaluateOpponentProximity(position, player);
+        // int opponentProximity = EvaluateOpponentProximity(position, player);
         // int centralPositioning = EvaluateCentralPositioning(position);
         // int piecePriority = EvaluatePiecePriority(piece.name);
-        int pieceMobility = EvaluatePieceMobility(piece.name);
-        int queenSafty = EvaluateQueenSafety(piece, piece.GetComponent<Hiveman>().GetPieceType(piece,player));
+        int pieceMobility = EvaluatePieceMobility(player);
+        int queenSafty = (gamesc.IsQueenOnBoard(player))?EvaluateQueenSafety(piece, piece.GetComponent<Hiveman>().GetPieceType(piece,player)):0;
         // int queenReadiness = EvaluateQueenReadiness(player);
 
         // Weighted sum
-        int score=10*queenSafty+2*opponentProximity+5*pieceMobility;
+        int score=10*queenSafty+5*pieceMobility;
         return score;
     }
 
@@ -458,20 +466,23 @@ public int GetSurroundingPiecesCount(GameObject piece, string pieceType)
 
             // Destroy any move plates made
             //hivesc.DestroyMovePlates();
+            
+            gamesc.CheckGameEndCondition();
 
             // Check for draw condition after the move
             if (gamesc.CheckForDrawDueRedundentMoves())
             {
                 gamesc.SetDraw(true);
                 gamesc.EndGameDraw();
-                Debug.Log("The game is a draw.");
+                Debug.Log("The game is a draw (Fady).");
+                // Optionally, trigger game over or stop further moves
                 return; // Stop further game updates
             }
-
-            // Check if the player has valid moves or piece placements
-            if (!gamesc.CanPlayerMoveOrPlace(gamesc.GetCurrentPlayer()))
+            // Check if the player has any valid moves or piece placements
+            if (gamesc.CanPlayerMoveOrPlace(gamesc.GetCurrentPlayer()) == false)
             {
-                gamesc.NextTurn(); // Pass the turn to the opponent if no moves are available
+                // If no valid moves are available, pass the turn to the opponent
+                gamesc.NextTurn(); // NEW: Pass the turn to the opponent
             }
         }
         else
@@ -528,6 +539,7 @@ public int GetSurroundingPiecesCount(GameObject piece, string pieceType)
         if (depth == 0 || gamesc.IsGameOver())
         {
             return EvaluateGameState();
+            // return EvaluatePlacement(gamesc.GetCurrentPlayer())
         }
 
         if (isMaximizing)
