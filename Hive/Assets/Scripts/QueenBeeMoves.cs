@@ -33,7 +33,7 @@ public class QueenBeeMoves : MonoBehaviour, IMoveLogic
             }
         }
         else*/
-        if (!sc.IsBeetleBlocked(x,y,z,currentPlayer) ) //if the piece is not blocked by a beetle
+        if (!sc.IsBeetleBlocked(x, y, z, currentPlayer)) //if the piece is not blocked by a beetle
         {
             // Get all adjacent hexes
             List<Vector2Int> adjacentHexes = GetAdjacentHexes(currentPosition);
@@ -86,5 +86,25 @@ public class QueenBeeMoves : MonoBehaviour, IMoveLogic
 
         return adjacentHexes;
     }
-}
 
+    public bool IsQueenSurrounded(int x, int y, int z, string currentPlayer)
+    {
+        bool surrounded = true;
+        // Get all adjacent hexes
+        Vector2Int currentPosition = new Vector2Int(x, y);
+        List<Vector2Int> adjacentHexes = GetAdjacentHexes(currentPosition);
+
+        controller = GameObject.FindGameObjectWithTag("GameController");
+        Game sc = controller.GetComponent<Game>();
+
+        foreach (var hex in adjacentHexes)
+        {
+            if (sc.GetPosition(hex.x, hex.y) == null)
+            {
+                surrounded = false;
+            }
+        }
+
+        return surrounded;
+    }
+}

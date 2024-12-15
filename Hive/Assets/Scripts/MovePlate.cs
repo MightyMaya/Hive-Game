@@ -83,8 +83,10 @@ public class MovePlate : MonoBehaviour
             //destroy the moveplates made
             hivesc.DestroyMovePlates();
 
-            // New: Check for the draw condition each time a turn ends
-            if (gamesc.CheckForDrawDueRedundentMoves())
+            // New: Check for the draw condition and game over each time a turn ends
+
+            gamesc.CheckGameEndCondition();
+            /*if (gamesc.CheckForDrawDueRedundentMoves())
             {
                 gamesc.SetDraw(true);
                 gamesc.EndGameDraw();
@@ -92,6 +94,25 @@ public class MovePlate : MonoBehaviour
                 Debug.Log("The game is a draw (Fady).");
                 // Optionally, trigger game over or stop further moves
                 return; // Stop further game updates
+            }
+            */
+
+            // Leave this code commented  , DO NOT Delete it (Fady)
+
+            // New: Check for the draw condition each time a turn ends
+            if (gamesc.CheckForDrawDueRedundentMoves())
+            {
+                gamesc.SetDraw(true);
+                gamesc.EndGameDraw();
+                Debug.Log("The game is a draw (Fady).");
+                // Optionally, trigger game over or stop further moves
+                return; // Stop further game updates
+            }
+            // Check if the player has any valid moves or piece placements
+            if (gamesc.CanPlayerMoveOrPlace(gamesc.GetCurrentPlayer()) == false)
+            {
+                // If no valid moves are available, pass the turn to the opponent
+                gamesc.NextTurn(); // NEW: Pass the turn to the opponent
             }
 
 

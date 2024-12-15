@@ -13,6 +13,8 @@ public class Hiveman : MonoBehaviour
         //List<Vector2Int> GetPossibleMoves(int x, int y, bool isFirstMove, string currentPlayer);
         List<Vector2Int> GetPossibleMoves(int x, int y, int z, string currentPlayer);
 
+        //bool IsQueenSurrounded(int x, int y, int z, string currentPlayer);
+
     }
     public IMoveLogic moveLogic;
 
