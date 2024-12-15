@@ -399,20 +399,23 @@ public class Game : MonoBehaviour
         }
         else if (currentPlayer == "b")
         {
-            if (ai != null)
+           /* if (ai != null )
             {
+                currentPlayer = "w";
+                b_turncount++;
                 Debug.Log("AI Turn");
-                // ai.MakeMove(currentPlayer);
-                // MovePlate aiMovePlate = null;
+                //ai.MakeMove("b");
+
                 // List<GameObject> allPieces = ai.GetPlayerPieces();
-                //
-                // aiMovePlate.SetReference(allPieces[0]);
-                // aiMovePlate.SetCoords(15, 6);
-                // aiMovePlate.OnMouseUp();
-            } 
-            Debug.Log("next white turn");
-            currentPlayer = "w";
-            b_turncount++;
+                Debug.Log("next white turn");
+                
+            }
+            else {*/
+                Debug.Log("next white turn");
+                currentPlayer = "w";
+                b_turncount++;
+            //}
+            
         }
         // currentPlayer = currentPlayer == "w" ? "b" : "w";
     }
@@ -505,11 +508,11 @@ public class Game : MonoBehaviour
             {
                 Debug.Log("AI vs Human 2");
                 // StartAI(aiPlayer1);
-                // NextTurn();
-                MovePlate aiMovePlate = null;
-                List<GameObject> allPieces = ai.GetPlayerPieces();
                 
-                ai.MovePiece(ai.b_pieces[0],new Vector2Int(15,6));
+                List<GameObject> allPieces = ai.GetPlayerPieces();
+
+                ai.MakeMove(aiPlayer1);
+                //NextTurn();
             }
         }
         else if (currentMode == GameMode.AIvsAI)

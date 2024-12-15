@@ -130,7 +130,7 @@ public class PlayerAI : MonoBehaviour
             if (hiveman.isOnBoard)
             {
                 // Get all possible moves for the piece
-                possibleMoves = GetPossibleMoves();
+                possibleMoves = GetPossibleMoves(hiveman);
 
                 // List<Vector2Int> possibleMoves = hiveman.moveLogic.GetPossibleMoves(
                 //     hiveman.GetXBoard(), hiveman.GetYBoard(), hiveman.GetZBoard(), aiPlayer);
@@ -179,19 +179,19 @@ public class PlayerAI : MonoBehaviour
         if (bestScorePlacement >= bestScore && bestPieceToPlace != null)
         {
             // Place the best piece
-            // SimulatePlacement(bestPieceToPlace, bestTile);
-            aiMovePlate.SetReference(bestPieceToPlace);
-            aiMovePlate.SetCoords(bestTile.x, bestTile.y);
-            aiMovePlate.OnMouseUp();
+            MovePiece(bestPieceToPlace, bestTile);
+            //aiMovePlate.SetReference(bestPieceToPlace);
+            //aiMovePlate.SetCoords(bestTile.x, bestTile.y);
+           // aiMovePlate.OnMouseUp();
             Debug.Log($"{aiPlayer} placed {bestPieceToPlace.name} at ({bestTile.x}, {bestTile.y}).");
         }
         else if (bestPiece != null)
         {
             // Move the best piece
-            // SimulateMove(bestPiece, bestMove);
-            aiMovePlate.SetReference(bestPiece);
-            aiMovePlate.SetCoords(bestMove.x, bestMove.y);
-            aiMovePlate.OnMouseUp();
+            MovePiece(bestPiece, bestMove);
+            //aiMovePlate.SetReference(bestPiece);
+            //aiMovePlate.SetCoords(bestMove.x, bestMove.y);
+            //aiMovePlate.OnMouseUp();
             Debug.Log($"{aiPlayer} moved {bestPiece.name} to ({bestMove.x}, {bestMove.y}).");
         }
         
@@ -267,10 +267,9 @@ public class PlayerAI : MonoBehaviour
     }
 
 
-    private List<Vector2Int> GetPossibleMoves()
+    private List<Vector2Int> GetPossibleMoves(Hiveman hiveman)
     {
         List<Vector2Int> possibleMoves = new List<Vector2Int>();
-        Hiveman hiveman = GetComponent<Hiveman>();
         // Check if the piece is already on the board
         if (!hiveman.isOnBoard)
         {
@@ -369,7 +368,7 @@ public class PlayerAI : MonoBehaviour
         gamesc.NextTurn();
 
         // Destroy any move plates made
-        hivesc.DestroyMovePlates();
+        //hivesc.DestroyMovePlates();
 
         // Check for draw condition after the move
         if (gamesc.CheckForDrawDueRedundentMoves())
@@ -452,7 +451,7 @@ public class PlayerAI : MonoBehaviour
                 Hiveman hiveman = piece.GetComponent<Hiveman>();
                 if (hiveman == null) continue;
 
-                List<Vector2Int> possibleMoves = GetPossibleMoves();
+                List<Vector2Int> possibleMoves = GetPossibleMoves(hiveman);
 
                 foreach (Vector2Int move in possibleMoves)
                 {
@@ -481,7 +480,7 @@ public class PlayerAI : MonoBehaviour
                 Hiveman hiveman = piece.GetComponent<Hiveman>();
                 if (hiveman == null) continue;
 
-                List<Vector2Int> possibleMoves = GetPossibleMoves();
+                List<Vector2Int> possibleMoves = GetPossibleMoves(hiveman);
 
 
                 foreach (Vector2Int move in possibleMoves)
@@ -520,7 +519,7 @@ public class PlayerAI : MonoBehaviour
                 Hiveman hiveman = piece.GetComponent<Hiveman>();
                 if (hiveman == null) continue;
 
-                List<Vector2Int> possibleMoves = GetPossibleMoves();
+                List<Vector2Int> possibleMoves = GetPossibleMoves(hiveman);
 
                 foreach (Vector2Int move in possibleMoves)
                 {
@@ -548,7 +547,7 @@ public class PlayerAI : MonoBehaviour
                 Hiveman hiveman = piece.GetComponent<Hiveman>();
                 if (hiveman == null) continue;
 
-                List<Vector2Int> possibleMoves = GetPossibleMoves();
+                List<Vector2Int> possibleMoves = GetPossibleMoves(hiveman);
 
                 foreach (Vector2Int move in possibleMoves)
                 {
@@ -586,7 +585,7 @@ public class PlayerAI : MonoBehaviour
                 Hiveman hiveman = piece.GetComponent<Hiveman>();
                 if (hiveman == null) continue;
 
-                List<Vector2Int> possibleMoves = GetPossibleMoves();
+                List<Vector2Int> possibleMoves = GetPossibleMoves(hiveman);
 
                 foreach (Vector2Int move in possibleMoves)
                 {
