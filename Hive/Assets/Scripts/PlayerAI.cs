@@ -40,7 +40,6 @@ public class PlayerAI : MonoBehaviour
     }
 
     public Difficulty aiDifficulty = Difficulty.Medium;
-    
 
 
     private void Start()
@@ -110,7 +109,7 @@ public class PlayerAI : MonoBehaviour
         int maxDepth = (int)aiDifficulty; // Use depth based on difficulty
         Vector2Int bestMove = Vector2Int.zero, bestTile = Vector2Int.zero;
         int bestScore = int.MinValue, bestScorePlacement = 0;
-        GameObject bestPiece = null, bestPieceToPlace=null;
+        GameObject bestPiece = null, bestPieceToPlace = null;
         Debug.Log("Making move");
 
         // Loop through all pieces
@@ -174,7 +173,7 @@ public class PlayerAI : MonoBehaviour
                 Debug.Log($"piece returned {bestPieceToPlace.name}, score: {bestScorePlacement}");
             }
         }
-        
+
         // Decide whether to place or move based on the best scores
         if (bestScorePlacement >= bestScore && bestPieceToPlace != null)
         {
@@ -182,7 +181,7 @@ public class PlayerAI : MonoBehaviour
             MovePiece(bestPieceToPlace, bestTile);
             //aiMovePlate.SetReference(bestPieceToPlace);
             //aiMovePlate.SetCoords(bestTile.x, bestTile.y);
-           // aiMovePlate.OnMouseUp();
+            // aiMovePlate.OnMouseUp();
             Debug.Log($"{aiPlayer} placed {bestPieceToPlace.name} at ({bestTile.x}, {bestTile.y}).");
         }
         else if (bestPiece != null)
@@ -194,7 +193,6 @@ public class PlayerAI : MonoBehaviour
             //aiMovePlate.OnMouseUp();
             Debug.Log($"{aiPlayer} moved {bestPiece.name} to ({bestMove.x}, {bestMove.y}).");
         }
-        
     }
 
     public List<GameObject> GetPlayerPieces()
@@ -247,24 +245,114 @@ public class PlayerAI : MonoBehaviour
     {
         if (pieceName.Contains("ant")) return 30; // High mobility
         if (pieceName.Contains("grasshopper")) return 20; // Jumping capability
-        if (pieceName.Contains("beetle")) return 10; // Defensive
-        if (pieceName.Contains("spider")) return 15; // Strategic movement
-        if (pieceName.Contains("queenBee")) return 5; // Only if mandatory
+        if (pieceName.Contains("beetle")) return 20; // Defensive
+        if (pieceName.Contains("spider")) return 10; // Strategic movement
+        if (pieceName.Contains("queenBee") && !gamesc.IsQueenOnBoard(gamesc.GetCurrentPlayer())) return 5; // Only if mandatory
 
         return 0; // Default for unrecognized pieces
     }
+    
+   
+
 
     private int EvaluatePlacement(GameObject piece, Vector2Int position, string player)
     {
         // int hiveConnectivity = EvaluateHiveConnectivity(position);
-        // int opponentProximity = EvaluateOpponentProximity(position, player);
+        int opponentProximity = EvaluateOpponentProximity(position, player);
         // int centralPositioning = EvaluateCentralPositioning(position);
-        int piecePriority = EvaluatePiecePriority(piece.name);
+        // int piecePriority = EvaluatePiecePriority(piece.name);
+        int pieceMobility = EvaluatePieceMobility(piece.name);
+        int queenSafty = EvaluateQueenSafety(piece, piece.GetComponent<Hiveman>().GetPieceType(piece,player));
         // int queenReadiness = EvaluateQueenReadiness(player);
 
         // Weighted sum
-        return piecePriority;
+        int score=10*queenSafty+2*opponentProximity+5*pieceMobility;
+        return score;
     }
+
+    private int EvaluateOpponentProximity(Vector2Int position, string player)
+    {
+        string opponent = gamesc.GetOpponent(player);
+
+        HashSet<Vector2Int> adjacentTiles = gamesc.GetAdjacentTiles(position);
+        foreach (Vector2Int tile in adjacentTiles)
+        {
+            GameObject piece = gamesc.GetPosition(tile.x, tile.y);
+            Hiveman hiveman = piece.GetComponent<Hiveman>();
+            if (piece != null && hiveman.player == opponent)
+            {
+                if(hiveman.GetName()=="w_queenBee" || hiveman.GetName()=="b_queenBee")
+                    return 10; // Reward for proximity to opponent pieces
+            }
+        }
+
+        return 0;
+    }
+
+    //---------------------------------------------------------------
+    public int EvaluateQueenSafety(GameObject queen, string pieceType)
+{
+    Hiveman hiveman = queen.GetComponent<Hiveman>();
+    // Determine the opposite piece type based on the given pieceType
+    string opponentType = pieceType == "friendly" ? "opponent" : "friendly";
+
+    // Get the number of surrounding opponent pieces
+    int opponentSurrounding = GetSurroundingPiecesCount(queen, opponentType);
+
+    // Get the number of surrounding friendly pieces (supporting pieces)
+    int friendlySupport = GetSurroundingPiecesCount(queen, pieceType);
+
+    // Get the number of legal moves for the Queen
+    int queenMobility = GetPossibleMoves(hiveman).Count;  // replace it with on mouse up but should be updated to return count 
+
+    // Calculate the heuristic value by applying weights to the different factors
+    int heuristicValue = (queenMobility * 5) + (friendlySupport * 3)
+                         - (opponentSurrounding * 7);
+
+    // Return the heuristic value
+    return heuristicValue;
+} 
+    private Dictionary<(int x, int y), Stack<GameObject>> positions = new Dictionary<(int, int), Stack<GameObject>>();
+
+
+// Function to get the number of surrounding pieces of a specific type (friendly or opponent)
+public int GetSurroundingPiecesCount(GameObject piece, string pieceType)
+{
+
+    // Get the position of the piece using GetXBoard() and GetYBoard()
+    int x = piece.GetComponent<Hiveman>().GetXBoard();
+    int y = piece.GetComponent<Hiveman>().GetYBoard();
+
+    // Initialize the count
+    int surroundingCount = 0;
+
+    // Get the adjacent tiles
+    List<Vector2Int> adjacentTiles = gamesc.GetAdjacentTiles(new Vector2Int(x, y)).ToList();
+
+    // Loop through the adjacent tiles and check the type of pieces on them
+    foreach (var tile in adjacentTiles)
+    {
+        var position = (tile.x, tile.y);
+
+        // Check if there are any pieces on the adjacent tile
+        if (positions.ContainsKey(position) && positions[position].Count > 0)
+        {
+            // Check the piece type on the adjacent tile
+            GameObject adjacentPiece = positions[position].Peek();  // Get the top piece
+            string currentPieceType = adjacentPiece.GetComponent<Hiveman>().GetPieceType(adjacentPiece,gamesc.GetCurrentPlayer());  // Assuming GetPieceType() returns "friendly" or "opponent"
+
+            // Compare the piece type to the specified one
+            if (currentPieceType.Equals(pieceType))
+            {
+                surroundingCount++;
+            }
+        }
+    }
+
+    return surroundingCount;
+}
+
+
 
 
     private List<Vector2Int> GetPossibleMoves(Hiveman hiveman)
@@ -318,79 +406,79 @@ public class PlayerAI : MonoBehaviour
         hiveman.isOnBoard = true;
         gamesc.SetPosition(piece);
     }
+
     //------------------------------------------------
     public GameObject Controller;
 
     //reference to the piece that created the moveplate
-    
+
     public void MovePiece(GameObject piece, Vector2Int targetPosition)
-{
-    // Get the game controller object
-    Controller = GameObject.FindGameObjectWithTag("GameController");
-    Game gamesc = Controller.GetComponent<Game>();
-
-    Hiveman hivesc = piece.GetComponent<Hiveman>();
-
-    if (!hivesc.hiveBreak)
     {
-        // Set old position of the piece to be empty
-        gamesc.SetPositionEmpty(hivesc.GetXBoard(), hivesc.GetYBoard());
+        // Get the game controller object
+        Controller = GameObject.FindGameObjectWithTag("GameController");
+        Game gamesc = Controller.GetComponent<Game>();
 
-        // Set new position of the piece to the specified target position
-        hivesc.SetXBoard(targetPosition.x);
-        hivesc.SetYBoard(targetPosition.y);
-        hivesc.SetCoords();
+        Hiveman hivesc = piece.GetComponent<Hiveman>();
 
-        // Update the game controller with the piece's new position
-        gamesc.SetPosition(piece);
-
-        // If this was the first move, toggle the flag
-        if (gamesc.isFirstMove)
+        if (!hivesc.hiveBreak)
         {
-            gamesc.isFirstMove = false;
-            Debug.Log("First move completed.");
+            // Set old position of the piece to be empty
+            gamesc.SetPositionEmpty(hivesc.GetXBoard(), hivesc.GetYBoard());
+
+            // Set new position of the piece to the specified target position
+            hivesc.SetXBoard(targetPosition.x);
+            hivesc.SetYBoard(targetPosition.y);
+            hivesc.SetCoords();
+
+            // Update the game controller with the piece's new position
+            gamesc.SetPosition(piece);
+
+            // If this was the first move, toggle the flag
+            if (gamesc.isFirstMove)
+            {
+                gamesc.isFirstMove = false;
+                Debug.Log("First move completed.");
+            }
+
+            // Increment the move counter
+            gamesc.moveCount++;
+
+            // Mark the piece as being on the board (if it wasn’t already)
+            if (!hivesc.isOnBoard)
+            {
+                hivesc.isOnBoard = true;
+                Debug.Log($"{piece.name} is now placed on the board.");
+            }
+
+            // Record the move
+            gamesc.RecordPlayerMove(gamesc.GetCurrentPlayer(), hivesc.name, targetPosition.x, targetPosition.y);
+
+            // Switch the player
+            gamesc.NextTurn();
+
+            // Destroy any move plates made
+            //hivesc.DestroyMovePlates();
+
+            // Check for draw condition after the move
+            if (gamesc.CheckForDrawDueRedundentMoves())
+            {
+                gamesc.SetDraw(true);
+                gamesc.EndGameDraw();
+                Debug.Log("The game is a draw.");
+                return; // Stop further game updates
+            }
+
+            // Check if the player has valid moves or piece placements
+            if (!gamesc.CanPlayerMoveOrPlace(gamesc.GetCurrentPlayer()))
+            {
+                gamesc.NextTurn(); // Pass the turn to the opponent if no moves are available
+            }
         }
-
-        // Increment the move counter
-        gamesc.moveCount++;
-
-        // Mark the piece as being on the board (if it wasn’t already)
-        if (!hivesc.isOnBoard)
+        else
         {
-            hivesc.isOnBoard = true;
-            Debug.Log($"{piece.name} is now placed on the board.");
-        }
-
-        // Record the move
-        gamesc.RecordPlayerMove(gamesc.GetCurrentPlayer(), hivesc.name, targetPosition.x, targetPosition.y);
-
-        // Switch the player
-        gamesc.NextTurn();
-
-        // Destroy any move plates made
-        //hivesc.DestroyMovePlates();
-
-        // Check for draw condition after the move
-        if (gamesc.CheckForDrawDueRedundentMoves())
-        {
-            gamesc.SetDraw(true);
-            gamesc.EndGameDraw();
-            Debug.Log("The game is a draw.");
-            return; // Stop further game updates
-        }
-
-        // Check if the player has valid moves or piece placements
-        if (!gamesc.CanPlayerMoveOrPlace(gamesc.GetCurrentPlayer()))
-        {
-            gamesc.NextTurn(); // Pass the turn to the opponent if no moves are available
+            Debug.Log($"Move rejected: {piece.name} would break the hive.");
         }
     }
-    else
-    {
-        Debug.Log($"Move rejected: {piece.name} would break the hive.");
-    }
-}
-
 
 
     private GameState SaveGameState()
@@ -409,15 +497,12 @@ public class PlayerAI : MonoBehaviour
         int mobilityScore = EvaluatePieceMobility(aiPlayer) - EvaluatePieceMobility(gamesc.GetOpponent("b"));
         // int queenSafetyScore = EvaluateQueenSafety(aiPlayer);
 
+        
         // Combine heuristics with weights (adjust weights as needed)
         // return 2 * mobilityScore + 5 * queenSafetyScore;
         return mobilityScore;
     }
-
-    private int EvaluateQueenSafety(string s)
-    {
-        throw new System.NotImplementedException();
-    }
+    
 
     public int EvaluatePieceMobility(string aiPlayer)
     {
@@ -425,12 +510,14 @@ public class PlayerAI : MonoBehaviour
         foreach (GameObject piece in GetPlayerPieces())
         {
             Hiveman hiveman = piece.GetComponent<Hiveman>();
-            if (hiveman == null) continue;
+            if (hiveman == null || !hiveman.isOnBoard) continue;
 
-            List<Vector2Int> possibleMoves = hiveman.moveLogic.GetPossibleMoves(
-                hiveman.GetXBoard(), hiveman.GetYBoard(), hiveman.GetZBoard(), aiPlayer);
-            mobilityScore += hiveman.moveLogic
-                .GetPossibleMoves(hiveman.GetXBoard(), hiveman.GetYBoard(), hiveman.GetZBoard(), aiPlayer).Count;
+            List<Vector2Int> possibleMoves = GetPossibleMoves(hiveman);
+            if (possibleMoves.Count == 0)
+            {
+                mobilityScore-=EvaluatePiecePriority($"{this.aiPlayer}_hiveman.GetName()");
+            }
+            mobilityScore += EvaluatePiecePriority($"{this.aiPlayer}_hiveman.GetName()")*possibleMoves.Count;
         }
 
         return mobilityScore;

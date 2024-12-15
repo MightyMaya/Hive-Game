@@ -107,6 +107,7 @@ public class Hiveman : MonoBehaviour
     public int GetXBoard() { return this.xBoard; }
     public int GetYBoard() { return this.yBoard; }
     public int GetZBoard() { return this.zBoard; }  
+    public string GetName(){return this.name;}
     public void SetXBoard(int xBoard) { this.xBoard = xBoard; }
     public void SetYBoard(int yBoard) { this.yBoard = yBoard; }
     public void SetZBoard(int zBoard) { this.zBoard = zBoard; }
@@ -326,6 +327,51 @@ public class Hiveman : MonoBehaviour
         xBoard = newX;
         yBoard = newY;
 
+    }
+    
+    public string GetPieceType(GameObject piece,string player)
+    {
+    
+        // Check if the piece has a SpriteRenderer
+        SpriteRenderer spriteRenderer = piece.GetComponent<SpriteRenderer>();
+        if (spriteRenderer == null)
+        {
+            Debug.LogWarning("GameObject does not have a SpriteRenderer component!");
+            return null;
+        }
+    
+        Sprite sprite = spriteRenderer.sprite;
+    
+        // Check if the sprite matches black or white references
+        if(player == "b")
+        {
+            if (sprite == b_queenBee || sprite == b_ant || sprite == b_beetle || sprite == b_grasshopper ||
+                sprite == b_spider)
+            {
+                return "friendly"; // Black pieces are friendly
+            }
+            else if (sprite == w_queenBee || sprite == w_ant || sprite == w_beetle || sprite == w_grasshopper ||
+                     sprite == w_spider)
+            {
+                return "opponent"; // White pieces are opponent
+            }
+        }
+        else
+        {
+            if (sprite == b_queenBee || sprite == b_ant || sprite == b_beetle || sprite == b_grasshopper ||
+                sprite == b_spider)
+            {
+                return "friendly"; // Black pieces are friendly
+            }
+            else if (sprite == w_queenBee || sprite == w_ant || sprite == w_beetle || sprite == w_grasshopper ||
+                     sprite == w_spider)
+            {
+                return "opponent"; // White pieces are opponent
+            }
+        }
+    
+        Debug.LogWarning("Unknown piece affiliation!");
+        return "Unknown";
     }
 
 

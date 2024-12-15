@@ -10,8 +10,8 @@ public class Game : MonoBehaviour
     public GameObject hivepiece;
 
     private Dictionary<(int x, int y), Stack<GameObject>> positions = new Dictionary<(int, int), Stack<GameObject>>();
-    private GameObject[] blackPlayer = new GameObject[9];
-    private GameObject[] whitePlayer = new GameObject[9];
+    public GameObject[] blackPlayer = new GameObject[9];
+    public GameObject[] whitePlayer = new GameObject[9];
 
 
     private string currentPlayer = "w";
@@ -231,7 +231,7 @@ public class Game : MonoBehaviour
 
     //Handling Adjacent movements
     //helper fn
-    private HashSet<Vector2Int> GetAdjacentTiles(Vector2Int position)
+    public HashSet<Vector2Int> GetAdjacentTiles(Vector2Int position)
     {
         HashSet<Vector2Int> adjacentTiles = new HashSet<Vector2Int>();
 
@@ -514,7 +514,7 @@ public class Game : MonoBehaviour
 
                         ai.MakeMove(aiPlayer1);
                     }
-                        break;
+                    break;
 
                 case GameSettings.GameMode.AIvsAI:
                     Debug.Log("Game Mode: AI Vs. AI");
@@ -526,41 +526,42 @@ public class Game : MonoBehaviour
                     {
                         ai.MakeMove(aiPlayer2);
                     }
-                        break;
+                    break;
             }
         }
 
-      /*  if (currentMode == GameMode.HumanVsHuman)
-        {
-            Debug.Log("Human vs Human");
-            // No AI logic, both players are human
-            return;
-        }
+        /*  if (currentMode == GameMode.HumanVsHuman)
+          {
+              Debug.Log("Human vs Human");
+              // No AI logic, both players are human
+              return;
+          }
 
-        if (currentMode == GameMode.AIvsHuman)
-        {
-            Debug.Log("AI vs Human");
-            if (GetCurrentPlayer() == aiPlayer1)
-            {
-                Debug.Log("AI vs Human 2");
-                // StartAI(aiPlayer1);
-                
-                List<GameObject> allPieces = ai.GetPlayerPieces();
+          if (currentMode == GameMode.AIvsHuman)
+          {
+              Debug.Log("AI vs Human");
+              if (GetCurrentPlayer() == aiPlayer1)
+              {
+                  Debug.Log("AI vs Human 2");
+                  // StartAI(aiPlayer1);
 
-                ai.MakeMove(aiPlayer1);
-                //NextTurn();
-            }
-        }
-        else if (currentMode == GameMode.AIvsAI)
-        {
-            Debug.Log("AI vs AI");
-            if (GetCurrentPlayer() == aiPlayer1 || GetCurrentPlayer() == aiPlayer2)
-            {
-                // StartAI(GetCurrentPlayer());
-                NextTurn();
-            }
-        }
-      */
+                  // List<GameObject> allPieces = ai.GetPlayerPieces();
+
+                  ai.MakeMove(aiPlayer1);
+                  //NextTurn();
+              }
+          }
+          else if (currentMode == GameMode.AIvsAI)
+          {
+              Debug.Log("AI vs AI");
+              if (GetCurrentPlayer() == aiPlayer1 || GetCurrentPlayer() == aiPlayer2)
+              {
+                  // StartAI(GetCurrentPlayer());
+                  // ai.MakeMove(GetCurrentPlayer());
+                  // NextTurn();
+              }
+          }
+        */
 
     }
 
