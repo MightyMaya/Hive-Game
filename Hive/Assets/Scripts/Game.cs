@@ -753,6 +753,12 @@ public class Game : MonoBehaviour
         SceneManager.LoadScene("Menu");
     }
 
+    //function to quit game
+    public void QuitGame()
+    {
+        Application.Quit();
+    }
+
     //public void CheckGameEndCondition()
     //{
     //    // Find the Queen Bee of the current player

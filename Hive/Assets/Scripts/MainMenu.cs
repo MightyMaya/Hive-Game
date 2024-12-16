@@ -129,6 +129,11 @@ public class MainMenu : MonoBehaviour
         SceneManager.LoadScene("Game");
     }
 
+    public void OnQuitButtonClick()
+    {
+        
+        Application.Quit();
+    }
     // Dropdown Value Changed Handlers
     public void OnDifficulty1Changed(int index)
     {
