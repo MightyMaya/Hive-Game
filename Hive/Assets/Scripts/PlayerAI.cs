@@ -137,7 +137,7 @@ public class PlayerAI : MonoBehaviour
                 int moveScore = Minimax(maxDepth, false, int.MinValue, int.MaxValue);
                 RestoreGameState(stateBeforeMove, piece); // Restore game state
 
-                Debug.Log("outa min max");
+                Debug.Log("out a min max");
 
                 Debug.Log($"Move score for {piece.name}: {moveScore}");
                 if (moveScore > bestMoveScore)
@@ -268,7 +268,7 @@ public class PlayerAI : MonoBehaviour
         // int opponentProximity = EvaluateOpponentProximity(position, player);
         // int centralPositioning = EvaluateCentralPositioning(position);
         // int piecePriority = EvaluatePiecePriority(piece.name);
-        int pieceMobility = EvaluatePieceMobility(player);
+        int pieceMobility = EvaluatePieceMobility();
         // int queenSafty = (gamesc.IsQueenOnBoard(player))?EvaluateQueenSafety(piece, piece.GetComponent<Hiveman>().GetPieceType(piece,player)):0;
         // int queenReadiness = EvaluateQueenReadiness(player);
 
@@ -295,40 +295,43 @@ public class PlayerAI : MonoBehaviour
 
         return 0;
     }
-    public int EvaluateQueenSafety(GameObject queen, bool isAIPlayer)
+    public int EvaluateQueenSafety()    //GameObject queen, bool isAIPlayer
     {
-        Hiveman hiveman = queen.GetComponent<Hiveman>();
-        if (hiveman == null)
-        {
-            Debug.LogError("Queen is null or missing Hiveman component!");
-            return 0;
-        }
-
-        // Get the current player's and opponent's piece type
-        string playerType = isAIPlayer ? "friendly" : "opponent";
-        string opponentType = isAIPlayer ? "opponent" : "friendly";
+        // Hiveman hiveman = queen.GetComponent<Hiveman>();
+        // if (hiveman == null)
+        // {
+        //     Debug.LogError("Queen is null or missing Hiveman component!");
+        //     return 0;
+        // }
+        //
+        // // Get the current player's and opponent's piece type
+        // string playerType = isAIPlayer ? "friendly" : "opponent";
+        // string opponentType = isAIPlayer ? "opponent" : "friendly";
 
         // Calculate the number of surrounding opponent and friendly pieces
-        int opponentSurrounding = GetSurroundingPiecesCount(queen, opponentType);
-        int friendlySupport = GetSurroundingPiecesCount(queen, playerType);
+        int opponentSurrounding = GetSurroundingPiecesCount(gamesc.GetCurrentPlayer());
+        int friendlySupport = GetSurroundingPiecesCount(gamesc.GetOpponent(gamesc.GetCurrentPlayer()));
 
         // Calculate the queen's mobility
-        int queenMobility = GetPossibleMoves(hiveman).Count;
+        // int queenMobility = GetPossibleMoves(hiveman).Count;
 
         // Apply weights to calculate the heuristic value
-        int heuristicValue = (queenMobility * 5) + (friendlySupport * 3)
-                             - (opponentSurrounding * 7);
+        int heuristicValue =  - (friendlySupport * 3)   //(queenMobility * 5)
+                             + (opponentSurrounding * 4);
 
-        Debug.Log($"Queen Safety Score (isAIPlayer={isAIPlayer}): {heuristicValue}");
+        Debug.Log($"Queen Safety Score : {heuristicValue}");//(isAIPlayer={isAIPlayer})
         return heuristicValue;
     }
 
     private Dictionary<(int x, int y), Stack<GameObject>> positions = new Dictionary<(int, int), Stack<GameObject>>();
-
+    
 
 // Function to get the number of surrounding pieces of a specific type (friendly or opponent)
-public int GetSurroundingPiecesCount(GameObject piece, string pieceType)
+public int GetSurroundingPiecesCount(string player) //GameObject piece, string pieceType
 {
+    GameObject piece =gamesc.GetQueenPiece(player);
+    
+    if(piece == null) return 0;
 
     // Get the position of the piece using GetXBoard() and GetYBoard()
     int x = piece.GetComponent<Hiveman>().GetXBoard();
@@ -344,20 +347,24 @@ public int GetSurroundingPiecesCount(GameObject piece, string pieceType)
     foreach (var tile in adjacentTiles)
     {
         var position = (tile.x, tile.y);
+        if (gamesc.GetPosition(tile.x, tile.y) != null)
+        {
+            surroundingCount++;
+        }
 
         // Check if there are any pieces on the adjacent tile
-        if (positions.ContainsKey(position) && positions[position].Count > 0)
-        {
-            // Check the piece type on the adjacent tile
-            GameObject adjacentPiece = positions[position].Peek();  // Get the top piece
-            string currentPieceType = adjacentPiece.GetComponent<Hiveman>().GetPieceType(adjacentPiece,gamesc.GetCurrentPlayer());  // Assuming GetPieceType() returns "friendly" or "opponent"
-
-            // Compare the piece type to the specified one
-            if (currentPieceType.Equals(pieceType))
-            {
-                surroundingCount++;
-            }
-        }
+        // if (positions.ContainsKey(position) && positions[position].Count > 0)
+        // {
+        //     // Check the piece type on the adjacent tile
+        //     GameObject adjacentPiece = positions[position].Peek();  // Get the top piece
+        //     string currentPieceType = adjacentPiece.GetComponent<Hiveman>().GetPieceType(adjacentPiece,gamesc.GetCurrentPlayer());  // Assuming GetPieceType() returns "friendly" or "opponent"
+        //
+        //     // Compare the piece type to the specified one
+        //     if (currentPieceType.Equals(pieceType))
+        //     {
+        //         surroundingCount++;
+        //     }
+        // }
     }
 
     return surroundingCount;
@@ -445,13 +452,13 @@ public int GetSurroundingPiecesCount(GameObject piece, string pieceType)
     public void SimulatePlacement(GameObject piece, Vector2Int position)
     {
         Hiveman hiveman = piece.GetComponent<Hiveman>();
-        Debug.Log($"bef simulate{hiveman.isOnBoard}");
-        Debug.Log($"{piece} placed to {position}.");
+        // Debug.Log($"bef simulate{hiveman.isOnBoard}");
+        // Debug.Log($"{piece} placed to {position}.");
         hiveman.SetXBoard(position.x);
         hiveman.SetYBoard(position.y);
         hiveman.isOnBoard = true;
         gamesc.SetPosition(piece);
-        Debug.Log($"after simulate{hiveman.isOnBoard}.");
+        // Debug.Log($"after simulate{hiveman.isOnBoard}.");
     }
 
     public GameObject Controller;
@@ -545,28 +552,34 @@ public int GetSurroundingPiecesCount(GameObject piece, string pieceType)
     private int EvaluateGameState()
     {
         // Evaluate using heuristics
-        int mobilityScore = EvaluatePieceMobility(aiPlayer) - EvaluatePieceMobility(gamesc.GetOpponent("b"));
-         //int queenSafetyScore = EvaluateQueenSafety(aiPlayer);
+        int mobilityScore = EvaluatePieceMobility(); 
+                            // - EvaluatePieceMobility(gamesc.GetOpponent("b"));
+        Debug.Log($"{mobilityScore} total mobility score");
+         int queenSafetyScore = EvaluateQueenSafety();
+         Debug.Log($"{queenSafetyScore} total queen safety score");
         // Combine heuristics with weights (adjust weights as needed)
         // return 2 * mobilityScore + 5 * queenSafetyScore;
-        return mobilityScore;
+        return mobilityScore*2+queenSafetyScore*5;
     }
     
 
-    public int EvaluatePieceMobility(string aiPlayer)
+    public int EvaluatePieceMobility() //string aiPlayer
     {
         int mobilityScore = 0;
         foreach (GameObject piece in GetPlayerPieces())
         {
             Hiveman hiveman = piece.GetComponent<Hiveman>();
-            if (hiveman == null || !hiveman.isOnBoard) continue;
+            if (hiveman == null ) continue; // || !hiveman.isOnBoard
 
             List<Vector2Int> possibleMoves = GetPossibleMoves(hiveman);
             if (possibleMoves.Count == 0)
             {
-                mobilityScore-=EvaluatePiecePriority($"{this.aiPlayer}_hiveman.GetName()");
+                mobilityScore-=EvaluatePiecePriority($"{hiveman.GetName().Substring(2)}");
             }
-            mobilityScore += EvaluatePiecePriority($"{this.aiPlayer}_hiveman.GetName()")*possibleMoves.Count;
+            //$"{this.aiPlayer}_hiveman.GetName()"
+            Debug.Log($"{EvaluatePiecePriority($"{hiveman.GetName().Substring(2)}")} {hiveman.GetName().Substring(2)}");
+            mobilityScore += EvaluatePiecePriority($"{hiveman.GetName().Substring(2)}")*possibleMoves.Count;
+            Debug.Log($"{mobilityScore} mobility score in evaluation mobility function");
         }
 
         return mobilityScore;
@@ -574,12 +587,24 @@ public int GetSurroundingPiecesCount(GameObject piece, string pieceType)
 
     private int Minimax(int depth, bool isMaximizing, int alpha, int beta)
     {
+        Debug.Log($"Minimax({depth}, {isMaximizing}, {alpha}, {beta})");
         // Base case: terminal condition
         if (depth == 0 || gamesc.IsGameOver())
         {
-            int randomInt = Random.Range(0, 10); // Generates a random number between 0 (inclusive) and 10 (exclusive)
-            int score = randomInt;// EvaluateGameState() + EvaluateQueenSafety(b_queen, isMaximizing);
-            Debug.Log($"{score}awful score");
+            int score;
+            // if(gamesc.moveCount<4)
+            // {
+            //     int randomInt =
+            //         Random.Range(0, 10); // Generates a random number between 0 (inclusive) and 10 (exclusive)
+            //      score = randomInt;
+            // }
+            // else
+            // {
+                score=EvaluateGameState();
+
+            // }
+                // + EvaluateQueenSafety(b_queen, isMaximizing);
+            Debug.Log($"{score}: awful score");
 
             return score;
         }
@@ -634,6 +659,7 @@ public int GetSurroundingPiecesCount(GameObject piece, string pieceType)
                 // Recursive call
                 int eval = Minimax(depth - 1, true, alpha, beta);
                     // Update beta and minEval
+                    
                     minEval = Mathf.Min(minEval, eval);
                     beta = Mathf.Min(beta, eval);
 

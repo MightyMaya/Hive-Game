@@ -953,6 +953,23 @@ public class Game : MonoBehaviour
         }
         return null;
     }
+    
+    public GameObject GetQueenPiece(string player)
+    {
+        // Iterate through all the player's pieces
+        foreach (GameObject piece in GetPlayerPieces(player))
+        {
+            Hiveman hiveman = piece.GetComponent<Hiveman>();
+            if (hiveman != null && hiveman.name.Contains("queenBee"))
+            {
+                return piece; // Return the Queen Bee piece
+            }
+        }
+
+        // Return null if the Queen Bee is not found
+        Debug.LogWarning($"Queen Bee for player {player} not found.");
+        return null;
+    }
 
     
     // public void StartAI(string aiPlayer)
