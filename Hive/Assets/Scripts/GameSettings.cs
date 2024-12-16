@@ -22,9 +22,9 @@ public class GameSettings : MonoBehaviour
 
     public GameMode currentMode;
     //Medium by default
-    public Difficulty aiDifficulty1 = Difficulty.Medium;
+    public Difficulty aiDifficulty1; //= Difficulty.Medium;
     //Medium by default
-    public Difficulty aiDifficulty2 = Difficulty.Medium;
+    public Difficulty aiDifficulty2;// = Difficulty.Medium;
 
     void Awake()
     {

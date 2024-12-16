@@ -44,7 +44,7 @@ public class AntMoves : MonoBehaviour, IMoveLogic
                     if (hex == new Vector2Int(x, y)) continue;
 
                     // Check if the hex is empty and the move maintains hive integrity 
-                    if (sc.IsOnBoard(hex.x, hex.y) && !sc.DoesPieceDisconnectHive(gameObject, hex.x, hex.y))
+                    if (sc.IsOnBoard(hex.x, hex.y) && sc.GetPosition(hex.x, hex.y) == null && !sc.DoesPieceDisconnectHive(gameObject, hex.x, hex.y))
                     {
                         possibleMoves.Add(hex); // Add valid move to the list
                         //UnityEngine.Debug.Log("Possible Moves: " + string.Join(", ", possibleMoves.Select(m => $"({m.x}, {m.y})")));

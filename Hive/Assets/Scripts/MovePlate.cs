@@ -115,15 +115,6 @@ public class MovePlate : MonoBehaviour
                 gamesc.NextTurn(); // NEW: Pass the turn to the opponent
             }
 
-
-
-            // Check if the player has any valid moves or piece placements
-            if (gamesc.CanPlayerMoveOrPlace(gamesc.GetCurrentPlayer()) == false)
-            {
-                // If no valid moves are available, pass the turn to the opponent
-                gamesc.NextTurn(); // NEW: Pass the turn to the opponent
-            }
-
         }
         else {
             //stop piece from moving

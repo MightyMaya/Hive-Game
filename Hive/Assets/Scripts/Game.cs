@@ -5,13 +5,14 @@ using System.Reflection;
 using System.Linq;
 using TMPro;
 using System;
+using System.Threading;
 
 public class Game : MonoBehaviour
 {
     public GameObject hivepiece;
 
     //Dictionary to keep track of game state
-    private Dictionary<(int x, int y), Stack<GameObject>> positions = new Dictionary<(int, int), Stack<GameObject>>();
+    public Dictionary<(int x, int y), Stack<GameObject>> positions = new Dictionary<(int, int), Stack<GameObject>>();
     public GameObject[] blackPlayer = new GameObject[9];
     public GameObject[] whitePlayer = new GameObject[9];
 
@@ -469,38 +470,6 @@ public class Game : MonoBehaviour
 
     public void Update()
     {
-        
-        //Update method content on git
-        
-        //  if (gameOver == true && Input.GetMouseButtonDown(0))
-        // {
-        //     gameOver = false;
-        //     SceneManager.LoadScene("Game");
-        // }
-        //  
-        //---------------------------------------------------------------------------
-        // if (gameOver == true && Input.GetMouseButtonDown(0))
-        // {
-        //     gameOver = false;
-        //     SceneManager.LoadScene("Game");
-        // }
-        // // if (gameOver) return;
-        //
-        // if (Input.GetKeyDown(KeyCode.A)) // Press "A" to trigger AI move
-        // {
-        //     this.StartAI();
-        // }
-        // // Check if it's the AI's turn
-        // if (GetCurrentPlayer() == "b") // Assuming "b" is the AI player
-        // {
-        //     PlayerAI ai = GetComponent<PlayerAI>();
-        //     if (ai != null)
-        //     {
-        //         ai.MakeMove();
-        //         NextTurn(); // Pass the turn to the next player
-        //     }
-        // }
-        //----------------------------------------------
         if (gameOver) return;
 
         if (GameSettings.Instance != null)
@@ -573,7 +542,7 @@ public class Game : MonoBehaviour
         */
 
     }
-
+    /*
     public bool CanPlayerMoveOrPlace(string player)
     {
         bool canMoveOrPlace = false;
@@ -588,7 +557,7 @@ public class Game : MonoBehaviour
                 List<Vector2Int> possibleMoves = piece.moveLogic.GetPossibleMoves(piece.GetXBoard(), piece.GetYBoard(), piece.GetZBoard(), player);
 
                 // If there are any valid moves or placements
-                if (possibleMoves.Count > 0 /*||  piece.IsValidPlacement(piece.GetXBoard(), piece.GetYBoard())*/)
+                if (possibleMoves.Count > 0 ||  piece.IsValidPlacement(piece.GetXBoard(), piece.GetYBoard()))
                 {
                     canMoveOrPlace = true;
                     break; // No need to check further if one valid move/placement is found
@@ -617,6 +586,98 @@ public class Game : MonoBehaviour
         }
         return false;
     }
+
+    // New: Method to record a player's move (for both white and black)
+    public void RecordPlayerMove(string player, string pieceName, int x, int y)
+    {
+        // New: Store the last two moves for each player
+        List<(string pieceName, int x, int y)> playerMoves = player == "w" ? whitePlayerMoves : blackPlayerMoves;
+        playerMoves.Add((pieceName, x, y));
+
+        // Limit the list to the last 2 moves
+        if (playerMoves.Count > MAX_MOVES_HISTORY)
+        {
+            playerMoves.RemoveAt(0);
+        }
+    }
+*/
+
+    public bool CanPlayerMoveOrPlace(string player)
+    {
+        bool canMoveOrPlace = false;
+
+        // Check for valid placements of pieces (placement is done in the IsValidPlacement method)
+        // Assuming a method IsValidPlacement already exists in the Hiveman class
+        foreach (var piece in FindObjectsOfType<Hiveman>())
+        {
+            if (GetCurrentPlayer() == player)
+            {
+                // Check if this piece can move or if a new piece can be placed
+                List<Vector2Int> possibleMoves = piece.moveLogic.GetPossibleMoves(piece.GetXBoard(), piece.GetYBoard(), piece.GetZBoard(), player);
+
+                // If there are any valid moves or placements
+                if (possibleMoves.Count > 0 )//|| piece.IsValidPlacement(piece.GetXBoard(), piece.GetYBoard()) )
+                {
+                    canMoveOrPlace = true;
+                    break; // No need to check further if one valid move/placement is found
+                }
+            }
+        }
+
+        return canMoveOrPlace;
+    }
+
+    //// New: This method checks if the game is in a draw condition
+    //public bool CheckForDrawDueRedundentMoves()
+    //{
+    //    // Check if both players have repeated their last two moves
+    //    if (whitePlayerMoves.Count >= 2 && blackPlayerMoves.Count >= 2)
+    //    {
+    //        var whiteLastMoves = whitePlayerMoves.GetRange(whitePlayerMoves.Count - 2, 2);
+    //        var blackLastMoves = blackPlayerMoves.GetRange(blackPlayerMoves.Count - 2, 2);
+
+    //        // Check if both players have repeated the same two moves
+    //        if (whiteLastMoves[0].Equals(whiteLastMoves[1]) && blackLastMoves[0].Equals(blackLastMoves[1]))
+    //        {
+    //            // If both players are stuck in a loop, declare a draw
+    //            return true;
+    //        }
+    //    }
+    //    return false;
+    //}
+
+    // This method checks if the game is in a draw condition due to redundant moves
+    public bool CheckForDrawDueRedundentMoves()
+    {
+        // Check if both players have at least 4 moves in their history
+        if (whitePlayerMoves.Count >= MAX_MOVES_HISTORY && blackPlayerMoves.Count >= MAX_MOVES_HISTORY)
+        {
+            var whiteLastMoves = whitePlayerMoves.GetRange(whitePlayerMoves.Count - MAX_MOVES_HISTORY, MAX_MOVES_HISTORY);
+            var blackLastMoves = blackPlayerMoves.GetRange(blackPlayerMoves.Count - MAX_MOVES_HISTORY, MAX_MOVES_HISTORY);
+
+            // Check if the players have made redundant moves (e.g., A to B and B to A)
+            bool whiteRedundant = IsRedundantMove(whiteLastMoves);
+            bool blackRedundant = IsRedundantMove(blackLastMoves);
+
+            return whiteRedundant && blackRedundant;
+        }
+
+        return false;
+    }
+
+    // Helper method to check if a player's last four moves are redundant
+    private bool IsRedundantMove(List<(string pieceName, int x, int y)> lastMoves)
+    {
+        // Compare the first and second half of the last four moves to detect redundant movement
+        if (lastMoves.Count == MAX_MOVES_HISTORY)
+        {
+            // Check if the first two moves are reversed in the last two
+            return (lastMoves[0].x == lastMoves[2].x && lastMoves[0].y == lastMoves[2].y) &&
+                   (lastMoves[1].x == lastMoves[3].x && lastMoves[1].y == lastMoves[3].y);
+        }
+        return false;
+    }
+
 
     // New: Method to record a player's move (for both white and black)
     public void RecordPlayerMove(string player, string pieceName, int x, int y)
