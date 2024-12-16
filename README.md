@@ -51,7 +51,7 @@
         Combines multiple heuristics (mobility, Queen safety, and priorities) to score board states.
 
 
-## Manual User
+## User Manual
 
 ### A) Objective:
 
