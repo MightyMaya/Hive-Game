@@ -203,7 +203,7 @@ public class Hiveman : MonoBehaviour
             else 
             {
                 // Subsequent moves: Highlight tiles adjacent to pieces of the current player
-                HashSet<Vector2Int> validTiles = sc.GetAdjacentTilesForCurrentPlayer();
+                HashSet<Vector2Int> validTiles = sc.GetAdjacentTilesForPlayer(sc.GetCurrentPlayer());
                 foreach (Vector2Int tile in validTiles)
                 {
                     PointMovePlate(tile.x, tile.y);

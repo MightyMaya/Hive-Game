@@ -283,7 +283,7 @@ public class Game : MonoBehaviour
     }
 
 
-    public HashSet<Vector2Int> GetAdjacentTilesForCurrentPlayer()
+    public HashSet<Vector2Int> GetAdjacentTilesForPlayer(string player)
     {
         HashSet<Vector2Int> adjacentTiles = new HashSet<Vector2Int>();
         HashSet<Vector2Int> opponentAdjacentTiles = new HashSet<Vector2Int>();
@@ -297,7 +297,7 @@ public class Game : MonoBehaviour
                 GameObject topPiece = stack.Peek();
                 Hiveman piece = topPiece.GetComponent<Hiveman>();
 
-                if (piece.player == currentPlayer)
+                if (piece.player == player)
                 {
                     var adjacent = GetAdjacentTiles(new Vector2Int(position.Item1, position.Item2));
                     foreach (var tile in adjacent)

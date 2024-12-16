@@ -376,8 +376,8 @@ public int GetSurroundingPiecesCount(GameObject piece, string pieceType)
             }
             else
             {
-                Debug.Log("Subsequent move: Highlighting tiles adjacent to the current player's pieces.");
-                possibleMoves = gamesc.GetAdjacentTilesForCurrentPlayer().ToList();
+                Debug.Log("Subsequent move: Highlighting tiles adjacent to the passed hiveman player's pieces.");
+                possibleMoves = gamesc.GetAdjacentTilesForPlayer(hiveman.player).ToList();
             }
         }
         else
@@ -388,15 +388,15 @@ public int GetSurroundingPiecesCount(GameObject piece, string pieceType)
                 return possibleMoves;
             }
 
-            if (gamesc.IsQueenOnBoard(aiPlayer))
+            if (gamesc.IsQueenOnBoard(hiveman.player))
             {
                 Debug.Log($"Fetching moves for ai {hiveman.name} on the board.");
                 possibleMoves = hiveman.moveLogic.GetPossibleMoves(hiveman.GetXBoard(), hiveman.GetYBoard(),
-                    hiveman.GetZBoard(), aiPlayer);
+                    hiveman.GetZBoard(), hiveman.player);
             }
             else
             {
-                Debug.LogWarning($"Queen is not on the board yet for ai player {aiPlayer}. No moves allowed.");
+                Debug.LogWarning($"Queen is not on the board yet for the passed player {hiveman.player}. No moves allowed.");
             }
         }
 
