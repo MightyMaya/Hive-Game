@@ -431,19 +431,41 @@ public class Game : MonoBehaviour
     {
         GameObject[] playerPieces = player == "w" ? whitePlayer : blackPlayer;
 
+        Debug.Log($"Checking if {player}_queenBee is on the board. Total pieces: {playerPieces.Length}");
+
         foreach (GameObject piece in playerPieces)
         {
-            Hiveman hiveman = piece.GetComponent<Hiveman>();
-            if (hiveman.name == $"{player}_queenBee" && hiveman.isOnBoard)
+            if (piece == null)
             {
-                return true; // Queen is on the board
+                Debug.LogWarning("Found a null piece in the player's pieces list.");
+                continue;
+            }
+
+            Hiveman hiveman = piece.GetComponent<Hiveman>();
+            if (hiveman == null)
+            {
+                Debug.LogWarning($"GameObject {piece.name} does not have a Hiveman component.");
+                continue;
+            }
+
+            Debug.Log($"Checking piece: {hiveman.name}, isOnBoard: {hiveman.isOnBoard}");
+
+            if (hiveman.name == $"{player}_queenBee")
+            {
+                Debug.Log($"{player}_queenBee found. isOnBoard: {hiveman.isOnBoard}");
+                if (hiveman.isOnBoard)
+                {
+                    Debug.Log($"{player}_queenBee is confirmed to be on the board.");
+                    return true; // Queen is on the board
+                }
             }
         }
 
+        Debug.Log($"{player}_queenBee is not on the board.");
         return false; // Queen is not on the board
     }
 
-   
+
 
     public void Update()
     {
@@ -486,15 +508,15 @@ public class Game : MonoBehaviour
             switch (GameSettings.Instance.currentMode)
             {
                 case GameSettings.GameMode.HumanVsHuman:
-                    Debug.Log("Game Mode: Human Vs. Human");
+                    //Debug.Log("Game Mode: Human Vs. Human");
                     // No AI logic, both players are human
                     break;
 
                 case GameSettings.GameMode.HumanVsAI:
-                    Debug.Log("Game Mode: Human Vs. AI");
+                    //Debug.Log("Game Mode: Human Vs. AI");
                     if (GetCurrentPlayer() == aiPlayer1)
                     {
-                        Debug.Log("AI vs Human 2");
+                        //Debug.Log("AI vs Human 2");
                         // StartAI(aiPlayer1);
 
                         List<GameObject> allPieces = ai.GetPlayerPieces();
@@ -504,7 +526,7 @@ public class Game : MonoBehaviour
                     break;
 
                 case GameSettings.GameMode.AIvsAI:
-                    Debug.Log("Game Mode: AI Vs. AI");
+                    //Debug.Log("Game Mode: AI Vs. AI");
                     if (GetCurrentPlayer() == aiPlayer1)
                     {
                         ai.MakeMove(aiPlayer1);

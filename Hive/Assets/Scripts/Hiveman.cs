@@ -55,54 +55,65 @@ public class Hiveman : MonoBehaviour
                 this.GetComponent<SpriteRenderer>().sprite = b_queenBee;
                 player = "b";
                 moveLogic = gameObject.AddComponent<QueenBeeMoves>();
+
                 break;
             case "b_ant": 
                 this.GetComponent<SpriteRenderer>().sprite = b_ant;
                 player = "b";
                 moveLogic = gameObject.AddComponent<AntMoves>();
+
                 break;
             case "b_beetle":
                 this.GetComponent<SpriteRenderer>().sprite = b_beetle;
                 player = "b";
                 moveLogic = gameObject.AddComponent<BeetleMoves>();
+
                 break;
             case "b_grasshopper":
                 this.GetComponent<SpriteRenderer>().sprite = b_grasshopper;
                 player = "b";
                 moveLogic = gameObject.AddComponent<GrassMoves>();
+
                 break;
             case "b_spider": 
                 this.GetComponent<SpriteRenderer>().sprite = b_spider;
                 player = "b";
                 moveLogic = gameObject.AddComponent<SpiderMoves>();
+
                 break;
 
             case "w_queenBee":
                 this.GetComponent<SpriteRenderer>().sprite = w_queenBee;
                 player = "w";
                 moveLogic = gameObject.AddComponent<QueenBeeMoves>();
+
                 break;
             case "w_ant": 
                 this.GetComponent<SpriteRenderer>().sprite = w_ant;
                 player = "w";
                 moveLogic = gameObject.AddComponent<AntMoves>();
+
                 break;
             case "w_beetle": 
                 this.GetComponent<SpriteRenderer>().sprite = w_beetle;
                 player = "w";
                 moveLogic = gameObject.AddComponent<BeetleMoves>();
+
                 break;
             case "w_grasshopper":
                 this.GetComponent<SpriteRenderer>().sprite = w_grasshopper;
                 player = "w";
                 moveLogic = gameObject.AddComponent<GrassMoves>();
+
                 break;
             case "w_spider":
                 this.GetComponent<SpriteRenderer>().sprite = w_spider;
                 player = "w";
                 moveLogic = gameObject.AddComponent<SpiderMoves>();
+
                 break;
         }
+
 
     }
 
