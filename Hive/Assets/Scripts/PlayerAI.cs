@@ -38,7 +38,7 @@ public class PlayerAI : MonoBehaviour
     private List<IMoveLogic> moveScripts;
 
 
-    public GameSettings.Difficulty aiDifficulty = GameSettings.Instance.aiDifficulty1;
+    //public GameSettings.Difficulty aiDifficulty = GameSettings.Instance.aiDifficulty1;
 
 
     private void Start()
