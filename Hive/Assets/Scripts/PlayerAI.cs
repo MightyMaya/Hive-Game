@@ -141,57 +141,89 @@ public class PlayerAI : MonoBehaviour
         int bestMoveScore = int.MinValue, bestPlacementScore = int.MinValue;
         Debug.Log("AI is making a move...");
 
-        // Loop through all pieces
-        foreach (GameObject piece in GetPlayerPieces())
+        //if move count reaches 6 forcibly put the queen
+        if (gamesc.moveCount > 6 && !gamesc.IsQueenOnBoard(gamesc.GetCurrentPlayer()))
         {
-            Debug.Log($"Evaluating move for {piece.name}");
+            GameObject piece = gamesc.GetQueenPiece(gamesc.GetCurrentPlayer());
             Hiveman hiveman = piece.GetComponent<Hiveman>();
             List<Vector2Int> possibleMoves = GetPossibleMoves(hiveman);
+            bestPieceToMove = piece;
             int moveScore = 0;
-            if (hiveman.isOnBoard)
+            foreach (Vector2Int move in possibleMoves)
             {
-                foreach (Vector2Int move in possibleMoves)
+                Debug.Log($"Evaluating move for out of board {piece.name} onboard to ({move.x}, {move.y})");
+                Dictionary<(int x, int y), Stack<GameObject>> temp_positions = DeepCopyPositions(gamesc.positions);
+                Vector2Int original = SimulatePlacement2(piece, move); // Simulate the move
+                Debug.Log($"in min max difficulty {maxDepth} ");
+                moveScore = Minimax(maxDepth, true, int.MinValue, int.MaxValue); // Evaluate move
+                Debug.Log("out of min max");
+                RestoreMove2(piece, move, original);
+                gamesc.positions = temp_positions;
+
+                if (moveScore > bestMoveScore)
                 {
-                    Debug.Log($"Evaluating move for in board {piece.name} onboard to ({move.x}, {move.y})");
-                    Dictionary<(int x, int y), Stack<GameObject>> temp_positions = DeepCopyPositions(gamesc.positions);
-                    Vector2Int original = SimulatePlacement(piece, move); // Simulate the move
-                    Debug.Log($"in min max difficulty {maxDepth} ");
-                    moveScore = Minimax(maxDepth, true, int.MinValue, int.MaxValue); // Evaluate move
-                    Debug.Log("out of min max");
-                    RestoreMove(piece, move, original);
-                    gamesc.positions = temp_positions;
-
-
-                    if (moveScore > bestMoveScore)
-                    {
-                        bestMoveScore = moveScore;
-                        bestPieceToMove = piece;
-                        bestMove = move;
-                    }
+                    bestMoveScore = moveScore;
+                    bestMove = move;
                 }
             }
-            else
+        }
+        else
+        {
+            // Loop through all pieces
+            foreach (GameObject piece in GetPlayerPieces())
             {
-                foreach (Vector2Int move in possibleMoves)
-                {
-                    Debug.Log($"Evaluating move for out of board {piece.name} onboard to ({move.x}, {move.y})");
-                    Dictionary<(int x, int y), Stack<GameObject>> temp_positions = DeepCopyPositions(gamesc.positions);
-                    Vector2Int original = SimulatePlacement2(piece, move); // Simulate the move
-                    Debug.Log($"in min max difficulty {maxDepth} ");
-                    moveScore = Minimax(maxDepth, true, int.MinValue, int.MaxValue); // Evaluate move
-                    Debug.Log("out of min max");
-                    RestoreMove2(piece, move, original);
-                    gamesc.positions = temp_positions;
+                Debug.Log($"Evaluating move for {piece.name}");
+                Hiveman hiveman = piece.GetComponent<Hiveman>();
+                List<Vector2Int> possibleMoves = GetPossibleMoves(hiveman);
+                int moveScore = 0;
 
-                    if (moveScore > bestMoveScore)
+                if (hiveman.isOnBoard)
+                {
+
+                    foreach (Vector2Int move in possibleMoves)
                     {
-                        bestMoveScore = moveScore;
-                        bestPieceToMove = piece;
-                        bestMove = move;
+                        Debug.Log($"Evaluating move for in board {piece.name} onboard to ({move.x}, {move.y})");
+                        Dictionary<(int x, int y), Stack<GameObject>> temp_positions = DeepCopyPositions(gamesc.positions);
+                        Vector2Int original = SimulatePlacement(piece, move); // Simulate the move
+                        Debug.Log($"in min max difficulty {maxDepth} ");
+                        moveScore = Minimax(maxDepth, true, int.MinValue, int.MaxValue); // Evaluate move
+                        Debug.Log("out of min max");
+                        RestoreMove(piece, move, original);
+                        gamesc.positions = temp_positions;
+
+
+                        if (moveScore > bestMoveScore)
+                        {
+                            bestMoveScore = moveScore;
+                            bestPieceToMove = piece;
+                            bestMove = move;
+                        }
+                    }
+                }
+                else
+                {
+                    foreach (Vector2Int move in possibleMoves)
+                    {
+                        Debug.Log($"Evaluating move for out of board {piece.name} onboard to ({move.x}, {move.y})");
+                        Dictionary<(int x, int y), Stack<GameObject>> temp_positions = DeepCopyPositions(gamesc.positions);
+                        Vector2Int original = SimulatePlacement2(piece, move); // Simulate the move
+                        Debug.Log($"in min max difficulty {maxDepth} ");
+                        moveScore = Minimax(maxDepth, true, int.MinValue, int.MaxValue); // Evaluate move
+                        Debug.Log("out of min max");
+                        RestoreMove2(piece, move, original);
+                        gamesc.positions = temp_positions;
+
+                        if (moveScore > bestMoveScore)
+                        {
+                            bestMoveScore = moveScore;
+                            bestPieceToMove = piece;
+                            bestMove = move;
+                        }
                     }
                 }
             }
         }
+        
         Hiveman besthiveman = bestPieceToMove.GetComponent<Hiveman>();
         if (bestPlacementScore >= bestMoveScore && bestPieceToPlace != null)
         {
@@ -378,8 +410,9 @@ public int GetSurroundingPiecesCount(string player) //GameObject piece, string p
                 return possibleMoves;
             }
 
-            if (gamesc.moveCount == 4 && !gamesc.IsQueenOnBoard(hiveman.player))
+            if (gamesc.moveCount > 6 && !gamesc.IsQueenOnBoard(hiveman.player))
             {
+                possibleMoves = gamesc.GetAdjacentTilesForPlayer(hiveman.player).ToList();
                 return possibleMoves;
                 Debug.LogWarning($"Queen is not on the board yet for the passed player {hiveman.player}. No moves allowed.");
 
