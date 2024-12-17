@@ -119,7 +119,23 @@ public class PlayerAI : MonoBehaviour
 
     private IEnumerator MakeMoveCoroutine(string aiPlayer)
     {
-        int maxDepth = (int)aiDifficulty; // Use depth based on difficulty
+        int maxDepth;
+        if (GameSettings.Instance.aiDifficulty1 == GameSettings.Difficulty.Easy)
+        {
+            maxDepth = 1;
+        }
+        else if (GameSettings.Instance.aiDifficulty1 == GameSettings.Difficulty.Medium) {
+            maxDepth = 3;
+        }
+        else if (GameSettings.Instance.aiDifficulty1 == GameSettings.Difficulty.Hard)
+        {
+            maxDepth = 5;
+        }
+        else
+        {
+            maxDepth = 1;
+        }
+        
         GameObject bestPieceToMove = null, bestPieceToPlace = null;
         Vector2Int bestMove = Vector2Int.zero, bestTileToPlace = Vector2Int.zero;
         int bestMoveScore = int.MinValue, bestPlacementScore = int.MinValue;
@@ -139,8 +155,8 @@ public class PlayerAI : MonoBehaviour
                     Debug.Log($"Evaluating move for in board {piece.name} onboard to ({move.x}, {move.y})");
                     Dictionary<(int x, int y), Stack<GameObject>> temp_positions = DeepCopyPositions(gamesc.positions);
                     Vector2Int original = SimulatePlacement(piece, move); // Simulate the move
-                    Debug.Log("in min max");
-                    moveScore = Minimax(1, true, int.MinValue, int.MaxValue); // Evaluate move
+                    Debug.Log($"in min max difficulty {maxDepth} ");
+                    moveScore = Minimax(maxDepth, true, int.MinValue, int.MaxValue); // Evaluate move
                     Debug.Log("out of min max");
                     RestoreMove(piece, move, original);
                     gamesc.positions = temp_positions;
@@ -161,8 +177,8 @@ public class PlayerAI : MonoBehaviour
                     Debug.Log($"Evaluating move for out of board {piece.name} onboard to ({move.x}, {move.y})");
                     Dictionary<(int x, int y), Stack<GameObject>> temp_positions = DeepCopyPositions(gamesc.positions);
                     Vector2Int original = SimulatePlacement2(piece, move); // Simulate the move
-                    Debug.Log("in min max");
-                    moveScore = Minimax(1, true, int.MinValue, int.MaxValue); // Evaluate move
+                    Debug.Log($"in min max difficulty {maxDepth} ");
+                    moveScore = Minimax(maxDepth, true, int.MinValue, int.MaxValue); // Evaluate move
                     Debug.Log("out of min max");
                     RestoreMove2(piece, move, original);
                     gamesc.positions = temp_positions;
@@ -609,7 +625,7 @@ public int GetSurroundingPiecesCount(string player) //GameObject piece, string p
         int score;
         Controller = GameObject.FindGameObjectWithTag("GameController");
         Game gamesc = Controller.GetComponent<Game>();
-        if (gamesc.IsQueenOnBoard(gamesc.GetCurrentPlayer())) score = 10 * opponentQueenSurround - queenSafetyScore;//+ mobilityScore;
+        if (gamesc.IsQueenOnBoard(gamesc.GetCurrentPlayer())) score = 3 * opponentQueenSurround - queenSafetyScore;//+ mobilityScore;
         else score = 0;
         if (score < 0) return -score;
         else return score;

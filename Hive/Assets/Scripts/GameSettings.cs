@@ -43,7 +43,7 @@ public class GameSettings : MonoBehaviour
     public void ResetState()
     {
         currentMode = GameMode.HumanVsHuman;
-        aiDifficulty1 = Difficulty.Medium;
-        aiDifficulty2 = Difficulty.Medium;
+        aiDifficulty1 = Difficulty.Easy;
+        aiDifficulty2 = Difficulty.Easy;
     }
 }
