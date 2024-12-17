@@ -847,15 +847,19 @@ public class Game : MonoBehaviour
         int currentY = piece.GetComponent<Hiveman>().GetYBoard();
         var currentPosition = (currentX, currentY);
         var targetPosition = (targetX, targetY);
-
+        Debug.Log($"current position{currentX},{currentY}");
         // Temporarily remove the piece from its current position
-        Stack<GameObject> originalStack = positions[currentPosition];
-        originalStack.Pop();
-        if (originalStack.Count == 0)
+        if (positions.ContainsKey(currentPosition))
         {
-            positions.Remove(currentPosition);
+            Stack<GameObject> originalStack = positions[currentPosition];
+            originalStack.Pop();
+            if (originalStack.Count == 0)
+            {
+                positions.Remove(currentPosition);
+            }
         }
-        
+
+
         // Check if the hive remains connected after removal
         bool isHiveConnectedAfterRemoval = IsHiveConnected();
         if (!isHiveConnectedAfterRemoval)
@@ -898,6 +902,8 @@ public class Game : MonoBehaviour
         // Return true if moving the piece causes the hive to disconnect
         return !isHiveConnected;
     }
+
+
 
 
     /// <summary>
