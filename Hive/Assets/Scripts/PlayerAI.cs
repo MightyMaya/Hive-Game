@@ -604,11 +604,33 @@ public int GetSurroundingPiecesCount(string player) //GameObject piece, string p
         int mobilityScore = EvaluatePieceMobility(); 
                             // - EvaluatePieceMobility(gamesc.GetOpponent("b"));
         Debug.Log($"{mobilityScore} total mobility score");
-         int queenSafetyScore = EvaluateQueenSafety();
-         Debug.Log($"{queenSafetyScore} total queen safety score");
+        int queenSafetyScore = EvaluateQueenSafety();
+        Debug.Log($"{queenSafetyScore} total queen safety score");
+        int opponentQueenSurround = EvaluateOpponentQueenSurround();
         // Combine heuristics with weights (adjust weights as needed)
         // return 2 * mobilityScore + 2 * queenSafetyScore;
-        return mobilityScore + queenSafetyScore;
+        return 2 * opponentQueenSurround + mobilityScore + queenSafetyScore;
+    }
+
+        private int EvaluateOpponentQueenSurround()
+    {
+        int surroundCount = 0;
+        GameObject opponentQueen = gamesc.GetQueenPiece(gamesc.GetOpponent(aiPlayer));
+
+         if (opponentQueen != null)
+        {
+            Hiveman hiveman = opponentQueen.GetComponent<Hiveman>();
+            List<Vector2Int> adjacentTiles = gamesc.GetAdjacentTiles(new Vector2Int(hiveman.GetXBoard(), hiveman.GetYBoard())).ToList();
+
+            foreach (Vector2Int tile in adjacentTiles)
+            {
+                if (gamesc.GetPosition(tile.x, tile.y) != null)
+                {
+                    surroundCount++;
+                }
+            }
+        }
+        return surroundCount; // More pieces around the queen means higher score
     }
     
 
