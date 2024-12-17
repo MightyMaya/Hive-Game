@@ -37,14 +37,8 @@ public class PlayerAI : MonoBehaviour
     //list to store all the move scripts
     private List<IMoveLogic> moveScripts;
 
-    public enum Difficulty
-    {
-        Easy = 2, // Shallow depth
-        Medium = 4, // Moderate depth
-        Hard = 6 // Deep search
-    }
 
-    public Difficulty aiDifficulty =  Difficulty.Easy;
+    public GameSettings.Difficulty aiDifficulty = GameSettings.Instance.aiDifficulty1;
 
 
     private void Start()
@@ -102,7 +96,20 @@ public class PlayerAI : MonoBehaviour
             Debug.Log($"Found {moveScripts.Count} move scripts");
         }
     }
+    // Deep copy of gamesc.positions before simulating the move
+    Dictionary<(int x, int y), Stack<GameObject>> DeepCopyPositions(Dictionary<(int x, int y), Stack<GameObject>> original)
+    {
+        var copy = new Dictionary<(int x, int y), Stack<GameObject>>();
 
+        foreach (var entry in original)
+        {
+            // Create a new stack and copy all GameObjects
+            Stack<GameObject> copiedStack = new Stack<GameObject>(entry.Value.Reverse());
+            copy[entry.Key] = copiedStack;
+        }
+
+        return copy;
+    }
     public void MakeMove(string aiPlayer)
     {
         controller = GameObject.FindWithTag("GameController");
@@ -119,25 +126,25 @@ public class PlayerAI : MonoBehaviour
         Debug.Log("AI is making a move...");
 
         // Loop through all pieces
-        bool onboard = false;
         foreach (GameObject piece in GetPlayerPieces())
         {
             Debug.Log($"Evaluating move for {piece.name}");
             Hiveman hiveman = piece.GetComponent<Hiveman>();
             List<Vector2Int> possibleMoves = GetPossibleMoves(hiveman);
             int moveScore = 0;
-            onboard = hiveman.isOnBoard;
-
             if (hiveman.isOnBoard)
             {
                 foreach (Vector2Int move in possibleMoves)
                 {
                     Debug.Log($"Evaluating move for in board {piece.name} onboard to ({move.x}, {move.y})");
+                    Dictionary<(int x, int y), Stack<GameObject>> temp_positions = DeepCopyPositions(gamesc.positions);
                     Vector2Int original = SimulatePlacement(piece, move); // Simulate the move
                     Debug.Log("in min max");
                     moveScore = Minimax(1, true, int.MinValue, int.MaxValue); // Evaluate move
                     Debug.Log("out of min max");
                     RestoreMove(piece, move, original);
+                    gamesc.positions = temp_positions;
+
 
                     if (moveScore > bestMoveScore)
                     {
@@ -152,11 +159,13 @@ public class PlayerAI : MonoBehaviour
                 foreach (Vector2Int move in possibleMoves)
                 {
                     Debug.Log($"Evaluating move for out of board {piece.name} onboard to ({move.x}, {move.y})");
+                    Dictionary<(int x, int y), Stack<GameObject>> temp_positions = DeepCopyPositions(gamesc.positions);
                     Vector2Int original = SimulatePlacement2(piece, move); // Simulate the move
                     Debug.Log("in min max");
                     moveScore = Minimax(1, true, int.MinValue, int.MaxValue); // Evaluate move
                     Debug.Log("out of min max");
                     RestoreMove2(piece, move, original);
+                    gamesc.positions = temp_positions;
 
                     if (moveScore > bestMoveScore)
                     {
@@ -167,24 +176,25 @@ public class PlayerAI : MonoBehaviour
                 }
             }
         }
-
-        if (bestPlacementScore >= bestMoveScore && bestPieceToPlace != null && gamesc.GetPosition(bestTileToPlace.x, bestTileToPlace.y) == null)
+        Hiveman besthiveman = bestPieceToMove.GetComponent<Hiveman>();
+        if (bestPlacementScore >= bestMoveScore && bestPieceToPlace != null)
         {
             // Place the piece with the best placement score
-            if (onboard)
-                MovePiece(bestPieceToPlace, bestTileToPlace);
-            else
+            if (besthiveman.isOnBoard) MovePiece(bestPieceToPlace, bestTileToPlace);
+            else {
                 MovePiece2(bestPieceToPlace, bestTileToPlace);
+            }
             yield return new WaitForSeconds(3f); // Wait for 1 second
             Debug.Log($"{aiPlayer} placed {bestPieceToPlace.name} at ({bestTileToPlace.x}, {bestTileToPlace.y}).");
         }
         else if (bestPieceToMove != null)
         {
             // Move the piece with the best move score
-            if (onboard)
-                MovePiece(bestPieceToMove, bestMove);
-            else
+            if (besthiveman.isOnBoard) MovePiece(bestPieceToMove, bestMove);
+            else {
                 MovePiece2(bestPieceToMove, bestMove);
+
+            }
 
             yield return new WaitForSeconds(3f); // Wait for 1 second
             Debug.Log($"{aiPlayer} moved {bestPieceToMove.name} to ({bestMove.x}, {bestMove.y}).");
@@ -226,20 +236,7 @@ public class PlayerAI : MonoBehaviour
         return 0; // Default for unrecognized pieces
     }
 
-    private int EvaluatePlacement(GameObject piece, Vector2Int position, string player)
-    {
-        // int hiveConnectivity = EvaluateHiveConnectivity(position);
-        // int opponentProximity = EvaluateOpponentProximity(position, player);
-        // int centralPositioning = EvaluateCentralPositioning(position);
-        // int piecePriority = EvaluatePiecePriority(piece.name);
-        int pieceMobility = EvaluatePieceMobility();
-        // int queenSafty = (gamesc.IsQueenOnBoard(player))?EvaluateQueenSafety(piece, piece.GetComponent<Hiveman>().GetPieceType(piece,player)):0;
-        // int queenReadiness = EvaluateQueenReadiness(player);
 
-        // Weighted sum
-        int score = 5 * pieceMobility;//10*queenSafty+5*pieceMobility;
-        return score;
-    }
 
     private int EvaluateOpponentProximity(Vector2Int position, string player)
     {
@@ -282,7 +279,7 @@ public class PlayerAI : MonoBehaviour
         // Apply weights to calculate the heuristic value
         int heuristicValue = -(mySurrounding) // Weight for mySurrounding
                              + (opponentSurrounding); // Weight for opponentSurrounding
-
+       
         // Make heuristicValue absolute
         if (heuristicValue < 0)
         {
@@ -405,68 +402,59 @@ public int GetSurroundingPiecesCount(string player) //GameObject piece, string p
 
     private void RestoreMove(GameObject piece, Vector2Int target, Vector2Int original)
     {
-
-        var originalPosition = (original.x, original.y);
-        var targetPosition = (target.x, target.y);
-        gamesc.positions[targetPosition].Pop();
-        if (gamesc.positions[targetPosition].Count == 0)
-        {
-            gamesc.positions.Remove(targetPosition);
-        }
-
-        // Restore the piece to its original position
-        if (!gamesc.positions.ContainsKey(originalPosition))
-        {
-            gamesc.positions[originalPosition] = new Stack<GameObject>();
-        }
-        gamesc.positions[originalPosition].Push(piece);
+        Controller = GameObject.FindGameObjectWithTag("GameController");
+        Game gamesc = Controller.GetComponent<Game>();
+        gamesc.SetPositionEmpty(target.x, target.y);
+        Hiveman hivesc = piece.GetComponent<Hiveman>();
+        //set new position of the piece to the clicked position
+        hivesc.SetXBoard(original.x);
+        hivesc.SetYBoard(original.y);
+        hivesc.SetCoords();
+        gamesc.SetPosition(piece);
     }
 
     private void RestoreMove2(GameObject piece, Vector2Int target, Vector2Int original)
     {
-        var targetPosition = (target.x, target.y);
-        Hiveman hiveman = piece.GetComponent<Hiveman>();
-        gamesc.positions[targetPosition].Pop();
-        if (gamesc.positions[targetPosition].Count == 0)
-        {
-            gamesc.positions.Remove(targetPosition);
-        }
-        hiveman.isOnBoard = !hiveman.isOnBoard;
-        hiveman.SetXBoard(original.x);
-        hiveman.SetYBoard(original.y);
+        Controller = GameObject.FindGameObjectWithTag("GameController");
+        Game gamesc = Controller.GetComponent<Game>();
+        Hiveman hivesc = piece.GetComponent<Hiveman>();
+        hivesc.isOnBoard = !hivesc.isOnBoard;
+        //set new position of the piece to the clicked position
+        hivesc.SetXBoard(original.x);
+        hivesc.SetYBoard(original.y);
+        hivesc.SetCoords();
+        gamesc.SetPosition(piece);
     }
     public Vector2Int SimulatePlacement(GameObject piece, Vector2Int position)
     {
         int currentX = piece.GetComponent<Hiveman>().GetXBoard();
         int currentY = piece.GetComponent<Hiveman>().GetYBoard();
-        var currentPosition = (currentX, currentY);
-        var targetPosition = (position.x, position.y);
-        Stack<GameObject> originalStack = gamesc.positions[currentPosition];
-        originalStack.Pop();
-        if (originalStack.Count == 0)
-        {
-            gamesc.positions.Remove(currentPosition);
-        }
-        if (!gamesc.positions.ContainsKey(targetPosition))
-        {
-            gamesc.positions[targetPosition] = new Stack<GameObject>();
-        }
-        gamesc.positions[targetPosition].Push(piece);
+        Controller = GameObject.FindGameObjectWithTag("GameController");
+        Game gamesc = Controller.GetComponent<Game>();
+        gamesc.SetPositionEmpty(currentX, currentY);
+        Hiveman hivesc = piece.GetComponent<Hiveman>();
+        //set new position of the piece to the clicked position
+        hivesc.SetXBoard(position.x);
+        hivesc.SetYBoard(position.y);
+        hivesc.SetCoords();
+        gamesc.SetPosition(piece);
         return new Vector2Int(currentX, currentY);
     }
 
     public Vector2Int SimulatePlacement2(GameObject piece, Vector2Int position)
     {
-        Hiveman hiveman = piece.GetComponent<Hiveman>();
-        hiveman.isOnBoard = !hiveman.isOnBoard;
+
         int currentX = piece.GetComponent<Hiveman>().GetXBoard();
         int currentY = piece.GetComponent<Hiveman>().GetYBoard();
-        var targetPosition = (position.x, position.y);
-        if (!gamesc.positions.ContainsKey(targetPosition))
-        {
-            gamesc.positions[targetPosition] = new Stack<GameObject>();
-        }
-        gamesc.positions[targetPosition].Push(piece);
+        Controller = GameObject.FindGameObjectWithTag("GameController");
+        Game gamesc = Controller.GetComponent<Game>();
+        Hiveman hivesc = piece.GetComponent<Hiveman>();
+        hivesc.isOnBoard = !hivesc.isOnBoard;
+        //set new position of the piece to the clicked position
+        hivesc.SetXBoard(position.x);
+        hivesc.SetYBoard(position.y);
+        hivesc.SetCoords();
+        gamesc.SetPosition(piece);
         return new Vector2Int(currentX, currentY);
     }
 
@@ -478,7 +466,7 @@ public int GetSurroundingPiecesCount(string player) //GameObject piece, string p
         Controller = GameObject.FindGameObjectWithTag("GameController");
         Game gamesc = Controller.GetComponent<Game>();
         Hiveman hivesc = piece.GetComponent<Hiveman>();
-        Debug.Log("{movepiece2");
+        Debug.Log("movepiece2");
 
         if (!hivesc.hiveBreak)
         {
@@ -542,7 +530,7 @@ public int GetSurroundingPiecesCount(string player) //GameObject piece, string p
         Controller = GameObject.FindGameObjectWithTag("GameController");
         Game gamesc = Controller.GetComponent<Game>();
         Hiveman hivesc = piece.GetComponent<Hiveman>();
-        Debug.Log("{movepiece1");
+        Debug.Log("movepiece1");
         if (!hivesc.hiveBreak)
         {
             // Set old position of the piece to be empty
@@ -603,11 +591,6 @@ public int GetSurroundingPiecesCount(string player) //GameObject piece, string p
         }
     }
 
-    private GameState SaveGameState()
-    {
-        return new GameState(gamesc, aiPlayer); // Implement a class to store game state
-    }
-
     private void RestoreGameState(GameState state, GameObject piece)
     {
         Hiveman hiveman = piece.GetComponent<Hiveman>();
@@ -618,15 +601,18 @@ public int GetSurroundingPiecesCount(string player) //GameObject piece, string p
     private int EvaluateGameState()
     {
         // Evaluate using heuristics
-        int mobilityScore = EvaluatePieceMobility(); 
-                            // - EvaluatePieceMobility(gamesc.GetOpponent("b"));
-        Debug.Log($"{mobilityScore} total mobility score");
+        //int mobilityScore = EvaluatePieceMobility(); // - EvaluatePieceMobility(gamesc.GetOpponent("b"));
+        //Debug.Log($"{mobilityScore} total mobility score");
         int queenSafetyScore = EvaluateQueenSafety();
         Debug.Log($"{queenSafetyScore} total queen safety score");
         int opponentQueenSurround = EvaluateOpponentQueenSurround();
-        // Combine heuristics with weights (adjust weights as needed)
-        // return 2 * mobilityScore + 2 * queenSafetyScore;
-        return 2 * opponentQueenSurround + mobilityScore + queenSafetyScore;
+        int score;
+        Controller = GameObject.FindGameObjectWithTag("GameController");
+        Game gamesc = Controller.GetComponent<Game>();
+        if (gamesc.IsQueenOnBoard(gamesc.GetCurrentPlayer())) score = 10 * opponentQueenSurround - queenSafetyScore;//+ mobilityScore;
+        else score = 0;
+        if (score < 0) return -score;
+        else return score;
     }
 
         private int EvaluateOpponentQueenSurround()
@@ -659,18 +645,15 @@ public int GetSurroundingPiecesCount(string player) //GameObject piece, string p
             Hiveman hiveman = piece.GetComponent<Hiveman>();
             if (hiveman == null || !hiveman.isOnBoard) {
                 Debug.Log($"piece mobility {piece.name} piece on board{hiveman.isOnBoard}");
-                continue; // || !hiveman.isOnBoard
+                continue;
             } 
             Debug.Log($"piece mobility {piece.name} piece on board{hiveman.isOnBoard}");
-
             List<Vector2Int> possibleMoves = GetPossibleMoves(hiveman);
             if (possibleMoves.Count == 0)
             {
-                mobilityScore-=EvaluatePiecePriority($"{hiveman.GetName().Substring(2)}");
+                mobilityScore+=EvaluatePiecePriority($"{hiveman.GetName().Substring(2)}");
             }
-            //$"{this.aiPlayer}_hiveman.GetName()"
             Debug.Log($"{EvaluatePiecePriority($"{hiveman.GetName().Substring(2)}")} {hiveman.GetName().Substring(2)}");
-            //mobilityScore += EvaluatePiecePriority($"{hiveman.GetName().Substring(2)}")*possibleMoves.Count;
             Debug.Log($"{mobilityScore} mobility score in evaluation mobility function");
         }
 
@@ -683,11 +666,20 @@ public int GetSurroundingPiecesCount(string player) //GameObject piece, string p
         gamesc = controller.GetComponent<Game>();
         Debug.Log($"Minimax({depth}, {isMaximizing}, {alpha}, {beta})");
         // Base case: terminal condition
-        if (depth == 0 || gamesc.IsGameOver())
-            return Random.Range(0, 10); //return EvaluateGameState(); 
+        if (depth == 0 || gamesc.IsGameOver()) {
+            //return Random.Range(0, 10);
+            int score = EvaluateGameState();
+            Debug.Log($"score minimaz {score}");
+            return score;
+        }
 
-        List<GameObject> pieces = isMaximizing ? GetPlayerPieces() : gamesc.GetOpponentPieces("w");
+        List <GameObject> pieces = isMaximizing ? GetPlayerPieces() : gamesc.GetOpponentPieces("w");
         int bestValue = isMaximizing ? int.MinValue : int.MaxValue;
+
+        bool ant_checked = false;
+        bool grasshopper_checked = false;
+        bool spider_checked = false;
+        bool beetle_checked = false;
 
         foreach (GameObject piece in pieces)
         {
@@ -699,11 +691,11 @@ public int GetSurroundingPiecesCount(string player) //GameObject piece, string p
             {
                 foreach (Vector2Int move in possibleMoves)
                 {
-
+                    Dictionary<(int x, int y), Stack<GameObject>> temp_positions = DeepCopyPositions(gamesc.positions); 
                     Vector2Int original = SimulatePlacement(piece, move); // Simulate the move
                     int eval = Minimax(depth - 1, !isMaximizing, alpha, beta);
                     RestoreMove(piece, move, original);
-
+                    gamesc.positions = temp_positions;
                     if (isMaximizing)
                     {
                         bestValue = Mathf.Max(bestValue, eval);
@@ -720,12 +712,34 @@ public int GetSurroundingPiecesCount(string player) //GameObject piece, string p
             }
             else
             {
+                if (piece.name == "b_ant") {
+                    if (ant_checked) continue;
+                    else ant_checked = true;
+                }
+                if (piece.name == "b_beetle")
+                {
+                    if (beetle_checked) continue;
+                    else beetle_checked = true;
+                }
+                if (piece.name == "b_spider")
+                {
+                    if (spider_checked) continue;
+                    else spider_checked = true;
+                }
+                if (piece.name == "b_grasshopper")
+                {
+                    if (grasshopper_checked) continue;
+                    else grasshopper_checked = true;
+                }
+
+
                 foreach (Vector2Int move in possibleMoves)
                 {
-
+                    Dictionary<(int x, int y), Stack<GameObject>> temp_positions = DeepCopyPositions(gamesc.positions);
                     Vector2Int original = SimulatePlacement2(piece, move); // Simulate the move
                     int eval = Minimax(depth - 1, !isMaximizing, alpha, beta);
                     RestoreMove2(piece, move, original);
+                    gamesc.positions = temp_positions;
 
                     if (isMaximizing)
                     {

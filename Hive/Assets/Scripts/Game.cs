@@ -849,14 +849,11 @@ public class Game : MonoBehaviour
         var targetPosition = (targetX, targetY);
         Debug.Log($"current position{currentX},{currentY}");
         // Temporarily remove the piece from its current position
-        if (positions.ContainsKey(currentPosition))
+        Stack<GameObject> originalStack = positions[currentPosition];
+        originalStack.Pop();
+        if (originalStack.Count == 0)
         {
-            Stack<GameObject> originalStack = positions[currentPosition];
-            originalStack.Pop();
-            if (originalStack.Count == 0)
-            {
-                positions.Remove(currentPosition);
-            }
+            positions.Remove(currentPosition);
         }
 
 

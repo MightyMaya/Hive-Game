@@ -15,9 +15,9 @@ public class GameSettings : MonoBehaviour
     }
     public enum Difficulty
     {
-        Easy = 2, // Shallow depth
-        Medium = 4, // Moderate depth
-        Hard = 6 // Deep search
+        Easy = 1, // Shallow depth
+        Medium = 3, // Moderate depth
+        Hard = 5 // Deep search
     }
 
     public GameMode currentMode;
