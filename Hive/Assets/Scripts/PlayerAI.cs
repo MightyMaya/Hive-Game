@@ -144,7 +144,7 @@ public class PlayerAI : MonoBehaviour
         //if move count reaches 6 forcibly put the queen
         if (gamesc.moveCount > 6 && !gamesc.IsQueenOnBoard(gamesc.GetCurrentPlayer()))
         {
-            GameObject piece = gamesc.GetQueenPiece(gamesc.GetCurrentPlayer());
+            GameObject piece = gamesc.GetUnplacedPiece(gamesc.GetCurrentPlayer(),"queenBee");
             Hiveman hiveman = piece.GetComponent<Hiveman>();
             List<Vector2Int> possibleMoves = GetPossibleMoves(hiveman);
             bestPieceToMove = piece;
